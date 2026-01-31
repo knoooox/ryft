@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYFT | FULL CALENDAR 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #0f0f0f;
+            --accent: #007AFF;
+            --text: #ffffff;
+            --dim: #a0a0a0;
+            --border: #1a1a1a;
+            --intl: #FF9500;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 15px;
+        }
+
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+            margin-bottom: 40px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: clamp(24px, 7vw, 48px);
+            font-weight: 900;
+            margin: 0;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        .sub-header {
+            margin-top: 10px;
+            color: var(--dim);
+            font-size: 14px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin: 40px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: "";
+            height: 1px;
+            background: var(--border);
+            flex-grow: 1;
+        }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            background: #151515;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 11px;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .tag {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .tag-intl { background: rgba(255, 149, 0, 0.1); color: var(--intl); }
+        .tag-fed { background: rgba(0, 122, 255, 0.1); color: var(--accent); }
+        .tag-reg { background: rgba(160, 160, 160, 0.1); color: var(--dim); }
+
+        footer {
+            text-align: center;
+            padding: 60px 0 40px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="kicker">Full Season 2026</div>
+        <h1>ЕДИНЫЙ КАЛЕНДАРЬ</h1>
+        <div class="sub-header">Все старты сезона: от межрегиональных до мировых первенств</div>
+    </header>
+
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>Даты</th>
+                    <th>Событие</th>
+                    <th>Место проведения</th>
+                    <th>Тип</th>
+                </tr>
+            </thead>
+            <tbody>
+		<tr><td>21.01 - 22.01</td><td><a href="https://russwimming.ru/upload/live/ms2026_chelyabinsk/index.html" target="_blank">Межрегиональные соревнования</a></td><td>Челябинск</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>02.02 - 04.02</td><td><a href="https://russwimming.ru/upload/live/ms2026_krasnodar/index.html" target="_blank">Межрегиональные соревнования</a></td><td>Краснодар</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>18.02 - 19.02</td><td>Кубок России. 1-й этап</td><td>Руза</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>21.02 - 22.02</td><td>Кубок России. 2-й этап</td><td>Обнинск</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>13.03 - 15.03</td><td>ВС среди юношей и девушек</td><td>Калининград</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>18.03 - 21.03</td><td>ЧФО и ПФО РФ по плаванию</td><td>Россия</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>03.04 - 05.04</td><td>Межрегиональные соревнования</td><td>Пенза</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>09.04 - 12.04</td><td>ВС «Кубок Александра Попова»</td><td>Челябинск</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>17.04 - 21.04</td><td>Кубок России. Финал</td><td>Россия</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>25.04 - 27.04</td><td>Межрегиональные соревнования</td><td>Новосибирск</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>27.04 - 29.04</td><td>Межрегиональные соревнования</td><td>Южно-Сахалинск</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>27.05 - 31.05</td><td>ВС «Весёлый дельфин»</td><td>Казань</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>06.06 - 11.06</td><td>Чемпионат России по плаванию</td><td>Казань</td><td><span class="tag tag-fed">MAJOR</span></td></tr>
+                <tr><td>20.06 - 23.06</td><td>Первенство России (открытая вода)</td><td>Россия</td><td><span class="tag tag-fed">OW</span></td></tr>
+                <tr><td>25.06 - 29.06</td><td>Чемпионат России (открытая вода)</td><td>Россия</td><td><span class="tag tag-fed">OW</span></td></tr>
+                <tr><td>07.07 - 12.07</td><td>Первенство Европы</td><td>Германия</td><td><span class="tag tag-intl">INTL</span></td></tr>
+                <tr><td>07.07 - 08.07</td><td>ВС на открытой воде «Кубок Тургояка»</td><td>Миасс</td><td><span class="tag tag-fed">OW</span></td></tr>
+                <tr><td>11.07 - 13.07</td><td>Кубок России на открытой воде</td><td>Лопотово</td><td><span class="tag tag-fed">OW</span></td></tr>
+                <tr><td>15.07 - 19.07</td><td>ПР среди юношей и девушек</td><td>Уфа</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>21.07 - 25.07</td><td>ПР среди юниоров и юниорок</td><td>Калуга</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>23.07 - 26.07</td><td>Первенство Европы (открытая вода)</td><td>Будапешт</td><td><span class="tag tag-intl">INTL</span></td></tr>
+                <tr><td>28.07 - 30.07</td><td>XIII летняя Спартакиада учащихся</td><td>Россия</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>15.08 - 15.08</td><td>Спартакиада сильнейших (открытая вода)</td><td>Уфа</td><td><span class="tag tag-fed">OW</span></td></tr>
+                <tr><td>20.08 - 21.08</td><td>Спартакиада сильнейших (плавание)</td><td>Екатеринбург</td><td><span class="tag tag-fed">MAJOR</span></td></tr>
+                <tr><td>03.09 - 06.09</td><td>Первенство мира (открытая вода)</td><td>Аргентина</td><td><span class="tag tag-intl">INTL</span></td></tr>
+                <tr><td>01.10 - 03.10</td><td>Кубок мира по плаванию</td><td>Баку</td><td><span class="tag tag-intl">INTL</span></td></tr>
+                <tr><td>02.10 - 04.10</td><td>Межрегиональные соревнования</td><td>Пенза</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>08.10 - 10.10</td><td>Кубок мира по плаванию</td><td>Узбекистан</td><td><span class="tag tag-intl">INTL</span></td></tr>
+                <tr><td>15.10 - 17.10</td><td>Кубок мира по плаванию</td><td>Астана</td><td><span class="tag tag-intl">INTL</span></td></tr>
+                <tr><td>15.10 - 18.10</td><td>ЧФО и ПФО РФ по плаванию (25 м)</td><td>Россия</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>20.10 - 22.10</td><td>Межрегиональные соревнования</td><td>Краснодар</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>06.11 - 11.11</td><td>Чемпионат России (25 м)</td><td>Санкт-Петербург</td><td><span class="tag tag-fed">MAJOR</span></td></tr>
+                <tr><td>17.11 - 19.11</td><td>Межрегиональные соревнования</td><td>Хабаровск</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>18.11 - 19.11</td><td>Межрегиональные соревнования</td><td>Челябинск</td><td><span class="tag tag-reg">REG</span></td></tr>
+                <tr><td>26.11 - 28.11</td><td>ВС «Юность России»</td><td>Краснодар</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>01.12 - 06.12</td><td>Чемпионат мира (25 м)</td><td>Пекин</td><td><span class="tag tag-intl">INTL</span></td></tr>
+                <tr><td>03.12 - 07.12</td><td>ПР среди юниоров и юниорок (25 м)</td><td>Саранск</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>11.12 - 15.12</td><td>ВС «Кубок Чемпионов»</td><td>Екатеринбург</td><td><span class="tag tag-fed">FED</span></td></tr>
+                <tr><td>19.12 - 20.12</td><td>МС «Кубок Владимира Сальникова»</td><td>Санкт-Петербург</td><td><span class="tag tag-intl">ELITE</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align: center; margin: 80px 0 60px 0;">
+        <a href="https://t.me/ryft_community" style="
+            background: var(--accent); 
+            color: white; 
+            padding: 20px 40px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: 900; 
+            font-size: 15px; 
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 15px 30px rgba(0, 122, 255, 0.25);
+            transition: all 0.3s ease;
+            display: inline-block;
+        ">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer>
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 4px; color: var(--dim); text-transform: uppercase; margin-bottom: 10px;">
+            Swim • Analyze • Conquer
+        </div>
+        <div style="font-size: 14px; font-weight: 900; color: white; letter-spacing: 1px;">
+            RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
