@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYFT | REX MAURER DATA ANALYSIS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #0f0f0f;
+            --accent: #007AFF;
+            --text: #ffffff;
+            --dim: #a0a0a0;
+            --border: #1a1a1a;
+            --success: #32d74b;
+        }
+
+        /* Общие настройки */
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 40px 15px;
+        }
+
+        /* Header */
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+            margin-bottom: 40px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: clamp(28px, 8vw, 56px);
+            font-weight: 900;
+            margin: 0;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        .sub-header {
+            margin-top: 10px;
+            color: var(--dim);
+            font-size: 14px;
+        }
+
+        /* Stats Grid - 4 плашки, адаптивно под 2х2 на мобилках */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 колонки на мобильных */
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr); /* 4 колонки на ПК */
+            }
+        }
+
+        .stat-item {
+            background: var(--card-bg);
+            padding: 20px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .stat-value.highlight { color: var(--accent); }
+
+        /* Секции */
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: "";
+            height: 1px;
+            background: var(--border);
+            flex-grow: 1;
+        }
+
+        /* АДАПТИВНАЯ ТАБЛИЦА */
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 550px;
+        }
+
+        th {
+            background: #151515;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 11px;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .diff-pos { color: var(--success); font-weight: 700; }
+
+        /* Pacing Map */
+        .pacing-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        .pacing-bar {
+            height: 30px;
+            display: flex;
+            gap: 3px;
+            margin: 15px 0;
+        }
+
+        .pacing-segment {
+            flex: 1;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .pacing-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--dim);
+        }
+
+        /* Breakdown Cards */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .breakdown-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .b-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .b-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--accent);
+            font-size: 15px;
+        }
+
+        .b-card p {
+            font-size: 13px;
+            color: var(--dim);
+            margin: 0;
+        }
+
+        /* Кнопка */
+        .cta-box {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 800;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            color: #444;
+            font-size: 11px;
+            padding-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="kicker">Case Study: Rex Maurer</div>
+        <h1>8:37.19</h1>
+        <div class="sub-header">Анализ рекорда бассейна (1000 Yards Free)</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-label">Дата</span>
+            <span class="stat-value">Янв 2026</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Статус</span>
+            <span class="stat-value highlight">7-й в мире</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Темп (100y)</span>
+            <span class="stat-value">51.72</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Результат</span>
+            <span class="stat-value">8:37.19</span>
+        </div>
+    </div>
+
+    <div class="section-title">Сравнение: Технологии</div>
+    
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>Параметр</th>
+                    <th>К. Томпсон (2001)</th>
+                    <th>Р. Маурер (2026)</th>
+                    <th>Разница</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Результат</td>
+                    <td>8:42.10</td>
+                    <td>8:37.19</td>
+                    <td class="diff-pos">-4.91s</td>
+                </tr>
+                <tr>
+                    <td>Подводная фаза</td>
+                    <td>~15%</td>
+                    <td>~38%</td>
+                    <td class="diff-pos">+23%</td>
+                </tr>
+                <tr>
+                    <td>Частота (SR)</td>
+                    <td>42 греб/мин</td>
+                    <td>38 греб/мин</td>
+                    <td class="diff-pos">-4 (DPS ↑)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section-title">Раскладка (Negative Split)</div>
+    <div class="pacing-container">
+        <div class="pacing-label">
+            <span>Старт</span>
+            <span>Лактат</span>
+            <span>Финиш</span>
+        </div>
+        <div class="pacing-bar">
+            <div class="pacing-segment" style="opacity: 0.5;"></div>
+            <div class="pacing-segment" style="opacity: 0.7;"></div>
+            <div class="pacing-segment" style="opacity: 0.85;"></div>
+            <div class="pacing-segment" style="opacity: 1;"></div>
+        </div>
+        <p style="font-size: 12px; color: var(--dim);">
+            <strong>Анализ RYFT:</strong> Ускорение на последней четверти (2:08.8) — признак идеального контроля нейронного утомления.
+        </p>
+    </div>
+
+    <div class="section-title">Факторы успеха</div>
+    <div class="breakdown-grid">
+        <div class="b-card">
+            <h3>DPS (Дистанция за гребок)</h3>
+            <p>Маурер использует больший рычаг, проплывая больше за один цикл. Это снижает ЧСС при той же скорости.</p>
+        </div>
+        <div class="b-card">
+            <h3>Энергия стен</h3>
+            <p>6.5 метров чистого дельфина на каждом выходе. Рекс выигрывал по 0.3 сек на каждом повороте.</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 80px 0 60px 0;">
+        <a href="https://t.me/ryft_community" style="
+            background: var(--accent); 
+            color: white; 
+            padding: 20px 40px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: 900; 
+            font-size: 15px; 
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 15px 30px rgba(0, 122, 255, 0.25);
+            transition: all 0.3s ease;
+            display: inline-block;
+        ">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer style="
+        text-align: center; 
+        padding: 60px 0 40px; 
+        border-top: 1px solid var(--border);
+        margin-top: 40px;
+    ">
+        <div style="
+            font-size: 11px; 
+            font-weight: 700; 
+            letter-spacing: 4px; 
+            color: var(--dim); 
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        ">
+            Swim • Analyze • Conquer
+        </div>
+        <div style="
+            font-size: 14px; 
+            font-weight: 900; 
+            color: white;
+            letter-spacing: 1px;
+        ">
+            RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
