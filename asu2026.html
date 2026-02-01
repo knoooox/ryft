@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYFT | ASU 8x50 YARDS RECORD ANALYSIS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #0f0f0f;
+            --accent: #FF3B30; /* Красный цвет ASU */
+            --text: #ffffff;
+            --dim: #a0a0a0;
+            --border: #1a1a1a;
+            --success: #32d74b;
+            --gold: #FFD700;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 40px 15px;
+        }
+
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+            margin-bottom: 40px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: clamp(28px, 8vw, 56px);
+            font-weight: 900;
+            margin: 0;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        .sub-header {
+            margin-top: 10px;
+            color: var(--dim);
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .stat-item {
+            background: var(--card-bg);
+            padding: 20px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .stat-value.highlight { color: var(--accent); }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: "";
+            height: 1px;
+            background: var(--border);
+            flex-grow: 1;
+        }
+
+        /* ТЕПЛОВАЯ КАРТА ЭТАПОВ */
+        .heatmap-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+
+        .heatmap-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .lane {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .lane-name {
+            width: 120px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lane-bar-bg {
+            flex-grow: 1;
+            height: 12px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .lane-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 6px;
+            transition: width 1s ease-out;
+        }
+
+        .lane-time {
+            width: 50px;
+            font-size: 12px;
+            font-weight: 900;
+            text-align: right;
+        }
+
+        /* Специальный стиль для Харуна */
+        .lane.mvp .lane-bar-fill {
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        .lane.mvp .lane-time { color: var(--gold); }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        th {
+            background: #151515;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 11px;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .breakdown-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .b-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .b-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--accent);
+            font-size: 15px;
+        }
+
+        .b-card p {
+            font-size: 13px;
+            color: var(--dim);
+            margin: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px 0 40px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="kicker">Team Analysis: Arizona State (ASU)</div>
+        <h1>2:29.73</h1>
+        <div class="sub-header">Исторический барьер в эстафете 8х50 Yards Free</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-label">Формат</span>
+            <span class="stat-value">8х50 Free</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Лучший этап</span>
+            <span class="stat-value highlight">18.09</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Средний темп</span>
+            <span class="stat-value">18.71</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Локация</span>
+            <span class="stat-value">ASU, 2026</span>
+        </div>
+    </div>
+
+    <div class="section-title">Визуализация этапов (Relative Speed)</div>
+    <div class="heatmap-container">
+        <div class="heatmap-grid">
+            <div class="lane">
+                <div class="lane-name">P. Sammon</div>
+                <div class="lane-bar-bg"><div class="lane-bar-fill" style="width: 75%;"></div></div>
+                <div class="lane-time">19.48</div>
+            </div>
+            <div class="lane mvp">
+                <div class="lane-name">Ilya Kharun</div>
+                <div class="lane-bar-bg"><div class="lane-bar-fill" style="width: 100%;"></div></div>
+                <div class="lane-time">18.09</div>
+            </div>
+            <div class="lane">
+                <div class="lane-name">Adam Chaney</div>
+                <div class="lane-bar-bg"><div class="lane-bar-fill" style="width: 92%;"></div></div>
+                <div class="lane-time">18.48</div>
+            </div>
+            <div class="lane">
+                <div class="lane-name">Jonny Kulow</div>
+                <div class="lane-bar-bg"><div class="lane-bar-fill" style="width: 89%;"></div></div>
+                <div class="lane-time">18.59</div>
+            </div>
+            <div class="lane">
+                <div class="lane-name">Tommy Palmer</div>
+                <div class="lane-bar-bg"><div class="lane-bar-fill" style="width: 89%;"></div></div>
+                <div class="lane-time">18.59</div>
+            </div>
+            <div class="lane">
+                <div class="lane-name">Remi Fabiani</div>
+                <div class="lane-bar-bg"><div class="lane-bar-fill" style="width: 88%;"></div></div>
+                <div class="lane-time">18.60</div>
+            </div>
+            <div class="lane">
+                <div class="lane-name">Tolu Young</div>
+                <div class="lane-bar-bg"><div class="lane-bar-fill" style="width: 86%;"></div></div>
+                <div class="lane-time">18.74</div>
+            </div>
+            <div class="lane">
+                <div class="lane-name">Quin Seider</div>
+                <div class="lane-bar-bg"><div class="lane-bar-fill" style="width: 81%;"></div></div>
+                <div class="lane-time">19.17</div>
+            </div>
+        </div>
+        <p style="font-size: 11px; color: var(--dim); margin-top: 15px;">
+            *Длина шкалы отражает относительную скорость. Харун (18.09) — эталон скорости 100%.
+        </p>
+    </div>
+
+    <div class="section-title">Аналитика доминирования</div>
+    <div class="breakdown-grid">
+        <div class="b-card">
+            <h3>Фактор Харуна</h3>
+            <p>Сплит 18.09 — это 7.5% преимущества над средним временем по заплыву. Такая разница на 50 ярдах указывает на исключительную эффективность подводной части.</p>
+        </div>
+        <div class="b-card">
+            <h3>Consistency (Стабильность)</h3>
+            <p>Отклонение между 3-м и 7-м этапами составило всего 0.26 сек. В мировой практике такая плотность состава встречается только в национальных сборных топ-3.</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 60px 0;">
+        <a href="https://t.me/ryft_community" style="
+            background: var(--accent); 
+            color: white; 
+            padding: 20px 40px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: 900; 
+            font-size: 15px; 
+            text-transform: uppercase;
+            box-shadow: 0 15px 30px rgba(255, 59, 48, 0.2);
+            transition: transform 0.2s;
+            display: inline-block;
+        ">
+            ОБСУДИТЬ В COMMUNITY
+        </a>
+    </div>
+
+    <footer>
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 4px; color: var(--dim); text-transform: uppercase; margin-bottom: 10px;">
+            Swim • Analyze • Conquer
+        </div>
+        <div style="font-size: 14px; font-weight: 900; color: white; letter-spacing: 1px;">
+            RYFT | DATA UNIT <span style="color: var(--accent);">© 2026</span>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
