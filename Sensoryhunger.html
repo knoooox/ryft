@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYFT | SENSORY HUNGER PROTOCOL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #0f0f0f;
+            --accent: #007AFF;
+            --cyan: #5AC8FA;
+            --text: #ffffff;
+            --dim: #a0a0a0;
+            --border: #1a1a1a;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* HEADER */
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+            margin-bottom: 50px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 2px;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: clamp(32px, 6vw, 56px);
+            font-weight: 900;
+            margin: 0 0 15px 0;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+
+        .intro-text {
+            color: var(--dim);
+            font-size: 16px;
+            max-width: 600px;
+        }
+
+        /* CARD STYLES */
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 25px;
+            background: #151515;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        .card-tag {
+            font-size: 10px;
+            color: var(--accent);
+            background: rgba(0, 122, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            border: 1px solid rgba(0, 122, 255, 0.2);
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        p {
+            margin: 0 0 20px 0;
+            color: #d0d0d0;
+            font-size: 15px;
+        }
+
+        p:last-child { margin-bottom: 0; }
+
+        strong {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* LIST STYLES INSIDE CARDS */
+        ul.ryft-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        ul.ryft-list li {
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 12px;
+            color: var(--dim);
+            font-size: 14px;
+        }
+
+        ul.ryft-list li::before {
+            content: "•";
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* DATA BOX WITHIN TEXT */
+        .stat-row {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #121212;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-val {
+            display: block;
+            font-size: 20px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--dim);
+            letter-spacing: 1px;
+        }
+
+        /* QUOTE STYLE */
+        .quote-box {
+            border-left: 2px solid var(--dim);
+            padding-left: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            color: var(--text);
+        }
+
+        /* BUTTON & FOOTER */
+        .cta-container {
+            text-align: center;
+            margin: 60px 0 40px 0;
+        }
+
+        .cta-btn {
+            background: var(--accent);
+            color: white;
+            padding: 18px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 25px rgba(0, 122, 255, 0.2);
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 122, 255, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 50px 0 30px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 36px; }
+            .card-header { padding: 15px; }
+            .card-body { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="kicker">RYFT Mental Unit • Protocol 07</div>
+        <h1>SENSORY HUNGER</h1>
+        <p class="intro-text">О чем думает пловец 2 часа в день, когда внешний мир перестает существовать?</p>
+    </header>
+
+    <div class="content-card">
+        <div class="card-header">
+            <h2>01 / Цифровой Детокс</h2>
+            <span class="card-tag">CONTEXT</span>
+        </div>
+        <div class="card-body">
+            <p>Мы живем в эпоху перегруженного внимания. Средний человек проверяет смартфон каждые 15 минут. Наш мозг постоянно сканирует пространство на предмет новых уведомлений, звуков и вспышек.</p>
+            <p><strong>Бассейн — это «мертвая зона».</strong></p>
+            <p>Здесь нет Wi-Fi, нет музыки (если вы не используете плеер), нет разговоров. 25-метровая чаша — это единственное место, где вы принудительно отрезаны от цифрового шума на 1.5–2 часа.</p>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <h2>02 / Эффект «Голубой тишины»</h2>
+            <span class="card-tag">NEUROBIOLOGY</span>
+        </div>
+        <div class="card-body">
+            <p>Когда вы опускаете голову в воду, происходит сенсорная депривация. Звуки глушатся на 90%, визуальный ряд ограничивается черной полосой на дне. Это состояние известно как <strong>R.E.S.T. (Restricted Environmental Stimulation Therapy)</strong>.</p>
+            
+            <div class="stat-row">
+                <div class="stat-item">
+                    <span class="stat-val">-20%</span>
+                    <span class="stat-label">Уровень кортизола</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-val">ALPHA</span>
+                    <span class="stat-label">Волны мозга</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-val">100%</span>
+                    <span class="stat-label">Focus Rate</span>
+                </div>
+            </div>
+
+            <p>В этот момент мозг перестает тратить ресурс на обработку внешних стимулов и переключается на внутреннюю диагностику: положение тела, ритм дыхания, гидродинамика.</p>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header">
+            <h2>03 / Монотонность как оружие</h2>
+            <span class="card-tag">FLOW STATE</span>
+        </div>
+        <div class="card-body">
+            <p>Новички боятся скуки. Профессионалы используют её. Монотонный подсчет плитки и цикличные движения вводят сознание в состояние потока.</p>
+            <ul class="ryft-list">
+                <li><strong>Отключение внутреннего критика:</strong> В режиме потока префронтальная кора (отвечающая за сомнения) снижает активность.</li>
+                <li><strong>Нейронная дисциплина:</strong> Умение сохранять фокус на одной задаче в течение 5 км плавания конвертируется в способность концентрироваться на сложных задачах на суше.</li>
+                <li><strong>Медитация в движении:</strong> Это не пассивный отдых, это активная перезагрузка системы.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-card" style="border-color: var(--accent);">
+        <div class="card-header" style="background: rgba(0, 122, 255, 0.05);">
+            <h2>Verdict RYFT</h2>
+            <span class="card-tag" style="background: var(--accent); color: white;">FINAL</span>
+        </div>
+        <div class="card-body">
+            <div class="quote-box">
+                "Сенсорный голод в воде формирует ментальную сытость на суше."
+            </div>
+            <p>Не пытайтесь заполнить эту тишину музыкой или мыслями о работе. Примите сенсорный голод. Используйте эти часы, чтобы «очистить кэш» своего сознания. Выходя из воды, вы становитесь опасным соперником не только физически, но и когнитивно.</p>
+        </div>
+    </div>
+
+<div class="content-card" style="border: 1px dashed var(--dim); background: transparent;">
+        <div class="card-header" style="background: transparent; border-bottom: none; padding-bottom: 0;">
+            <h2 style="color: var(--accent);">RYFT CHALLENGE: SILENCE 60</h2>
+        </div>
+        <div class="card-body" style="padding-top: 10px;">
+            <p style="margin-bottom: 15px;">Попробуй на следующей тренировке:</p>
+            <ul class="ryft-list">
+                <li>Оставь плеер и часы в шкафчике.</li>
+                <li>Плыви 60 минут без остановки в ровном темпе.</li>
+                <li>Твоя задача: слушать только звук пузырьков при выдохе.</li>
+            </ul>
+            <p style="font-size: 12px; color: var(--dim); margin-top: 10px;">*Если станет скучно — значит, твой дофаминовый рецептор очищается.</p>
+        </div>
+    </div>
+
+    <div class="cta-container">
+        <a href="https://t.me/ryft_community" class="cta-btn">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer>
+        <div style="
+            font-size: 11px; 
+            font-weight: 700; 
+            letter-spacing: 4px; 
+            color: var(--dim); 
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        ">
+            Swim • Analyze • Conquer
+        </div>
+        <div style="
+            font-size: 14px; 
+            font-weight: 900; 
+            color: white;
+            letter-spacing: 1px;
+        ">
+            RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
