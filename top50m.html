@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYFT | WORLD RANKINGS 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #0f0f0f;
+            --accent: #007AFF;
+            --cyan: #5AC8FA;
+            --text: #ffffff;
+            --dim: #a0a0a0;
+            --border: #1a1a1a;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 15px;
+        }
+
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+            margin-bottom: 50px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 2px;
+            font-size: 12px;
+        }
+
+        h1 {
+            font-size: clamp(32px, 7vw, 64px);
+            font-weight: 900;
+            margin: 10px 0;
+            letter-spacing: -2px;
+        }
+
+        .rank-section {
+            margin-bottom: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .rank-header {
+            padding: 20px;
+            background: #151515;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rank-header h2 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rank-list { padding: 10px 20px; }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .rank-item:last-child { border-bottom: none; }
+
+        .num {
+            width: 30px;
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--dim);
+            flex-shrink: 0;
+        }
+
+        /* БЛОК ИМЕНИ */
+        .name-box { 
+            width: 180px; 
+            flex-shrink: 0; 
+            margin-right: 10px;
+        }
+
+        /* ИСПРАВЛЕНО ТУТ: Убрал обрезку текста и разрешил перенос */
+        .name {
+            font-weight: 700;
+            font-size: 15px;
+            display: block;
+            line-height: 1.2; /* Чтобы строки не слипались при переносе */
+            /* white-space: nowrap; - УДАЛЕНО */
+            /* overflow: hidden; - УДАЛЕНО */
+            /* text-overflow: ellipsis; - УДАЛЕНО */
+        }
+
+        .country {
+            font-size: 10px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .bar-container {
+            flex-grow: 1; 
+            height: 6px;
+            background: #222;
+            margin: 0 15px;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--cyan) 100%);
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(0, 122, 255, 0.4);
+            transition: width 1s ease;
+        }
+
+        .val {
+            width: 60px;
+            text-align: right;
+            font-weight: 900;
+            font-size: 16px;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+
+        .rank-item.shadow-leader {
+            background: rgba(0, 122, 255, 0.05);
+            margin: 0 -20px;
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .shadow-leader .num { color: var(--accent); }
+        
+        .shadow-leader .bar-fill { 
+            background: #ffffff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 30px var(--accent); 
+        }
+
+        .shadow-tag {
+            font-size: 9px;
+            background: var(--accent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: 900;
+            white-space: nowrap; /* Тег пусть не переносится */
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 11px;
+            color: var(--dim);
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* МОБИЛЬНАЯ ВЕРСИЯ */
+        @media (max-width: 600px) {
+            /* Чуть расширил блок имени для мобилок */
+            .name-box { width: 130px; } 
+            
+            /* Чуть уменьшил шрифт имени, чтобы чаще влезало в одну строку */
+            .name { font-size: 13px; } 
+            
+            .bar-container { margin: 0 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="kicker">World Ranking • Season 2025/26</div>
+        <h1>GLOBAL DATA MONITOR</h1>
+        <p style="color: var(--dim);">Интерактивный анализ мировых лидеров и теневых фаворитов на дистанции 50 метров.</p>
+    </header>
+
+    <div class="rank-section">
+        <div class="rank-header">
+            <h2>50m Freestyle</h2>
+            <span style="font-size: 10px; color: var(--dim);">LC (50M)</span>
+        </div>
+        <div class="rank-list">
+            <div class="rank-item">
+                <span class="num">1</span>
+                <div class="name-box"><span class="name">Cameron McEvoy</span><span class="country">Australia</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 100%;"></div></div>
+                <div class="val">21.38</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">2</span>
+                <div class="name-box"><span class="name">Maxime Grousset</span><span class="country">France</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 75%;"></div></div>
+                <div class="val">21.51</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">3</span>
+                <div class="name-box"><span class="name">Chris Guiliano</span><span class="country">USA</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 65%;"></div></div>
+                <div class="val">21.57</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">4</span>
+                <div class="name-box"><span class="name">Andrej Barna</span><span class="country">Serbia</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 60%;"></div></div>
+                <div class="val">21.58</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">5</span>
+                <div class="name-box"><span class="name">Jack Alexy</span><span class="country">USA</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 40%;"></div></div>
+                <div class="val">21.71</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rank-section">
+        <div class="rank-header">
+            <h2>50m Butterfly</h2>
+            <span style="font-size: 10px; color: var(--dim);">LC (50M)</span>
+        </div>
+        <div class="rank-list">
+            <div class="rank-item">
+                <span class="num">1</span>
+                <div class="name-box"><span class="name">Maxime Grousset</span><span class="country">France</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 100%;"></div></div>
+                <div class="val">22.80</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">2</span>
+                <div class="name-box"><span class="name">Ilya Kharun</span><span class="country">USA / CAN</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 80%;"></div></div>
+                <div class="val">22.98</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">3</span>
+                <div class="name-box"><span class="name">Van Mathias</span><span class="country">USA</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 70%;"></div></div>
+                <div class="val">23.06</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">4</span>
+                <div class="name-box"><span class="name">Kaito Masaki</span><span class="country">Japan</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 68%;"></div></div>
+                <div class="val">23.07</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">5</span>
+                <div class="name-box"><span class="name">Ben Armbruster</span><span class="country">Germany</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 62%;"></div></div>
+                <div class="val">23.10</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rank-section">
+        <div class="rank-header">
+            <h2>50m Backstroke</h2>
+            <span style="font-size: 10px; color: var(--dim);">SHADOW LEADER DETECTED</span>
+        </div>
+        <div class="rank-list">
+            <div class="rank-item shadow-leader">
+                <span class="num">0</span>
+                <div class="name-box">
+                    <span class="name">Kliment Kolesnikov<span class="shadow-tag">SHADOW</span></span>
+                    <span class="country">Russia (Internal Meet)</span>
+                </div>
+                <div class="bar-container"><div class="bar-fill" style="width: 100%;"></div></div>
+                <div class="val">23.82</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">1</span>
+                <div class="name-box"><span class="name">Xu Jiayu</span><span class="country">China</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 60%;"></div></div>
+                <div class="val">24.36</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">2</span>
+                <div class="name-box"><span class="name">Shaine Casas</span><span class="country">USA</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 50%;"></div></div>
+                <div class="val">24.53</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">3</span>
+                <div class="name-box"><span class="name">Henry Allan</span><span class="country">Australia</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 45%;"></div></div>
+                <div class="val">24.65</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">4</span>
+                <div class="name-box"><span class="name">Wang Zicheng</span><span class="country">China</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 38%;"></div></div>
+                <div class="val">24.73</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">5</span>
+                <div class="name-box"><span class="name">Hubert Kos</span><span class="country">Hungary</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 35%;"></div></div>
+                <div class="val">24.74</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rank-section">
+        <div class="rank-header">
+            <h2>50m Breaststroke</h2>
+            <span style="font-size: 10px; color: var(--dim);">LC (50M)</span>
+        </div>
+        <div class="rank-list">
+            <div class="rank-item">
+                <span class="num">1</span>
+                <div class="name-box"><span class="name">Van Mathias</span><span class="country">USA</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 100%;"></div></div>
+                <div class="val">26.57</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">2</span>
+                <div class="name-box"><span class="name">Michael Houlie</span><span class="country">South Africa</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 80%;"></div></div>
+                <div class="val">26.72</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">3</span>
+                <div class="name-box"><span class="name">Qin Haiyang</span><span class="country">China</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 75%;"></div></div>
+                <div class="val">26.75</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">4</span>
+                <div class="name-box"><span class="name">Yan Zibei</span><span class="country">China</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 60%;"></div></div>
+                <div class="val">26.86</div>
+            </div>
+            <div class="rank-item">
+                <span class="num">5</span>
+                <div class="name-box"><span class="name">Zheng Yinghao</span><span class="country">China</span></div>
+                <div class="bar-container"><div class="bar-fill" style="width: 45%;"></div></div>
+                <div class="val">26.97</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 80px 0 60px 0;">
+        <a href="https://t.me/ryft_community" style="
+            background: var(--accent); 
+            color: white; 
+            padding: 20px 40px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: 900; 
+            font-size: 15px; 
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 15px 30px rgba(0, 122, 255, 0.25);
+            transition: all 0.3s ease;
+            display: inline-block;
+        ">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer style="
+        text-align: center; 
+        padding: 60px 0 40px; 
+        border-top: 1px solid var(--border);
+        margin-top: 40px;
+    ">
+        <div style="
+            font-size: 11px; 
+            font-weight: 700; 
+            letter-spacing: 4px; 
+            color: var(--dim); 
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        ">
+            Swim • Analyze • Conquer
+        </div>
+        <div style="
+            font-size: 14px; 
+            font-weight: 900; 
+            color: white;
+            letter-spacing: 1px;
+        ">
+            RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
