@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYFT | TUNISIAN TAKEOVER ANALYSIS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #0f0f0f;
+            --accent: #007AFF;
+            --text: #ffffff;
+            --dim: #a0a0a0;
+            --border: #1a1a1a;
+            --success: #32d74b;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 40px 15px;
+        }
+
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+            margin-bottom: 40px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: clamp(28px, 8vw, 56px);
+            font-weight: 900;
+            margin: 0;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        .sub-header {
+            margin-top: 10px;
+            color: var(--dim);
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .stat-item {
+            background: var(--card-bg);
+            padding: 20px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .stat-value.highlight { color: var(--accent); }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: "";
+            height: 1px;
+            background: var(--border);
+            flex-grow: 1;
+        }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 550px;
+        }
+
+        th {
+            background: #151515;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 11px;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .diff-pos { color: var(--success); font-weight: 700; }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .breakdown-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .b-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .b-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--accent);
+            font-size: 15px;
+        }
+
+        .b-card p {
+            font-size: 13px;
+            color: var(--dim);
+            margin: 0;
+        }
+
+        footer {
+            text-align: center;
+            color: #444;
+            font-size: 11px;
+            padding-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="kicker">Duel Meet Intel: Florida v FSU</div>
+        <h1>TUNISIAN TAKEOVER</h1>
+        <div class="sub-header">Анализ доминирования Жауади и возвращения Хафнауи</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-label">1650 Free</span>
+            <span class="stat-value highlight">14:39.75</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">500 Free</span>
+            <span class="stat-value">4:16.00</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">200 Free</span>
+            <span class="stat-value">1:35.05</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Хафнауи (500)</span>
+            <span class="stat-value">4:23.90</span>
+        </div>
+    </div>
+
+    <div class="section-title">Триплет Жауади (Data Split)</div>
+    
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>Дистанция</th>
+                    <th>Время</th>
+                    <th>Статус</th>
+                    <th>Конкуренция</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1650 Y Free</td>
+                    <td>14:39.75</td>
+                    <td class="diff-pos">Top Season</td>
+                    <td>+20 сек от поля</td>
+                </tr>
+                <tr>
+                    <td>200 Y Free</td>
+                    <td>1:35.05</td>
+                    <td>Season Best</td>
+                    <td>Победа касанием</td>
+                </tr>
+                <tr>
+                    <td><strong>500 Y Free</strong></td>
+                    <td><strong>4:16.00</strong></td>
+                    <td><strong>Elite</strong></td>
+                    <td><strong>Контроль заплыва</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section-title">Анализ факторов (The Ahmed Factor)</div>
+    <div class="breakdown-grid">
+        <div class="b-card">
+            <h3>Психология: Hafnaoui Return</h3>
+            <p>Первое время олимпийского чемпиона после паузы. Сигнал конкурентам о том, что "спящий гигант" начал работу.</p>
+        </div>
+        <div class="b-card">
+            <h3>Физиология: Stamina Grid</h3>
+            <p>Жауади показал феноменальную способность восстанавливаться: 1:35 на 200 ярдов сразу после мили — это уровень топ-3 NCAA.</p>
+        </div>
+        <div class="b-card">
+            <h3>Тактика: Группа Энтони Нести</h3>
+            <p>Флорида выстраивает конвейер стайеров. Хафнауи и Жауади будут "разгонять" друг друга до исторических скоростей.</p>
+        </div>
+        <div class="b-card">
+            <h3>Прогноз: NCAA Finals</h3>
+            <p>Ожидаем штурм рекорда Хафнауи на 500 ярдов и Жауади на 1650. Гейнсвилл заберет все стайерские очки.</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 80px 0 60px 0;">
+        <a href="https://t.me/ryft_community" style="
+            background: var(--accent); 
+            color: white; 
+            padding: 20px 40px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: 900; 
+            font-size: 15px; 
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 15px 30px rgba(0, 122, 255, 0.25);
+            transition: all 0.3s ease;
+            display: inline-block;
+        ">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer style="
+        text-align: center; 
+        padding: 60px 0 40px; 
+        border-top: 1px solid var(--border);
+        margin-top: 40px;
+    ">
+        <div style="
+            font-size: 11px; 
+            font-weight: 700; 
+            letter-spacing: 4px; 
+            color: var(--dim); 
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        ">
+            Swim • Analyze • Conquer
+        </div>
+        <div style="
+            font-size: 14px; 
+            font-weight: 900; 
+            color: white;
+            letter-spacing: 1px;
+        ">
+            RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
