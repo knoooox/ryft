@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYFT | LUCY BELL DATA ANALYSIS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #0f0f0f;
+            --accent: #007AFF;
+            --text: #ffffff;
+            --dim: #a0a0a0;
+            --border: #1a1a1a;
+            --success: #32d74b;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 40px 15px;
+        }
+
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+            margin-bottom: 40px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: clamp(28px, 8vw, 56px);
+            font-weight: 900;
+            margin: 0;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        .sub-header {
+            margin-top: 10px;
+            color: var(--dim);
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .stat-item {
+            background: var(--card-bg);
+            padding: 20px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 5px;
+        }
+
+        .stat-value { font-size: 18px; font-weight: 900; }
+        .stat-value.highlight { color: var(--accent); }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: "";
+            height: 1px;
+            background: var(--border);
+            flex-grow: 1;
+        }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 550px; }
+        th { background: #151515; padding: 12px 15px; text-align: left; font-size: 11px; color: var(--dim); text-transform: uppercase; }
+        td { padding: 12px 15px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .diff-pos { color: var(--success); font-weight: 700; }
+
+        .pacing-container {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        .pacing-bar {
+            height: 30px;
+            display: flex;
+            gap: 3px;
+            margin: 15px 0;
+        }
+
+        .pacing-segment { flex: 1; background: var(--accent); border-radius: 2px; }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .breakdown-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .b-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .b-card h3 { margin: 0 0 10px 0; color: var(--accent); font-size: 15px; }
+        .b-card p { font-size: 13px; color: var(--dim); margin: 0; }
+
+        footer { text-align: center; color: #444; font-size: 11px; padding-bottom: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="kicker">Case Study: Lucy Bell</div>
+        <h1>2:03.72</h1>
+        <div class="sub-header">Анализ 8-го результата в истории (200Y Breast)</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-label">Дата</span>
+            <span class="stat-value">Янв 2026</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Статус</span>
+            <span class="stat-value highlight">#8 All-Time</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Финиш (50y)</span>
+            <span class="stat-value">31.59</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Личный Drop</span>
+            <span class="stat-value">-9.20s</span>
+        </div>
+    </div>
+
+    <div class="section-title">Сплиты: Прогресс тактики</div>
+    
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>Отрезок (YDS)</th>
+                    <th>NCAA 2025 (Final)</th>
+                    <th>Dual Meet (2026)</th>
+                    <th>Разница</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>50 YDS</td>
+                    <td>28.56</td>
+                    <td>28.85</td>
+                    <td>+0.29s (Control)</td>
+                </tr>
+                <tr>
+                    <td>100 YDS</td>
+                    <td>59.99</td>
+                    <td>1:00.60</td>
+                    <td>+0.61s</td>
+                </tr>
+                <tr>
+                    <td>150 YDS</td>
+                    <td>1:32.13</td>
+                    <td>1:32.13</td>
+                    <td class="diff-pos">0.00s</td>
+                </tr>
+                <tr>
+                    <td>200 YDS</td>
+                    <td>2:04.28</td>
+                    <td>2:03.72</td>
+                    <td class="diff-pos">-0.56s</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section-title">Pacing Strategy: Back-Half Surge</div>
+    <div class="pacing-container">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--dim);">
+            <span>Start (28.8)</span>
+            <span>Mid (31.7)</span>
+            <span>Finish (31.5)</span>
+        </div>
+        <div class="pacing-bar">
+            <div class="pacing-segment" style="opacity: 0.4;"></div>
+            <div class="pacing-segment" style="opacity: 0.6;"></div>
+            <div class="pacing-segment" style="opacity: 0.8;"></div>
+            <div class="pacing-segment" style="opacity: 1; box-shadow: 0 0 15px var(--accent);"></div>
+        </div>
+        <p style="font-size: 12px; color: var(--dim); margin-top: 10px;">
+            <strong>Анализ RYFT:</strong> Белл показала ускорение на второй половине дистанции. Финиш за 31.59 — это индикатор избыточной аэробной мощности.
+        </p>
+    </div>
+
+    <div class="section-title">Ключевые факторы</div>
+    <div class="breakdown-grid">
+        <div class="b-card">
+            <h3>Lactate Management</h3>
+            <p>Способность сохранять технику гребка при пиковых значениях лактата на последних 25 ярдах.</p>
+        </div>
+        <div class="b-card">
+            <h3>NCAA Event Order</h3>
+            <p>Новое расписание позволяет Белл восстанавливаться между 400 IM и 200 Breast, что повышает шансы на рекорды.</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 60px 0;">
+        <a href="https://t.me/ryft_community" style="
+            background: var(--accent); 
+            color: white; 
+            padding: 20px 40px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: 900; 
+            font-size: 15px; 
+            text-transform: uppercase;
+            box-shadow: 0 15px 30px rgba(0, 122, 255, 0.25);
+            display: inline-block;
+        ">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer>
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 4px; color: var(--dim); text-transform: uppercase; margin-bottom: 10px;">
+            Swim • Analyze • Conquer
+        </div>
+        <div style="font-size: 14px; font-weight: 900; color: white;">
+            RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
