@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>RYFT | GORBENKO DATA CORE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL VARIABLES (WHITE PROTOCOL v5.2) --- */
+        :root {
+            --bg-page: #ffffff;
+            --bg-surface: #F5F5F7;
+            --bg-surface-hover: #EBEBF0;
+            --accent: #007AFF;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border: #d2d2d7;
+            --success: #34c759;
+            --radius-m: 16px;
+            --radius-l: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* --- BASE & ANIMATIONS --- */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0; padding: 0;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-load { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 30px;
+            margin-bottom: 60px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 4px;
+            font-size: 11px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: clamp(42px, 12vw, 92px);
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: -0.06em;
+            line-height: 0.85;
+            text-transform: uppercase;
+        }
+
+        .sub-header {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 18px;
+            max-width: 600px;
+            font-weight: 400;
+        }
+
+        /* --- STATS GRID --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 60px;
+        }
+        @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .stat-card {
+            background: var(--bg-surface);
+            padding: 25px 15px;
+            border-radius: var(--radius-m);
+            text-align: center;
+            transition: background 0.3s;
+        }
+        .stat-card:hover { background: var(--bg-surface-hover); }
+
+        .stat-val { display: block; font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+        .stat-lbl { display: block; font-size: 10px; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; letter-spacing: 1px; }
+
+        /* --- INSIGHT BOX --- */
+        .insight-box {
+            background: #fff;
+            border-left: 4px solid var(--accent);
+            padding: 30px;
+            margin-bottom: 60px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+            border-radius: 0 var(--radius-m) var(--radius-m) 0;
+        }
+        .insight-text { font-size: 17px; font-weight: 600; line-height: 1.6; }
+
+        /* --- METRICS / PROGRESS --- */
+        .metrics-section { margin-bottom: 60px; }
+        .metric-item { margin-bottom: 25px; }
+        .metric-info { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; font-weight: 800; text-transform: uppercase; color: var(--text-secondary); }
+        .metric-track { height: 8px; background: var(--bg-surface); border-radius: 4px; overflow: hidden; }
+        .metric-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+        .bg-success { background: var(--success); }
+
+        /* --- IMPACT GRID --- */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+        @media (min-width: 600px) { .impact-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .impact-card {
+            background: var(--bg-surface);
+            padding: 30px;
+            border-radius: var(--radius-l);
+            transition: 0.3s;
+            border: 1px solid transparent;
+        }
+        .impact-card:hover { border-color: var(--border); background: var(--bg-page); }
+        
+        .tag {
+            display: inline-block;
+            background: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            color: var(--accent);
+        }
+
+        .impact-card h3 { font-size: 16px; font-weight: 800; margin: 0 0 12px 0; letter-spacing: -0.5px; }
+        .impact-card p { font-size: 14px; color: var(--text-secondary); margin: 0; }
+
+        /* --- CTA & FOOTER --- */
+        .cta-section { text-align: center; margin: 80px 0; }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--text-primary);
+            color: white;
+            padding: 22px 50px;
+            border-radius: var(--radius-pill);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .cta-btn:hover {
+            transform: scale(1.03);
+            background: var(--accent);
+            box-shadow: 0 15px 35px rgba(0, 122, 255, 0.25);
+        }
+
+        footer { text-align: center; padding: 60px 0 30px; border-top: 1px solid var(--border); }
+        .footer-logo { font-size: 14px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px; }
+        .footer-sub { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 4px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <header class="animate-load">
+        <span class="kicker">Scouting Analysis: Louisville vs Cincy</span>
+        <h1>HYBRID<br>IMPACT</h1>
+        <div class="sub-header">Детальный разбор дебюта Анастасии Горбенко. Архитектура универсальности в условиях NCAA.</div>
+    </header>
+
+    <div class="stats-grid animate-load delay-1">
+        <div class="stat-card">
+            <span class="stat-val">1:43.27</span>
+            <span class="stat-lbl">200 FR (Debut)</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val" style="color: var(--accent);">TOP-20</span>
+            <span class="stat-lbl">NCAA Rank</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val">1:52.53</span>
+            <span class="stat-lbl">200 BK (Debut)</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val">3 Wins</span>
+            <span class="stat-lbl">Single Meet</span>
+        </div>
+    </div>
+
+    <div class="insight-box animate-load delay-2">
+        <div class="insight-text">Горбенко — «швейцарский нож» Louisville. За один старт она закрыла дефицит очков в двух разных стилях, показав элитную эффективность без тейпера.</div>
+    </div>
+
+    <div class="metrics-section animate-load delay-3">
+        <div class="metric-item">
+            <div class="metric-info"><span>Adaptation Velocity (Скорость адаптации)</span><span>95%</span></div>
+            <div class="metric-track"><div class="metric-fill" style="width: 95%;"></div></div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-info"><span>Underwater Efficiency (Подводная часть)</span><span>88%</span></div>
+            <div class="metric-track"><div class="metric-fill" style="width: 88%;"></div></div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-info"><span>Multi-Event Recovery (Восстановление)</span><span>92%</span></div>
+            <div class="metric-track"><div class="metric-fill bg-success" style="width: 92%;"></div></div>
+        </div>
+    </div>
+
+    <div class="impact-grid animate-load delay-4">
+        <div class="impact-card">
+            <span class="tag">Strategy</span>
+            <h3>NCAA Meta-Shift</h3>
+            <p>Приход Горбенко меняет баланс сил в ACC. Она способна выбивать лидеров Virginia и NC State на дистанциях 200 IM и 200 BK одновременно.</p>
+        </div>
+        <div class="impact-card">
+            <span class="tag">Depth</span>
+            <h3>Sprint Core</h3>
+            <p>Юлия Деннис (21.82) удерживает #3 место в США. Спринтерское ядро Louisville сейчас самое стабильное в конференции.</p>
+        </div>
+        <div class="impact-card">
+            <span class="tag">Tactics</span>
+            <h3>Tactical Flex</h3>
+            <p>Тренерский штаб может использовать Анастасию как в кролевых, так и в комбинированных эстафетах, создавая «неудобные» составы.</p>
+        </div>
+        <div class="impact-card">
+            <span class="tag">Mental</span>
+            <h3>Aggression Signal</h3>
+            <p>Разгромный счет 235-64 у мужчин — это психологический триггер для соперников: Louisville находится на пике агрессии.</p>
+        </div>
+    </div>
+
+    <div class="cta-section animate-load delay-4">
+        <a href="https://t.me/ryft_community" class="cta-btn">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer class="animate-load delay-4">
+        <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
+        <div class="footer-sub">Swim • Analyze • Conquer</div>
+    </footer>
+
+</div>
+
+</body>
+</html>
