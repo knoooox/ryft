@@ -2,70 +2,95 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>RYFT | TOP 100 INTEL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
+        /* --- GLOBAL VARIABLES --- */
         :root {
-            --bg: #050505;
-            --card-bg: #121212;
+            --bg-page: #ffffff;
+            --bg-surface: #F5F5F7;
+            --bg-surface-hover: #EBEBF0;
             --accent: #007AFF;
-            --text: #ffffff;
-            --dim: #86868b;
-            --border: #1c1c1e;
-            --rank-bg: #1a1a1a;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border: #d2d2d7;
+            --radius-m: 16px;
+            --radius-l: 24px;
+            --radius-pill: 999px;
         }
 
+        /* --- RESET & ANIMATION --- */
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', -apple-system, sans-serif;
-            margin: 0;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 0;
             line-height: 1.4;
         }
 
-        .container {
-            width: 100%;
-            max-width: 850px;
-            margin: 0 auto;
-            padding: 60px 24px;
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* HEADER */
+        .animate-load { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        .container { width: 100%; max-width: 850px; margin: 0 auto; padding: 60px 24px; }
+
+        /* --- HEADER --- */
         header {
             border-left: 4px solid var(--accent);
             padding-left: 24px;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
 
         .kicker {
             color: var(--accent);
             text-transform: uppercase;
             font-weight: 800;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             font-size: 11px;
-            margin-bottom: 10px;
             display: block;
+            margin-bottom: 8px;
         }
 
         h1 {
-            font-size: clamp(34px, 10vw, 58px);
+            font-size: clamp(38px, 9vw, 68px);
             font-weight: 900;
             margin: 0;
-            line-height: 0.95;
-            letter-spacing: -2px;
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+            text-transform: uppercase;
         }
 
         .sub-header {
-            margin-top: 15px;
-            color: var(--dim);
-            font-size: 15px;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 16px;
             max-width: 600px;
+            font-weight: 400;
         }
 
-        /* PROFILER GRID (Новая структура) */
+        /* --- PROFILER GRID --- */
+        .section-title {
+            font-size: 14px;
+            font-weight: 900;
+            margin: 60px 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+        }
+        .section-title::after { content: ""; height: 1px; background: var(--border); flex-grow: 1; }
+
         .grid-container {
             display: grid;
             grid-template-columns: 1fr;
@@ -78,34 +103,33 @@
         }
 
         .profile-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 24px;
+            background: var(--bg-surface);
+            border: 1px solid transparent;
+            border-radius: var(--radius-l);
+            padding: 28px;
             position: relative;
             overflow: hidden;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
         }
         
-        /* Акцент для карточек */
-        .profile-card:hover { border-color: var(--accent); }
+        .profile-card:hover { border-color: var(--accent); background: #fff; transform: translateY(-2px); }
 
         .rank-badge {
             position: absolute;
             top: 20px;
             right: 20px;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 900;
-            color: #2a2a2a;
+            color: var(--border);
             letter-spacing: -2px;
-            z-index: 0;
+            opacity: 0.5;
         }
 
         .profile-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             position: relative;
             z-index: 1;
         }
@@ -113,106 +137,100 @@
         .flag-code {
             font-size: 10px;
             font-weight: 800;
-            background: var(--accent);
+            background: var(--text-primary);
             color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
             text-transform: uppercase;
         }
 
         .swimmer-name {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 800;
-            color: #fff;
+            color: var(--text-primary);
             margin: 0;
+            letter-spacing: -0.5px;
         }
 
         .stat-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 13px;
-            border-bottom: 1px solid #1f1f1f;
-            padding-bottom: 4px;
-            position: relative;
-            z-index: 1;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
         }
 
-        .stat-label { color: var(--dim); }
-        .stat-data { font-weight: 700; color: #fff; }
+        .stat-label { color: var(--text-secondary); font-weight: 500; }
+        .stat-data { font-weight: 700; color: var(--text-primary); }
         .stat-data.highlight { color: var(--accent); }
 
         .ryft-note {
-            margin-top: 12px;
-            font-size: 12px;
-            color: #999;
+            margin-top: 15px;
+            font-size: 13px;
+            color: var(--text-secondary);
             font-style: italic;
-            line-height: 1.4;
-            position: relative;
-            z-index: 1;
+            line-height: 1.5;
         }
 
-        /* SECTION TITLE */
-        .section-title {
-            font-size: 15px;
-            font-weight: 900;
-            margin: 60px 0 24px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #fff;
-        }
-        .section-title::after { content: ""; height: 1px; background: var(--border); flex-grow: 1; }
-
-        /* ANALYTICS BAR (Radar Tech) */
+        /* --- METRICS / MOMENTUM --- */
         .bar-container {
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            padding: 30px;
+            border-radius: var(--radius-l);
             margin-bottom: 20px;
         }
         .bar-row {
             display: flex;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
-        .bar-label { width: 100px; font-size: 11px; font-weight: 700; color: var(--dim); }
-        .bar-track { flex-grow: 1; height: 6px; background: #222; border-radius: 10px; position: relative; }
+        .bar-label { width: 120px; font-size: 12px; font-weight: 700; color: var(--text-primary); }
+        .bar-track { flex-grow: 1; height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; }
         .bar-fill { height: 100%; border-radius: 10px; background: var(--accent); }
-        .bar-val { width: 40px; text-align: right; font-size: 11px; font-weight: 900; color: #fff; }
+        .bar-val { width: 45px; text-align: right; font-size: 12px; font-weight: 900; color: var(--text-primary); }
 
-        /* FOOTER & CTA */
-        .cta-center { text-align: center; margin: 80px 0 60px; }
-        .btn-ryft {
-            background: var(--accent); color: #fff; padding: 22px 48px; border-radius: 100px; 
-            text-decoration: none; font-weight: 900; font-size: 15px; letter-spacing: 1px; 
-            text-transform: uppercase; box-shadow: 0 15px 35px rgba(0, 122, 255, 0.35); 
-            display: inline-block; transition: transform 0.2s ease;
+        /* --- FOOTER --- */
+        .cta-section { text-align: center; margin: 80px 0; }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center; justify-content: center;
+            background: var(--text-primary);
+            color: white;
+            padding: 22px 50px;
+            border-radius: var(--radius-pill);
+            text-decoration: none;
+            font-weight: 700; font-size: 14px;
+            letter-spacing: 1px; text-transform: uppercase;
+            transition: 0.3s ease;
         }
-        footer { text-align: center; padding: 60px 0 40px; border-top: 1px solid var(--border); margin-top: 60px; }
-        .f-top { font-size: 11px; font-weight: 800; letter-spacing: 5px; color: var(--dim); text-transform: uppercase; margin-bottom: 12px; }
-        .f-logo { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+        .cta-btn:hover { background: var(--accent); transform: scale(1.02); box-shadow: 0 15px 30px rgba(0, 122, 255, 0.2); }
+
+        footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); }
+        .footer-logo { font-size: 15px; font-weight: 900; letter-spacing: 1px; color: var(--text-primary); }
+        .footer-sub { margin-top: 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 4px; font-weight: 700; }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
+    <header class="animate-load">
         <span class="kicker">Global Scouting Report</span>
-        <h1>TOP 100: THE SHIFT</h1>
+        <h1>TOP 100:<br>THE SHIFT</h1>
         <div class="sub-header">Анализ группы #50-41. Зона пересечения олимпийских ветеранов и новых лидеров поколения 2026.</div>
     </header>
 
-    <div class="section-title">Profiler Grid (#50 - #41)</div>
+    <div class="section-title animate-load delay-1">Profiler Grid (#50 - #41)</div>
     
-    <div class="grid-container">
+    <div class="grid-container animate-load delay-2">
         
         <div class="profile-card">
             <span class="rank-badge">#50</span>
-            <div class="profile-header"><span class="flag-code">USA</span><h3 class="swimmer-name">Simone Manuel</h3></div>
+            <div class="profile-header">
+                <span class="flag-code">USA</span>
+                <h3 class="swimmer-name">Simone Manuel</h3>
+            </div>
             <div class="stat-row"><span class="stat-label">Event</span><span class="stat-data">50/100 Free</span></div>
             <div class="stat-row"><span class="stat-label">Trend</span><span class="stat-data highlight">Resurgence</span></div>
             <div class="ryft-note">Вернулась в элиту. Сплит 52.67 в эстафете — это сигнал всем соперникам.</div>
@@ -220,7 +238,10 @@
 
         <div class="profile-card">
             <span class="rank-badge">#49</span>
-            <div class="profile-header"><span class="flag-code">POL</span><h3 class="swimmer-name">Kasia Wasick</h3></div>
+            <div class="profile-header">
+                <span class="flag-code">POL</span>
+                <h3 class="swimmer-name">Kasia Wasick</h3>
+            </div>
             <div class="stat-row"><span class="stat-label">Age</span><span class="stat-data">34 Years</span></div>
             <div class="stat-row"><span class="stat-label">Focus</span><span class="stat-data">SC Speed</span></div>
             <div class="ryft-note">Золото SC Euros в 33 года. Королева короткой воды, но хватит ли сил на лонг-корс?</div>
@@ -228,7 +249,10 @@
 
         <div class="profile-card">
             <span class="rank-badge">#48</span>
-            <div class="profile-header"><span class="flag-code">ITA</span><h3 class="swimmer-name">Benedetta Pilato</h3></div>
+            <div class="profile-header">
+                <span class="flag-code">ITA</span>
+                <h3 class="swimmer-name">Benedetta Pilato</h3>
+            </div>
             <div class="stat-row"><span class="stat-label">Status</span><span class="stat-data highlight">Volatile</span></div>
             <div class="stat-row"><span class="stat-label">Key</span><span class="stat-data">50 Breast</span></div>
             <div class="ryft-note">Бронза ЧМ, но результаты 100м просели (1:05.4). Нужен ресет.</div>
@@ -236,7 +260,10 @@
 
         <div class="profile-card">
             <span class="rank-badge">#47</span>
-            <div class="profile-header"><span class="flag-code">IRL</span><h3 class="swimmer-name">Ellen Walshe</h3></div>
+            <div class="profile-header">
+                <span class="flag-code">IRL</span>
+                <h3 class="swimmer-name">Ellen Walshe</h3>
+            </div>
             <div class="stat-row"><span class="stat-label">Type</span><span class="stat-data">Versatile IM</span></div>
             <div class="stat-row"><span class="stat-label">Record</span><span class="stat-data">Irish Natl</span></div>
             <div class="ryft-note">Универсал: 400 IM, 100 Fly и 200 Free. Опасна на Евро-2026.</div>
@@ -244,51 +271,53 @@
 
         <div class="profile-card">
             <span class="rank-badge">#46</span>
-            <div class="profile-header"><span class="flag-code">NED</span><h3 class="swimmer-name">Tes Schouten</h3></div>
+            <div class="profile-header">
+                <span class="flag-code">NED</span>
+                <h3 class="swimmer-name">Tes Schouten</h3>
+            </div>
             <div class="stat-row"><span class="stat-label">Change</span><span class="stat-data highlight">New Coach</span></div>
             <div class="ryft-note">Переход к Марку Фаберу. Попытка вернуться на 2:19 в брассе.</div>
         </div>
 
         <div class="profile-card">
             <span class="rank-badge">#45</span>
-            <div class="profile-header"><span class="flag-code">NED</span><h3 class="swimmer-name">Milou van Wijk</h3></div>
+            <div class="profile-header">
+                <span class="flag-code">NED</span>
+                <h3 class="swimmer-name">Milou van Wijk</h3>
+            </div>
             <div class="stat-row"><span class="stat-label">Breakout</span><span class="stat-data">52.91 (100F)</span></div>
             <div class="ryft-note">Впервые вышла из 53 сек. Взрывная динамика роста.</div>
         </div>
 
-        <div class="profile-card" style="border-color: var(--accent);"> <span class="rank-badge" style="color: #333;">#44</span>
-            <div class="profile-header"><span class="flag-code" style="background: #fff; color: #000;">RUS</span><h3 class="swimmer-name">Daria Klepikova</h3></div>
+        <div class="profile-card" style="border-color: var(--accent); background: #fff;">
+            <span class="rank-badge" style="color: var(--accent); opacity: 0.2;">#44</span>
+            <div class="profile-header">
+                <span class="flag-code" style="background: var(--accent);">RUS</span>
+                <h3 class="swimmer-name">Daria Klepikova</h3>
+            </div>
             <div class="stat-row"><span class="stat-label">100 Free</span><span class="stat-data highlight">52.98</span></div>
             <div class="stat-row"><span class="stat-label">100 Fly</span><span class="stat-data highlight">56.42</span></div>
-            <div class="ryft-note" style="color: #fff;"><strong>RYFT CHOICE:</strong> Элита. Скрытая угроза для всего мира. Результаты уровня финала ОИ без международной практики.</div>
+            <div class="ryft-note" style="color: var(--text-primary); font-weight: 500;">
+                <strong>RYFT CHOICE:</strong> Элита. Результаты уровня финала ОИ без международной практики. Скрытая угроза.
+            </div>
         </div>
 
         <div class="profile-card">
             <span class="rank-badge">#43</span>
-            <div class="profile-header"><span class="flag-code">ITA</span><h3 class="swimmer-name">Sara Curtis</h3></div>
+            <div class="profile-header">
+                <span class="flag-code">ITA</span>
+                <h3 class="swimmer-name">Sara Curtis</h3>
+            </div>
             <div class="stat-row"><span class="stat-label">Base</span><span class="stat-data">UVA (USA)</span></div>
             <div class="stat-row"><span class="stat-label">SCM 100</span><span class="stat-data highlight">51.26</span></div>
             <div class="ryft-note">Тренировки в Вирджинии дали взрывной эффект. Будущая суперзвезда.</div>
         </div>
 
-        <div class="profile-card">
-            <span class="rank-badge">#42</span>
-            <div class="profile-header"><span class="flag-code">CHN</span><h3 class="swimmer-name">Yu Yiting</h3></div>
-            <div class="stat-row"><span class="stat-label">Event</span><span class="stat-data">200 IM</span></div>
-            <div class="ryft-note">Домашние результаты (2:08.3) сильны, но на ЧМ не может их повторить.</div>
-        </div>
-
-        <div class="profile-card">
-            <span class="rank-badge">#41</span>
-            <div class="profile-header"><span class="flag-code">USA</span><h3 class="swimmer-name">Leah Shackley</h3></div>
-            <div class="stat-row"><span class="stat-label">Event</span><span class="stat-data">Backstroke</span></div>
-            <div class="ryft-note">Доминирование на WUGs. Главная проблема — высокая конкуренция в сборной США.</div>
-        </div>
-
     </div>
 
-    <div class="section-title">RYFT Analysis: Momentum</div>
-    <div class="bar-container">
+    <div class="section-title animate-load delay-3">RYFT Analysis: Momentum</div>
+    
+    <div class="bar-container animate-load delay-4">
         <div class="bar-row">
             <span class="bar-label">Sara Curtis</span>
             <div class="bar-track"><div class="bar-fill" style="width: 95%;"></div></div>
@@ -301,59 +330,25 @@
         </div>
         <div class="bar-row">
             <span class="bar-label">Simone Manuel</span>
-            <div class="bar-track"><div class="bar-fill" style="width: 75%; background: #555;"></div></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 75%; background: var(--text-secondary);"></div></div>
             <span class="bar-val">7.5</span>
         </div>
         <div class="bar-row">
             <span class="bar-label">B. Pilato</span>
-            <div class="bar-track"><div class="bar-fill" style="width: 60%; background: #333;"></div></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 60%; background: var(--border);"></div></div>
             <span class="bar-val">6.0</span>
         </div>
     </div>
 
-    <div style="text-align: center; margin: 80px 0 60px 0;">
-        <a href="https://t.me/ryft_community" style="
-            background: var(--accent); 
-            color: white; 
-            padding: 20px 40px; 
-            border-radius: 50px; 
-            text-decoration: none; 
-            font-weight: 900; 
-            font-size: 15px; 
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            box-shadow: 0 15px 30px rgba(0, 122, 255, 0.25);
-            transition: all 0.3s ease;
-            display: inline-block;
-        ">
+    <div class="cta-section animate-load delay-4">
+        <a href="https://t.me/ryft_community" class="cta-btn">
             ОБСУДИТЬ В RYFT | COMMUNITY
         </a>
     </div>
 
-    <footer style="
-        text-align: center; 
-        padding: 60px 0 40px; 
-        border-top: 1px solid var(--border);
-        margin-top: 40px;
-    ">
-        <div style="
-            font-size: 11px; 
-            font-weight: 700; 
-            letter-spacing: 4px; 
-            color: var(--dim); 
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        ">
-            Swim • Analyze • Conquer
-        </div>
-        <div style="
-            font-size: 14px; 
-            font-weight: 900; 
-            color: white;
-            letter-spacing: 1px;
-        ">
-            RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span>
-        </div>
+    <footer class="animate-load delay-4">
+        <div class="footer-sub">Swim • Analyze • Conquer</div>
+        <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
     </footer>
 </div>
 
