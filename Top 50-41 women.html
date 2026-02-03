@@ -6,15 +6,15 @@
     <title>RYFT | TOP 100 INTEL</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        /* --- GLOBAL VARIABLES --- */
+        /* --- GLOBAL VARIABLES (WHITE PROTOCOL v5.2) --- */
         :root {
             --bg-page: #ffffff;
             --bg-surface: #F5F5F7;
             --bg-surface-hover: #EBEBF0;
             --accent: #007AFF;
-            --text-primary: #1d1d1f;
-            --text-secondary: #86868b;
-            --border: #d2d2d7;
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --border: #D2D2D7;
             --radius-m: 16px;
             --radius-l: 24px;
             --radius-pill: 999px;
@@ -77,7 +77,7 @@
             font-weight: 400;
         }
 
-        /* --- PROFILER GRID --- */
+        /* --- SECTION TITLES --- */
         .section-title {
             font-size: 14px;
             font-weight: 900;
@@ -91,6 +91,7 @@
         }
         .section-title::after { content: ""; height: 1px; background: var(--border); flex-grow: 1; }
 
+        /* --- PROFILER GRID --- */
         .grid-container {
             display: grid;
             grid-template-columns: 1fr;
@@ -110,6 +111,9 @@
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         
         .profile-card:hover { border-color: var(--accent); background: #fff; transform: translateY(-2px); }
@@ -122,7 +126,7 @@
             font-weight: 900;
             color: var(--border);
             letter-spacing: -2px;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
         .profile-header {
@@ -152,6 +156,8 @@
             letter-spacing: -0.5px;
         }
 
+        .stat-group { margin-bottom: 15px; }
+
         .stat-row {
             display: flex;
             justify-content: space-between;
@@ -166,14 +172,14 @@
         .stat-data.highlight { color: var(--accent); }
 
         .ryft-note {
-            margin-top: 15px;
             font-size: 13px;
             color: var(--text-secondary);
             font-style: italic;
             line-height: 1.5;
+            margin-top: auto;
         }
 
-        /* --- METRICS / MOMENTUM --- */
+        /* --- MOMENTUM BARS --- */
         .bar-container {
             background: var(--bg-surface);
             padding: 30px;
@@ -190,7 +196,7 @@
         .bar-fill { height: 100%; border-radius: 10px; background: var(--accent); }
         .bar-val { width: 45px; text-align: right; font-size: 12px; font-weight: 900; color: var(--text-primary); }
 
-        /* --- FOOTER --- */
+        /* --- FOOTER (MASTER) --- */
         .cta-section { text-align: center; margin: 80px 0; }
         .cta-btn {
             display: inline-flex;
@@ -231,8 +237,10 @@
                 <span class="flag-code">USA</span>
                 <h3 class="swimmer-name">Simone Manuel</h3>
             </div>
-            <div class="stat-row"><span class="stat-label">Event</span><span class="stat-data">50/100 Free</span></div>
-            <div class="stat-row"><span class="stat-label">Trend</span><span class="stat-data highlight">Resurgence</span></div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Event</span><span class="stat-data">50/100 Free</span></div>
+                <div class="stat-row"><span class="stat-label">Trend</span><span class="stat-data highlight">Resurgence</span></div>
+            </div>
             <div class="ryft-note">Вернулась в элиту. Сплит 52.67 в эстафете — это сигнал всем соперникам.</div>
         </div>
 
@@ -242,8 +250,10 @@
                 <span class="flag-code">POL</span>
                 <h3 class="swimmer-name">Kasia Wasick</h3>
             </div>
-            <div class="stat-row"><span class="stat-label">Age</span><span class="stat-data">34 Years</span></div>
-            <div class="stat-row"><span class="stat-label">Focus</span><span class="stat-data">SC Speed</span></div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Age</span><span class="stat-data">34 Years</span></div>
+                <div class="stat-row"><span class="stat-label">Focus</span><span class="stat-data">SC Speed</span></div>
+            </div>
             <div class="ryft-note">Золото SC Euros в 33 года. Королева короткой воды, но хватит ли сил на лонг-корс?</div>
         </div>
 
@@ -253,9 +263,11 @@
                 <span class="flag-code">ITA</span>
                 <h3 class="swimmer-name">Benedetta Pilato</h3>
             </div>
-            <div class="stat-row"><span class="stat-label">Status</span><span class="stat-data highlight">Volatile</span></div>
-            <div class="stat-row"><span class="stat-label">Key</span><span class="stat-data">50 Breast</span></div>
-            <div class="ryft-note">Бронза ЧМ, но результаты 100м просели (1:05.4). Нужен ресет.</div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Status</span><span class="stat-data highlight">Volatile</span></div>
+                <div class="stat-row"><span class="stat-label">Key</span><span class="stat-data">50 Breast</span></div>
+            </div>
+            <div class="ryft-note">Бронза ЧМ, но результаты 100м просели (1:05.4). Нужен полный ресет.</div>
         </div>
 
         <div class="profile-card">
@@ -264,9 +276,11 @@
                 <span class="flag-code">IRL</span>
                 <h3 class="swimmer-name">Ellen Walshe</h3>
             </div>
-            <div class="stat-row"><span class="stat-label">Type</span><span class="stat-data">Versatile IM</span></div>
-            <div class="stat-row"><span class="stat-label">Record</span><span class="stat-data">Irish Natl</span></div>
-            <div class="ryft-note">Универсал: 400 IM, 100 Fly и 200 Free. Опасна на Евро-2026.</div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Type</span><span class="stat-data">Versatile IM</span></div>
+                <div class="stat-row"><span class="stat-label">Record</span><span class="stat-data">Irish Natl</span></div>
+            </div>
+            <div class="ryft-note">Универсал: 400 IM, 100 Fly и 200 Free. Будет крайне опасна на Евро-2026.</div>
         </div>
 
         <div class="profile-card">
@@ -275,8 +289,11 @@
                 <span class="flag-code">NED</span>
                 <h3 class="swimmer-name">Tes Schouten</h3>
             </div>
-            <div class="stat-row"><span class="stat-label">Change</span><span class="stat-data highlight">New Coach</span></div>
-            <div class="ryft-note">Переход к Марку Фаберу. Попытка вернуться на 2:19 в брассе.</div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Change</span><span class="stat-data highlight">New Coach</span></div>
+                <div class="stat-row"><span class="stat-label">Target</span><span class="stat-data">2:19 Breast</span></div>
+            </div>
+            <div class="ryft-note">Переход к Марку Фаберу. Попытка стабилизировать технику на второй сотне.</div>
         </div>
 
         <div class="profile-card">
@@ -285,8 +302,11 @@
                 <span class="flag-code">NED</span>
                 <h3 class="swimmer-name">Milou van Wijk</h3>
             </div>
-            <div class="stat-row"><span class="stat-label">Breakout</span><span class="stat-data">52.91 (100F)</span></div>
-            <div class="ryft-note">Впервые вышла из 53 сек. Взрывная динамика роста.</div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Breakout</span><span class="stat-data">52.91 (100F)</span></div>
+                <div class="stat-row"><span class="stat-label">Status</span><span class="stat-data">Rising Star</span></div>
+            </div>
+            <div class="ryft-note">Впервые вышла из 53 сек. Взрывная динамика роста за последние 6 месяцев.</div>
         </div>
 
         <div class="profile-card" style="border-color: var(--accent); background: #fff;">
@@ -295,10 +315,12 @@
                 <span class="flag-code" style="background: var(--accent);">RUS</span>
                 <h3 class="swimmer-name">Daria Klepikova</h3>
             </div>
-            <div class="stat-row"><span class="stat-label">100 Free</span><span class="stat-data highlight">52.98</span></div>
-            <div class="stat-row"><span class="stat-label">100 Fly</span><span class="stat-data highlight">56.42</span></div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">100 Free</span><span class="stat-data highlight">52.98</span></div>
+                <div class="stat-row"><span class="stat-label">100 Fly</span><span class="stat-data highlight">56.42</span></div>
+            </div>
             <div class="ryft-note" style="color: var(--text-primary); font-weight: 500;">
-                <strong>RYFT CHOICE:</strong> Элита. Результаты уровня финала ОИ без международной практики. Скрытая угроза.
+                <strong>RYFT CHOICE:</strong> Элита. Результаты уровня финала ОИ без международной практики.
             </div>
         </div>
 
@@ -308,9 +330,37 @@
                 <span class="flag-code">ITA</span>
                 <h3 class="swimmer-name">Sara Curtis</h3>
             </div>
-            <div class="stat-row"><span class="stat-label">Base</span><span class="stat-data">UVA (USA)</span></div>
-            <div class="stat-row"><span class="stat-label">SCM 100</span><span class="stat-data highlight">51.26</span></div>
-            <div class="ryft-note">Тренировки в Вирджинии дали взрывной эффект. Будущая суперзвезда.</div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Base</span><span class="stat-data">UVA (USA)</span></div>
+                <div class="stat-row"><span class="stat-label">SCM 100</span><span class="stat-data highlight">51.26</span></div>
+            </div>
+            <div class="ryft-note">Тренировки в Вирджинии дали взрывной эффект. Мощнейший выход со старта.</div>
+        </div>
+
+        <div class="profile-card">
+            <span class="rank-badge">#42</span>
+            <div class="profile-header">
+                <span class="flag-code">CHN</span>
+                <h3 class="swimmer-name">Yu Yiting</h3>
+            </div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Event</span><span class="stat-data">200 IM</span></div>
+                <div class="stat-row"><span class="stat-label">Best</span><span class="stat-data">2:08.3</span></div>
+            </div>
+            <div class="ryft-note">Доминирует на внутренних стартах, но на ЧМ не всегда дотягивает до пика.</div>
+        </div>
+
+        <div class="profile-card">
+            <span class="rank-badge">#41</span>
+            <div class="profile-header">
+                <span class="flag-code">USA</span>
+                <h3 class="swimmer-name">Leah Shackley</h3>
+            </div>
+            <div class="stat-group">
+                <div class="stat-row"><span class="stat-label">Style</span><span class="stat-data">Backstroke</span></div>
+                <div class="stat-row"><span class="stat-label">Level</span><span class="stat-data">U-20 Elite</span></div>
+            </div>
+            <div class="ryft-note">Доминирование на WUGs. Главный вызов — пробиться сквозь отбор в США.</div>
         </div>
 
     </div>
