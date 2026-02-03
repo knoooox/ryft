@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>RYFT | ERICA WANG DATA ANALYSIS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL VARIABLES (WHITE PROTOCOL v5.2) --- */
+        :root {
+            --bg-page: #ffffff;
+            --bg-surface: #F5F5F7;
+            --bg-surface-hover: #EBEBF0;
+            --accent: #007AFF;
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --border: #D2D2D7;
+            --radius-m: 16px;
+            --radius-l: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* --- RESET & ANIMATION --- */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.4;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-load { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        .container { width: 100%; max-width: 850px; margin: 0 auto; padding: 60px 24px; }
+
+        /* --- HEADER --- */
+        header {
+            border-left: 4px solid var(--accent);
+            padding-left: 24px;
+            margin-bottom: 60px;
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 3px;
+            font-size: 11px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: clamp(48px, 12vw, 90px);
+            font-weight: 900;
+            letter-spacing: -0.06em;
+            line-height: 0.85;
+            text-transform: uppercase;
+        }
+
+        .sub-header {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 16px;
+            max-width: 500px;
+        }
+
+        /* --- STATS GRID --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            padding: 24px 16px;
+            border-radius: var(--radius-m);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-value.accent { color: var(--accent); }
+
+        /* --- INSIGHT BOX --- */
+        .insight-box {
+            background: var(--bg-surface);
+            border-left: 4px solid var(--accent);
+            padding: 30px;
+            border-radius: 0 var(--radius-l) var(--radius-l) 0;
+            margin-bottom: 50px;
+        }
+
+        .insight-box p {
+            font-size: 17px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+
+        .insight-box strong { font-weight: 800; color: var(--accent); }
+
+        /* --- TABLE --- */
+        .section-title {
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-title::after { content: ""; height: 1px; background: var(--border); flex-grow: 1; }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-m);
+            margin-bottom: 50px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: var(--bg-surface);
+            text-align: left;
+            padding: 16px;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        td {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .highlight-row { font-weight: 800; background: rgba(0, 122, 255, 0.03); }
+        .diff-pos { color: #34C759; font-weight: 800; }
+
+        /* --- METRICS / PROGRESS --- */
+        .metrics-container {
+            background: var(--bg-surface);
+            padding: 32px;
+            border-radius: var(--radius-l);
+            margin-bottom: 50px;
+        }
+
+        .bar-wrapper { margin-bottom: 20px; }
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        /* --- IMPACT GRID --- */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 60px;
+        }
+
+        @media (min-width: 600px) {
+            .impact-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .impact-card {
+            background: var(--bg-page);
+            border: 1px solid var(--border);
+            padding: 30px;
+            border-radius: var(--radius-l);
+            transition: 0.3s ease;
+        }
+
+        .impact-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .impact-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+        .impact-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+        /* --- FOOTER --- */
+        .cta-section { text-align: center; margin-bottom: 80px; }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center; justify-content: center;
+            background: var(--text-primary);
+            color: white;
+            padding: 22px 50px;
+            border-radius: var(--radius-pill);
+            text-decoration: none;
+            font-weight: 700; font-size: 14px;
+            letter-spacing: 1px; text-transform: uppercase;
+            transition: 0.3s ease;
+        }
+
+        .cta-btn:hover { background: var(--accent); transform: scale(1.02); box-shadow: 0 15px 30px rgba(0, 122, 255, 0.2); }
+
+        footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); }
+        .footer-logo { font-size: 15px; font-weight: 900; letter-spacing: 1px; color: var(--text-primary); margin-bottom: 10px; }
+        .footer-sub { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 4px; font-weight: 700; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="animate-load">
+        <span class="kicker">Case Study: Erica Wang</span>
+        <h1>31.42</h1>
+        <div class="sub-header">Глубокий технический аудит нового национального рекорда NAG в категории 10 лет (50 Yards Breaststroke).</div>
+    </header>
+
+    <div class="stats-grid animate-load delay-1">
+        <div class="stat-card">
+            <span class="stat-label">Age Group</span>
+            <span class="stat-value">10 Years</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Status</span>
+            <span class="stat-value accent">NAG Record</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Previous PB</span>
+            <span class="stat-value">31.83</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Progression</span>
+            <span class="stat-value accent">-0.41s</span>
+        </div>
+    </div>
+
+    <div class="insight-box animate-load delay-2">
+        <p><strong>Анализ RYFT:</strong> Сброс 0.41 сек в спринте на 50 ярдов за один тренировочный цикл свидетельствует о выходе на пиковую техническую эффективность. Мы наблюдаем редкое сочетание <strong>Frequency (темпа)</strong> и сохранения длины гребка.</p>
+    </div>
+
+    <div class="section-title animate-load delay-3">NAG Evolution History</div>
+    <div class="table-container animate-load delay-3">
+        <table>
+            <thead>
+                <tr>
+                    <th>Атлет</th>
+                    <th>Год</th>
+                    <th>Результат</th>
+                    <th>Дельта</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Meghan Lynch</td>
+                    <td>2014</td>
+                    <td>31.73</td>
+                    <td>Baseline</td>
+                </tr>
+                <tr>
+                    <td>Erica Wang (PB)</td>
+                    <td>2026</td>
+                    <td>31.83</td>
+                    <td>+0.10s</td>
+                </tr>
+                <tr class="highlight-row">
+                    <td>Erica Wang (NEW)</td>
+                    <td>2026</td>
+                    <td>31.42</td>
+                    <td class="diff-pos">-0.31s</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section-title animate-load delay-4">Progression Metrics (Season 25/26)</div>
+    <div class="metrics-container animate-load delay-4">
+        <div class="bar-wrapper">
+            <div class="bar-label"><span>Start of Season</span><span>32.50</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width: 70%; opacity: 0.4;"></div></div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label"><span>Mid-Season (PB)</span><span>31.83</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width: 85%; opacity: 0.7;"></div></div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label"><span>Record Wall (Current)</span><span>31.42</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width: 100%;"></div></div>
+        </div>
+    </div>
+
+    <div class="section-title animate-load delay-4">Technical Impact Factors</div>
+    <div class="impact-grid animate-load delay-4">
+        <div class="impact-card">
+            <span class="tag">Frequency</span>
+            <h3>Stroke Tempo</h3>
+            <p>Ванг сохраняет длину шага при аномально высокой частоте движений, что нетипично для её возрастной группы.</p>
+        </div>
+        <div class="impact-card">
+            <span class="tag">Biomechanics</span>
+            <h3>Underwaters</h3>
+            <p>Использование фазы скольжения Lakeside-style: преимущество в целый корпус на стартовом разгоне.</p>
+        </div>
+    </div>
+
+    <div class="cta-section animate-load delay-4">
+        <a href="https://t.me/ryft_community" class="cta-btn">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer class="animate-load delay-4">
+        <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
+        <div class="footer-sub">Swim • Analyze • Conquer</div>
+    </footer>
+</div>
+
+</body>
+</html>
