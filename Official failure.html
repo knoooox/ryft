@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>RYFT | NCAA OFFICIATING REPORT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL VARIABLES --- */
+        :root {
+            --bg-page: #ffffff;
+            --bg-surface: #F5F5F7;
+            --bg-surface-hover: #EBEBF0;
+            --accent: #007AFF;
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868b;
+            --border: #d2d2d7;
+            --danger: #FF3B30;
+            --radius-m: 16px;
+            --radius-l: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+        }
+
+        .animate-load { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container { width: 100%; max-width: 900px; margin: 0 auto; padding: 60px 20px; }
+
+        /* --- HEADER --- */
+        header { border-left: 4px solid var(--accent); padding-left: 30px; margin-bottom: 60px; position: relative; }
+        .kicker { color: var(--accent); text-transform: uppercase; font-weight: 800; letter-spacing: 4px; font-size: 11px; display: block; margin-bottom: 10px; }
+        h1 { font-size: clamp(40px, 10vw, 85px); font-weight: 900; margin: 0; letter-spacing: -5px; line-height: 0.85; text-transform: uppercase; }
+        .sub-h1 { font-size: 18px; color: var(--text-secondary); margin-top: 15px; font-weight: 400; }
+
+        /* --- STATS GRID --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 60px; }
+        @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+        .stat-card { background: var(--bg-surface); padding: 30px 15px; border-radius: var(--radius-m); text-align: center; transition: 0.3s; }
+        .stat-card:hover { background: var(--bg-surface-hover); }
+        .stat-val { display: block; font-size: 32px; font-weight: 900; letter-spacing: -2px; }
+        .stat-lbl { display: block; font-size: 10px; text-transform: uppercase; color: var(--text-secondary); margin-top: 8px; letter-spacing: 1px; font-weight: 700; }
+
+        /* --- INSIGHT BOX --- */
+        .insight-box { background: var(--bg-surface); border-left: 4px solid var(--accent); padding: 35px; border-radius: 0 var(--radius-m) var(--radius-m) 0; margin-bottom: 60px; }
+        .insight-box p { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.5; color: var(--text-primary); }
+
+        /* --- DATA TABLE --- */
+        .table-container { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-m); overflow: hidden; margin-bottom: 60px; }
+        .overflow-x { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: var(--bg-surface); padding: 15px 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
+        td { padding: 18px 20px; border-top: 1px solid var(--border); font-size: 14px; font-weight: 500; }
+        .td-highlight { color: var(--danger); font-weight: 800; }
+
+        /* --- IMPACT GRID --- */
+        .impact-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 600px) { .impact-grid { grid-template-columns: 1fr 1fr; } }
+        .impact-card { background: var(--bg-surface); padding: 30px; border-radius: var(--radius-l); border: 1px solid transparent; transition: 0.3s; }
+        .impact-card:hover { border-color: var(--border); background: #fff; }
+        .tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; }
+        .tag-danger { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
+        .impact-card h3 { font-size: 16px; margin: 0 0 10px 0; font-weight: 800; }
+        .impact-card p { font-size: 14px; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+
+        /* --- FOOTER --- */
+        .cta-container { text-align: center; margin: 80px 0; }
+        .cta-btn { background: var(--text-primary); color: #fff; padding: 22px 45px; border-radius: var(--radius-pill); text-decoration: none; font-weight: 900; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; display: inline-block; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .cta-btn:hover { background: var(--accent); transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,122,255,0.3); }
+        footer { border-top: 1px solid var(--border); padding: 60px 0; text-align: center; }
+        .footer-logo { font-size: 14px; font-weight: 900; color: var(--text-primary); letter-spacing: 1px; margin-bottom: 10px; }
+        .footer-slogan { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 4px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="animate-load">
+        <span class="kicker">Case Study: 2025 Division III Scandal</span>
+        <h1>OFFICIAL<br>FAILURE</h1>
+        <div class="sub-h1">Анализ системного сбоя судейства на турнире Last Chance в Лексингтоне.</div>
+    </header>
+
+    <div class="stats-grid animate-load delay-1">
+        <div class="stat-card">
+            <span class="stat-val">+2.45s</span>
+            <span class="stat-lbl">Time Deviation</span>
+        </div>
+        <div class="stat-card" style="border: 1px solid var(--danger);">
+            <span class="stat-val" style="color: var(--danger);">0</span>
+            <span class="stat-lbl">DQs Issued</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val">3</span>
+            <span class="stat-lbl">Faulty Relays</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val">Rule 4</span>
+            <span class="stat-lbl">Violation</span>
+        </div>
+    </div>
+
+    <div class="insight-box animate-load delay-2">
+        <p>«Когда ручное судейство встречается с конфликтом интересов, архитектура спортивной честности рушится. Разница результатов между квалификацией и финалом подтверждает аномалию».</p>
+    </div>
+
+    <div class="table-container animate-load delay-2">
+        <div class="overflow-x">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Team & Relay</th>
+                        <th>Qualifying (Manual)</th>
+                        <th>NCAA Finals (Auto)</th>
+                        <th>Delta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>W&L (Women 200 Free)</td>
+                        <td>1:34.02</td>
+                        <td>1:36.47</td>
+                        <td class="td-highlight">+2.45s</td>
+                    </tr>
+                    <tr>
+                        <td>W&L (Men 200 Medley)</td>
+                        <td>1:28.31</td>
+                        <td>1:30.14</td>
+                        <td class="td-highlight">+1.83s</td>
+                    </tr>
+                    <tr>
+                        <td>MW (Women 200 Medley)</td>
+                        <td>1:43.88</td>
+                        <td>1:45.74</td>
+                        <td class="td-highlight">+1.86s</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="impact-grid animate-load delay-3">
+        <div class="impact-card">
+            <span class="tag tag-danger">Conflict</span>
+            <h3>Родственные связи</h3>
+            <p>Судейская коллегия турнира имела прямые связи с персоналом Washington & Lee. Это создало среду, в которой "двойное подтверждение" стало невозможным.</p>
+        </div>
+        <div class="impact-card">
+            <span class="tag tag-danger">Technical</span>
+            <h3>Отсутствие тачпадов</h3>
+            <p>Игнорирование автоматических систем фиксации смен (RT) на отборочных стартах такого уровня — это приглашение к манипуляциям.</p>
+        </div>
+    </div>
+
+    <div class="cta-container animate-load delay-3">
+        <a href="https://t.me/ryft_community" class="cta-btn">ОБСУДИТЬ В RYFT | COMMUNITY</a>
+    </div>
+
+    <footer class="animate-load delay-3">
+        <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
+        <div class="footer-slogan">Swim • Analyze • Conquer</div>
+    </footer>
+</div>
+
+</body>
+</html>
