@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>RYFT | DUBAI INTELLIGENCE UNIT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- RYFT MASTER VARIABLES (LIGHT MOD BASED) --- */
+        :root {
+            --bg-page: #ffffff;
+            --bg-surface: #F5F5F7;
+            --bg-surface-hover: #EBEBF0;
+            --accent: #007AFF;
+            --accent-dark: #005ecb;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border: #d2d2d7;
+            --success: #34c759;
+            --radius-m: 16px;
+            --radius-l: 24px;
+            --radius-pill: 999px;
+        }
+
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; outline: none; }
+        
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0; padding: 0;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            padding: 80px 24px; 
+        }
+
+        /* --- ADVANCED ANIMATIONS --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-load { 
+            animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+            opacity: 0; 
+        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* --- HEADER SECTION --- */
+        header { 
+            border-left: 6px solid var(--accent); 
+            padding-left: 40px; 
+            margin-bottom: 80px; 
+        }
+        .kicker { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            font-weight: 900; 
+            letter-spacing: 5px; 
+            font-size: 12px; 
+            margin-bottom: 16px; 
+            display: block; 
+        }
+        h1 { 
+            font-size: clamp(48px, 10vw, 92px); 
+            font-weight: 900; 
+            letter-spacing: -0.05em; 
+            line-height: 0.85; 
+            margin: 0; 
+            text-transform: uppercase; 
+        }
+        .sub-header { 
+            font-size: 20px; 
+            color: var(--text-secondary); 
+            margin-top: 24px; 
+            max-width: 700px; 
+            font-weight: 400;
+        }
+
+        /* --- INSIGHT UNIT --- */
+        .insight-box {
+            background: var(--bg-surface);
+            padding: 50px;
+            border-radius: var(--radius-l);
+            margin-bottom: 80px;
+            position: relative;
+        }
+        .insight-text { 
+            font-size: 26px; 
+            font-weight: 600; 
+            line-height: 1.2; 
+            letter-spacing: -0.02em; 
+            color: var(--text-primary);
+        }
+        .insight-text span { color: var(--accent); }
+
+        /* --- MEDIA GRID (9 CARDS) --- */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-title { 
+            font-size: 13px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            color: var(--text-secondary); 
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 80px;
+        }
+
+        .video-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-l);
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 280px;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ЭФФЕКТ ПРИ НАВЕДЕНИИ НА КАРТОЧКУ */
+        .video-card:hover {
+            background: #ffffff;
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-top h3 { 
+            font-size: 20px; 
+            font-weight: 800; 
+            margin: 0 0 10px 0; 
+            letter-spacing: -0.02em; 
+            line-height: 1.1; 
+        }
+        .card-meta { 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--text-secondary); 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin-bottom: 20px; 
+            display: block; 
+        }
+
+        /* УЛУЧШЕННЫЕ ТЕГИ */
+        .tag-status {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 900;
+            background: var(--text-primary);
+            color: #fff;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* КНОПКА ВНУТРИ КАРТОЧКИ С ПОДСВЕТКОЙ */
+        .play-btn {
+            background: #EBEBF0;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 800;
+            text-align: center;
+            padding: 16px;
+            border-radius: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: all 0.3s ease;
+        }
+
+        /* ПОДСВЕТКА КНОПКИ ПРИ НАВЕДЕНИИ НА КАРТОЧКУ */
+        .video-card:hover .play-btn {
+            background: var(--accent);
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+        }
+
+        /* --- DATA UNIT (9 ROWS TABLE) --- */
+        .table-wrap { 
+            border: 1px solid var(--border); 
+            border-radius: var(--radius-m); 
+            overflow: hidden; 
+            background: #fff; 
+            margin-bottom: 80px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            text-align: left; padding: 20px 24px; font-size: 11px; 
+            text-transform: uppercase; color: var(--text-secondary); 
+            border-bottom: 1px solid var(--border); background: #fafafa; 
+            letter-spacing: 2px; 
+        }
+        td { 
+            padding: 20px 24px; font-size: 15px; 
+            border-bottom: 1px solid var(--border); 
+            font-weight: 600; color: var(--text-primary); 
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+        .td-highlight { color: var(--accent); font-weight: 800; }
+
+        /* --- IMPACT GRID (FROM LIGHT MOD) --- */
+        .impact-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 24px; 
+            margin-bottom: 80px; 
+        }
+        .impact-card { 
+            background: var(--bg-surface); 
+            padding: 40px; 
+            border-radius: var(--radius-l); 
+        }
+        .tag { 
+            display: inline-block; background: #fff; padding: 5px 12px; 
+            border-radius: 6px; font-size: 9px; font-weight: 900; 
+            text-transform: uppercase; margin-bottom: 15px; 
+        }
+        .tag-blue { color: var(--accent); }
+        .tag-black { color: var(--text-primary); }
+        .impact-card h3 { margin: 0 0 10px 0; font-size: 20px; font-weight: 800; }
+        .impact-card p { margin: 0; color: var(--text-secondary); font-size: 15px; }
+
+        /* --- CTA & FOOTER (STRICT RYFT STYLE) --- */
+        .cta-section { text-align: center; margin-bottom: 100px; }
+        .cta-btn {
+            display: inline-block; 
+            background: var(--text-primary); 
+            color: #fff;
+            padding: 22px 60px; 
+            border-radius: var(--radius-pill); 
+            text-decoration: none;
+            font-weight: 900; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .cta-btn:hover { 
+            background: var(--accent); 
+            transform: translateY(-5px); 
+            box-shadow: 0 20px 40px rgba(0, 122, 255, 0.2);
+        }
+
+        footer { 
+            text-align: center; 
+            padding: 80px 0 40px; 
+            border-top: 1px solid var(--border); 
+        }
+        .footer-logo { 
+            font-size: 18px; 
+            font-weight: 900; 
+            color: var(--text-primary); 
+            letter-spacing: -0.5px; 
+            text-transform: uppercase;
+        }
+        .footer-sub { 
+            margin-top: 12px; 
+            font-size: 12px; 
+            color: var(--text-secondary); 
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            font-weight: 600; 
+        }
+
+        @media (max-width: 768px) {
+            .impact-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 44px; }
+            .container { padding: 40px 20px; }
+            .insight-box { padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <header class="animate-load delay-1">
+        <span class="kicker">RYFT Intelligence</span>
+        <h1>DUBAI<br>RACE HUB</h1>
+        <p class="sub-header">Массив данных и видео-протокол Dubai Open Swimming Championships 2026. Полная деконструкция спринта.</p>
+    </header>
+
+    <div class="insight-box animate-load delay-1">
+        <div class="insight-text">
+            События в Дубае подтвердили: российская школа спринта находится в фазе <span>экстремального роста</span>. Корнев обходит Чалмерса, Кузнецова доминирует на баттерфляе.
+        </div>
+    </div>
+
+    <div class="section-header animate-load delay-2">
+        <span class="section-title">Media Unit // Race Replays</span>
+    </div>
+    
+    <div class="media-grid animate-load delay-2">
+        
+        <a href="https://t.me/ryft_media/9" class="video-card">
+            <div>
+                <span class="tag-status" style="background: #8E8E93;">TITANS BATTLE</span>
+                <span class="card-meta">50m Breaststroke • Final</span>
+                <h3>Илья Шиманович: Серебро в плотном финале</h3>
+            </div>
+            <div class="play-btn">Смотреть заплыв (27.28)</div>
+        </a>
+
+        <a href="https://t.me/ryft_media/7" class="video-card">
+            <div>
+                <span class="tag-status" style="background: var(--success);">GOLD MEDAL</span>
+                <span class="card-meta">50m Butterfly • Final</span>
+                <h3>Александра Кузнецова: Чемпионский финиш</h3>
+            </div>
+            <div class="play-btn">Смотреть заплыв (26.59)</div>
+        </a>
+
+        <a href="https://t.me/ryft_media/5" class="video-card">
+            <div>
+                <span class="tag-status" style="background: var(--accent);">GOLD DOUBLE</span>
+                <span class="card-meta">50m Butterfly • Final</span>
+                <h3>Егор Корнев: Первая победа в ОАЭ</h3>
+            </div>
+            <div class="play-btn">Смотреть заплыв (23.05)</div>
+        </a>
+
+        <a href="https://t.me/ryft_media/8" class="video-card">
+            <div>
+                <span class="tag-status" style="background: #AF52DE;">MEET RECORD</span>
+                <span class="card-meta">50m Freestyle • Final</span>
+                <h3>Siobhan Haughey: Новый рекорд Дубая</h3>
+            </div>
+            <div class="play-btn">Смотреть заплыв (24.67)</div>
+        </a>
+
+        <a href="https://t.me/ryft_media/4" class="video-card">
+            <div>
+                <span class="tag-status" style="background: var(--accent);">WORLD #6</span>
+                <span class="card-meta">50m Freestyle • Final</span>
+                <h3>Егор Корнев: Победа над Кайлом Чалмерсом</h3>
+            </div>
+            <div class="play-btn">Смотреть заплыв (21.72)</div>
+        </a>
+
+    </div>
+
+    <div class="section-header animate-load delay-3">
+        <span class="section-title">Data Unit // Full Results Protocol</span>
+    </div>
+    <div class="table-wrap animate-load delay-3">
+        <table>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Athlete</th>
+                    <th>Result</th>
+                    <th>Rank</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>50m Breast (M)</td><td>Ilya Shymanovich (BLR)</td><td>27.28</td><td>2</td></tr>
+                <tr><td>50m Fly (W)</td><td>Aleksandra Kuznetsova (RUS)</td><td class="td-highlight">26.59</td><td>1</td></tr>
+                <tr><td>50m Fly (M)</td><td>Egor Kornev (RUS)</td><td class="td-highlight">23.05</td><td>1</td></tr>
+                <tr><td>50m Free (W) Final</td><td>Siobhan Haughey (HKG)</td><td class="td-highlight">24.67 (MR)</td><td>1</td></tr>
+                <tr><td>50m Free (M) Birthday</td><td>Egor Kornev (RUS)</td><td class="td-highlight">21.72 (W#6)</td><td>1</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="impact-grid animate-load delay-4">
+        <div class="impact-card">
+            <span class="tag tag-blue">Deep Data</span>
+            <h3>Мировой Рейтинг</h3>
+            <p>Результат 21.72 Егора Корнева закрепляет его на 6-й строчке мирового топа 2026 года.</p>
+        </div>
+        <div class="impact-card">
+            <span class="tag tag-black">Neuroscience</span>
+            <h3>Фактор Хауги</h3>
+            <p>Сброс 0.66с между утром и вечером подтверждает уникальную способность к мобилизации ЦНС.</p>
+        </div>
+    </div>
+
+    <div class="cta-section animate-load delay-4">
+        <a href="https://t.me/ryft_community" class="cta-btn">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer class="animate-load delay-4">
+        <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
+        <div class="footer-sub">Swim • Analyze • Conquer</div>
+    </footer>
+
+</div>
+
+</body>
+</html>
