@@ -1,164 +1,849 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>RYFT | ECOSYSTEM PROTOCOL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
+        /* * =========================================
+         * CORE VARIABLES & CONFIG
+         * =========================================
+         */
         :root {
-            --bg: #ffffff;
-            --surface: #f9f9fb;
-            --text: #1d1d1f;
-            --text-dim: #86868b;
-            --radius: 20px;
+            /* Colors */
+            --bg-deep: #030303;
+            --bg-surface: #0a0a0a;
+            --accent-primary: #ffffff;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-tertiary: #444444;
+
+            /* Glassmorphism */
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --glass-highlight: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(16px);
+
+            /* Spacing & Radius */
+            --radius-lg: 28px;
+            --radius-md: 20px;
+            --radius-sm: 12px;
+            --container-width: 540px;
+
+            /* Animation Curves */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.2;
+        /* * =========================================
+         * RESET & BASE
+         * =========================================
+         */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .container {
-            max-width: 500px;
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            font-feature-settings: "ss01", "ss02", "cv01"; /* Modern font features */
+        }
+
+        /* Hide cursor on desktop initially for custom cursor */
+        @media (pointer: fine) {
+            body { cursor: none; }
+            a { cursor: none; }
+        }
+
+        /* * =========================================
+         * LOADER SYSTEM
+         * =========================================
+         */
+        #preloader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s var(--ease-out-expo);
+        }
+        
+        .loader-content {
+            text-align: center;
+            opacity: 0;
+            animation: fadeInOut 2.5s forwards;
+        }
+
+        .loader-line {
+            width: 0%;
+            height: 1px;
+            background: #fff;
+            margin: 10px auto;
+            animation: loadLine 2s var(--ease-out-expo) forwards;
+        }
+
+        @keyframes loadLine { 0% { width: 0%; } 100% { width: 100px; } }
+        @keyframes fadeInOut { 0% { opacity: 0; } 20% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
+
+        /* * =========================================
+         * VISUAL LAYERS (NOISE, CANVAS)
+         * =========================================
+         */
+        .noise-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 40%, #000 120%);
+            z-index: 40;
+            pointer-events: none;
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        /* * =========================================
+         * CUSTOM CURSOR (PHYSICS)
+         * =========================================
+         */
+        .cursor-wrapper {
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 9999;
+            pointer-events: none;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor-dot {
+            width: 8px; height: 8px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-ring {
+            width: 40px; height: 40px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background-color 0.3s;
+        }
+
+        /* Desktop Only Styles */
+        @media (pointer: coarse) {
+            .cursor-wrapper { display: none; }
+        }
+
+        /* * =========================================
+         * LAYOUT STRUCTURE
+         * =========================================
+         */
+        .viewport {
+            position: relative;
+            z-index: 60;
+            max-width: var(--container-width);
             margin: 0 auto;
-            padding: 15px 12px;
+            padding: 80px 20px 40px 20px;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* --- ШАПКА --- */
-        header { text-align: center; margin-bottom: 15px; }
-        .logo { font-weight: 900; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 5px; opacity: 0.5; }
-        h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; }
-
-        /* --- ГЛАВНЫЙ БЛОК --- */
-        .hero-channel {
-            background: var(--text);
-            color: white;
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 10px;
-            text-decoration: none;
-            display: block;
+        /* * =========================================
+         * HEADER SECTION
+         * =========================================
+         */
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+            perspective: 1000px;
         }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+            margin-bottom: 24px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .status-indicator {
+            width: 6px; height: 6px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        .brand-text {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.7);
+        }
+
+        h1 {
+            font-size: clamp(42px, 10vw, 56px);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 0.95;
+            background: linear-gradient(180deg, #FFFFFF 0%, #666666 120%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            transform: translateY(20px);
+            opacity: 0; /* JS Animation */
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* * =========================================
+         * COMPONENT: GLASS CARD
+         * =========================================
+         */
+        .card {
+            position: relative;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 16px;
+            text-decoration: none;
+            color: var(--text-primary);
+            overflow: hidden;
+            display: block;
+            transition: transform 0.4s var(--ease-elastic), border-color 0.3s;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            transform-style: preserve-3d;
+        }
+
+        /* The Glow Effect (Spotlight) container */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: var(--radius-lg);
+            padding: 1px; /* Border width */
+            background: radial-gradient(
+                600px circle at var(--mouse-x) var(--mouse-y),
+                rgba(255, 255, 255, 0.4),
+                transparent 40%
+            );
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .card:hover::after {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.15);
+        }
+        
+        /* Mobile Touch State */
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        /* * =========================================
+         * HERO SECTION (HUB)
+         * =========================================
+         */
+        .hero-card {
+            position: relative;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 5;
+            transform: translateZ(20px);
+        }
+
         .tag {
-            background: rgba(255,255,255,0.15);
-            padding: 3px 8px;
-            border-radius: 50px;
-            font-size: 8px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 100px;
+            display: inline-block;
+            margin-bottom: 16px;
+            color: rgba(255,255,255,0.9);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .hero-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-desc {
+            font-size: 15px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            max-width: 90%;
+        }
+
+        .cta-row {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            margin-bottom: 10px;
-            display: inline-block;
+            letter-spacing: 0.05em;
+            color: #fff;
         }
-        .hero-channel h2 { font-size: 18px; margin-bottom: 4px; }
-        .hero-channel p { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 12px; }
 
-        /* --- ГРИД (ФИКСИРОВАННЫЙ) --- */
-        .grid {
+        .cta-arrow {
+            margin-left: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-card:hover .cta-arrow {
+            transform: translateX(5px);
+        }
+
+        /* * =========================================
+         * GRID SYSTEM
+         * =========================================
+         */
+        .grid-layout {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 16px;
+            margin-bottom: 16px;
         }
 
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 15px 10px;
-            text-decoration: none;
-            color: inherit;
+        .grid-card {
+            padding: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             justify-content: center;
+            height: 100%;
         }
-        .card h3 { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
-        .card p { font-size: 11px; color: var(--text-dim); }
 
-        /* --- ДОНАТ (КОМПАКТНЫЙ) --- */
-        .donate-card {
-            grid-column: span 2;
-            background: #fff;
-            border: 1px dashed var(--text);
-            padding: 14px;
-            border-radius: var(--radius);
-            text-decoration: none;
-            color: var(--text);
+        /* FIXED ICON BOX FOR PERFECT ALIGNMENT */
+        .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 13px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: all 0.4s var(--ease-elastic);
+            position: relative;
         }
 
-        footer { margin-top: auto; padding: 20px 0; text-align: center; }
-        .footer-logo { font-size: 9px; font-weight: 900; opacity: 0.3; }
+        /* Inner glow for icons */
+        .icon-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            padding: 1px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
 
-        /* АНИМАЦИЯ */
-        .reveal { opacity: 0; transform: translateY(10px); transition: 0.5s ease-out; }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+        .grid-card:hover .icon-wrapper {
+            transform: scale(1.1) rotate(3deg);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .grid-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .grid-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* * =========================================
+         * DONATE SECTION (DISTINCTIVE)
+         * =========================================
+         */
+        .donate-card {
+            grid-column: span 2;
+            background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(10,10,10,0.9));
+            border: 1px dashed rgba(255,255,255,0.15);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 24px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .donate-card:hover {
+            background: #ffffff;
+            border-style: solid;
+            border-color: #ffffff;
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255,255,255,0.15);
+        }
+
+        /* Принудительно меняем цвет всех элементов внутри при наведении */
+        .donate-card:hover .grid-title { 
+            color: #000000 !important; 
+        }
+
+        .donate-card:hover .grid-sub { 
+            color: #444444 !important; 
+        }
+
+        .donate-card:hover svg { 
+            stroke: #000000; 
+            transform: scale(1.1);
+        }
+
+        /* Плавный переход для внутренних элементов */
+        .donate-card .grid-title, 
+        .donate-card .grid-sub, 
+        .donate-card svg {
+            transition: all 0.3s ease;
+        }
+
+        /* * =========================================
+         * FOOTER
+         * =========================================
+         */
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding-top: 60px;
+            opacity: 0;
+        }
+
+        .footer-logo {
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            transition: color 0.3s;
+        }
+        
+        .footer-logo:hover { color: var(--text-secondary); }
+
+        /* * =========================================
+         * ANIMATION KEYFRAMES & UTILS
+         * =========================================
+         */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+
+        @keyframes shimmerMobile {
+            0% { transform: translateX(-150%) skewX(-20deg); }
+            50% { transform: translateX(250%) skewX(-20deg); }
+            100% { transform: translateX(250%) skewX(-20deg); }
+        }
+
+        /* Mobile Shimmer Overlay */
+        .mobile-shimmer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            display: none;
+            border-radius: var(--radius-lg);
+        }
+
+        .mobile-shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shimmerMobile 4s infinite;
+        }
+
+        @media (pointer: coarse) {
+            .mobile-shimmer { display: block; }
+        }
+
+        /* Utility for animation reveal */
+        .reveal-el {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header class="reveal">
-        <div class="logo">RYFT PROTOCOL</div>
-        <h1>Ecosystem</h1>
-    </header>
-
-    <a href="https://t.me/ryft_hub" class="hero-channel reveal">
-        <span class="tag">Community</span>
-        <h2>RYFT | HUB</h2>
-        <p>Аналитика и новости экосистемы.</p>
-        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Войти →</span>
-    </a>
-
-    <div class="grid">
-        <a href="https://t.me/ryft_hub/45" class="card reveal">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" style="margin-bottom: 8px;">
-                <rect x="5" y="2" width="14" height="20" rx="3"></rect>
-            </svg>
-            <h3>App</h3>
-            <p>Android</p>
-        </a>
-
-        <a href="https://t.me/RyftAppBot" class="card reveal">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" style="margin-bottom: 8px;">
-                <path d="M21 12V7H5v10h10"></path>
-                <path d="M16 5V3h2v2h2v2h-2v2h-2V7h-2V5h2z"></path>
-            </svg>
-            <h3>Bot</h3>
-            <p>Telegram</p>
-        </a>
-
-        <a href="https://pay.cloudtips.ru/p/77595375" class="donate-card reveal">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-            Поддержать проект
-        </a>
+    <div id="preloader">
+        <div class="loader-content">
+            <div style="font-weight: 900; font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase; color: #666;">Initializing</div>
+            <div class="loader-line"></div>
+        </div>
     </div>
 
-    <footer class="reveal">
-        <div class="footer-logo">RYFT PROTOCOL © 2026</div>
-    </footer>
-</div>
+    <div class="noise-layer"></div>
+    <div class="vignette"></div>
+    <canvas id="starfield"></canvas>
 
-<script>
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-</script>
+    <div class="cursor-wrapper">
+        <div class="cursor-dot" id="c-dot"></div>
+        <div class="cursor-ring" id="c-ring"></div>
+    </div>
 
+    <main class="viewport">
+        
+        <header>
+            <div class="reveal-el" style="transition-delay: 100ms;">
+                <div class="brand-badge">
+                    <div class="status-indicator"></div>
+                    <span class="brand-text">ONLINE</span>
+                </div>
+            </div>
+            <h1 class="reveal-el" style="transition-delay: 200ms;">Ecosystem</h1>
+            <div class="subtitle reveal-el" style="transition-delay: 300ms;">Unified access protocol</div>
+        </header>
+
+        <a href="https://t.me/ryft_hub" class="card hero-card reveal-el magnetic-wrap" style="transition-delay: 400ms;">
+            <div class="mobile-shimmer"></div>
+            <div class="hero-content">
+                <span class="tag">Central Intelligence</span>
+                <div class="hero-title">RYFT | HUB</div>
+                <div class="hero-desc">Главный командный центр. Аналитика мировых рекордов, инсайды и управление экосистемой.</div>
+                
+                <div class="cta-row">
+                    Access Terminal
+                    <svg class="cta-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </a>
+
+        <div class="grid-layout">
+            <a href="https://t.me/ryft_hub/45" class="card grid-card reveal-el magnetic-wrap" style="transition-delay: 500ms;">
+                <div class="mobile-shimmer"></div>
+                <div class="icon-wrapper">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="5" y="2" width="14" height="20" rx="4"></rect>
+                        <line x1="12" y1="18" x2="12" y2="18.01"></line>
+                        <path d="M9 10h.01"></path>
+                        <path d="M15 10h.01"></path>
+                        <path d="M9 14h.01"></path>
+                        <path d="M15 14h.01"></path>
+                    </svg>
+                </div>
+                <div class="grid-title">App</div>
+                <div class="grid-sub">Android System</div>
+            </a>
+
+            <a href="https://t.me/RyftAppBot" class="card grid-card reveal-el magnetic-wrap" style="transition-delay: 600ms;">
+                <div class="mobile-shimmer"></div>
+                <div class="icon-wrapper">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"></path>
+                        <path d="M16 11v8a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-8"></path>
+                        <line x1="8" y1="14" x2="16" y2="14"></line>
+                    </svg>
+                </div>
+                <div class="grid-title">Bot</div>
+                <div class="grid-sub">Data Core</div>
+            </a>
+
+            <a href="https://pay.cloudtips.ru/p/77595375" class="card donate-card reveal-el magnetic-wrap" style="transition-delay: 700ms;">
+                <div class="mobile-shimmer"></div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+                </svg>
+                <div>
+                    <div class="grid-title" style="font-size: 14px;">Donate</div>
+                    <div class="grid-sub" style="font-size: 10px; opacity: 0.7;">Support Development</div>
+                </div>
+            </a>
+        </div>
+
+        <footer class="reveal-el" style="transition-delay: 800ms;">
+            <div class="footer-logo">RYFT PROTOCOL © 2026</div>
+        </footer>
+
+    </main>
+
+    <script>
+        /**
+         * =========================================
+         * CORE ENGINE v2.0
+         * =========================================
+         */
+
+        const config = {
+            isDesktop: window.matchMedia("(pointer: fine)").matches,
+            mouse: { x: 0, y: 0 },
+            smoothMouse: { x: 0, y: 0 }
+        };
+
+        // --- 1. PRELOADER LOGIC ---
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('preloader');
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    revealInterface();
+                }, 800);
+            }, 1200); // Artificial delay for cinematic effect
+        });
+
+        function revealInterface() {
+            const elements = document.querySelectorAll('.reveal-el');
+            elements.forEach(el => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+                el.style.transition = 'opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1)';
+                // Keep delay from inline styles
+            });
+        }
+
+        // --- 2. CURSOR PHYSICS & SPOTLIGHT ---
+const dot = document.getElementById('c-dot');
+const ring = document.getElementById('c-ring');
+
+window.addEventListener('mousemove', (e) => {
+    config.mouse.x = e.clientX;
+    config.mouse.y = e.clientY;
+
+    // Исправлено: добавляем смещение -50% прямо в transform
+    if(config.isDesktop) {
+        dot.style.transform = `translate(calc(${e.clientX}px - 50%), calc(${e.clientY}px - 50%))`;
+        
+        // Spotlight эффект (тут всё ок, это координаты внутри карты)
+        document.querySelectorAll('.card').forEach(card => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
+    }
+});
+
+// Smooth Ring Animation Loop
+function animateCursor() {
+    if (config.isDesktop) {
+        const dx = config.mouse.x - config.smoothMouse.x;
+        const dy = config.mouse.y - config.smoothMouse.y;
+        
+        config.smoothMouse.x += dx * 0.15;
+        config.smoothMouse.y += dy * 0.15;
+
+        // Исправлено: кольцо теперь тоже центрируется идеально
+        ring.style.transform = `translate(calc(${config.smoothMouse.x}px - 50%), calc(${config.smoothMouse.y}px - 50%))`;
+    }
+    requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+        // Magnetic Effect on Hover
+        const magnetics = document.querySelectorAll('.magnetic-wrap');
+        magnetics.forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                if (!config.isDesktop) return;
+                
+                const rect = el.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                // Calculate distance from center
+                const deltaX = Math.floor((centerX - e.clientX)) * -0.2; // Strength
+                const deltaY = Math.floor((centerY - e.clientY)) * -0.2;
+
+                // Scale cursor
+                ring.style.width = '60px';
+                ring.style.height = '60px';
+                ring.style.borderColor = 'rgba(255,255,255,0)';
+                ring.style.backgroundColor = 'rgba(255,255,255,0.1)';
+
+                // Move element
+                el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.02)`;
+            });
+
+            el.addEventListener('mouseleave', () => {
+                if (!config.isDesktop) return;
+
+                // Reset cursor
+                ring.style.width = '40px';
+                ring.style.height = '40px';
+                ring.style.borderColor = 'rgba(255,255,255,0.4)';
+                ring.style.backgroundColor = 'transparent';
+
+                // Reset element
+                el.style.transform = `translate(0px, 0px) scale(1)`;
+            });
+        });
+
+        // --- 3. CANVAS STARFIELD ENGINE ---
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let stars = [];
+        
+        // Configuration
+        const STAR_COUNT = config.isDesktop ? 60 : 25;
+        const CONNECTION_DIST = 130;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.3; // Velocity
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.size = Math.random() * 2;
+                this.alpha = Math.random() * 0.5 + 0.2;
+                this.baseAlpha = this.alpha;
+                this.phase = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.phase += 0.03;
+
+                // Breathing effect
+                this.alpha = this.baseAlpha + Math.sin(this.phase) * 0.1;
+
+                // Boundary check
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        // Init Stars
+        for(let i = 0; i < STAR_COUNT; i++) {
+            stars.push(new Star());
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, width, height);
+            
+            stars.forEach((star, index) => {
+                star.update();
+                star.draw();
+
+                // Draw Connections
+                for (let j = index + 1; j < stars.length; j++) {
+                    const other = stars[j];
+                    const dist = Math.hypot(star.x - other.x, star.y - other.y);
+
+                    if (dist < CONNECTION_DIST) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - dist / CONNECTION_DIST)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(star.x, star.y);
+                        ctx.lineTo(other.x, other.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+
+            requestAnimationFrame(animateStars);
+        }
+        animateStars();
+
+        // --- 4. TOUCH RIPPLE (MOBILE ONLY) ---
+        if (!config.isDesktop) {
+            document.addEventListener('touchstart', (e) => {
+                // Simple feedback logic if needed
+            }, { passive: true });
+            
+            // Note: Card scaling is handled via CSS :active pseudo-class for best performance
+        }
+
+    </script>
 </body>
 </html>
