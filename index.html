@@ -2,10 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#030303">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="RYFT Ecosystem Unified Access Protocol">
+    
     <title>RYFT | ECOSYSTEM PROTOCOL</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,39 +16,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* * =========================================
-         * CORE VARIABLES & CONFIG
-         * =========================================
+        /* * ============================================================================
+         * GLOBAL VARIABLES & CONFIGURATION
+         * ============================================================================
+         * Defines the design tokens for the entire ecosystem.
          */
         :root {
-            /* Colors */
-            --bg-deep: #030303;
+            /* * Color Palette 
+             * Using dark greys instead of pure #000 to reduce OLED smearing 
+             */
+            --bg-deep: #030303; 
             --bg-surface: #0a0a0a;
-            --accent-primary: #ffffff;
+            --bg-overlay: rgba(20, 20, 20, 0.6);
+            
+            /* Text Colors */
             --text-primary: #ffffff;
             --text-secondary: #888888;
             --text-tertiary: #444444;
+            --text-accent: #00ff88;
 
-            /* Glassmorphism */
-            --glass-bg: rgba(255, 255, 255, 0.02);
-            --glass-border: rgba(255, 255, 255, 0.06);
-            --glass-highlight: rgba(255, 255, 255, 0.1);
-            --glass-blur: blur(16px);
+            /* Glassmorphism System */
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --glass-blur: blur(20px);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 
-            /* Spacing & Radius */
+            /* Layout Dimensions */
+            --container-width: 540px;
+            --spacing-unit: 8px;
+            --header-height: 120px;
+
+            /* Radii */
             --radius-lg: 28px;
             --radius-md: 20px;
             --radius-sm: 12px;
-            --container-width: 540px;
+            --radius-pill: 100px;
 
-            /* Animation Curves */
+            /* Animation Bezier Curves */
             --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
             --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
         }
 
-        /* * =========================================
-         * RESET & BASE
-         * =========================================
+        /* * ============================================================================
+         * RESET & NORMALIZATION
+         * ============================================================================
          */
         * {
             margin: 0;
@@ -53,6 +69,8 @@
             box-sizing: border-box;
             outline: none;
             -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         html, body {
@@ -60,154 +78,256 @@
             min-height: 100vh;
             background-color: var(--bg-deep);
             color: var(--text-primary);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
             position: relative;
-            font-feature-settings: "ss01", "ss02", "cv01"; /* Modern font features */
+            /* CV01: Alternate "1", SS01: Stylized sets */
+            font-feature-settings: "ss01", "ss02", "cv01"; 
+            /* Fix for overscroll bounce on iOS */
+            overscroll-behavior-y: none;
         }
 
-        /* Hide cursor on desktop initially for custom cursor */
+        /* Hide Scrollbar but allow scrolling */
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* * ============================================================================
+         * CURSOR MANAGEMENT
+         * ============================================================================
+         */
         @media (pointer: fine) {
             body { cursor: none; }
             a { cursor: none; }
+            button { cursor: none; }
         }
 
-        /* * =========================================
-         * LOADER SYSTEM
-         * =========================================
+       /* * ============================================================================
+         * LOADING SYSTEM (FIXED CENTERING)
+         * ============================================================================
          */
         #preloader {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
+            top: 0; 
+            left: 0; 
+            width: 100vw;   /* Используем vh/vw для точности */
+            height: 100vh;
+            background: #000000;
             z-index: 10000;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s var(--ease-out-expo);
+            align-items: center;     /* Центровка по вертикали */
+            justify-content: center;  /* Центровка по горизонтали */
+            transition: opacity 0.8s var(--ease-out-expo), visibility 0.8s;
+            /* Убираем любые возможные смещения */
+            margin: 0;
+            padding: 0;
         }
         
         .loader-content {
             text-align: center;
-            opacity: 0;
-            animation: fadeInOut 2.5s forwards;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        .loader-line {
+        .loader-text {
+            font-family: 'Inter', monospace;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 20px;
+            display: block; /* Изменили с inline-block для лучшего выравнивания */
+            width: 100%;
+        }
+
+        .loader-progress-wrap {
+            width: 140px; /* Немного увеличили для солидности */
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loader-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
             width: 0%;
-            height: 1px;
             background: #fff;
-            margin: 10px auto;
-            animation: loadLine 2s var(--ease-out-expo) forwards;
+            animation: loadProgress 2.2s var(--ease-out-expo) forwards;
         }
 
-        @keyframes loadLine { 0% { width: 0%; } 100% { width: 100px; } }
-        @keyframes fadeInOut { 0% { opacity: 0; } 20% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes loadProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
 
-        /* * =========================================
-         * VISUAL LAYERS (NOISE, CANVAS)
-         * =========================================
+        /* * ============================================================================
+         * BACKGROUND LAYERS (Quality Fix)
+         * ============================================================================
          */
-        .noise-layer {
+        
+        /* * Layer 1: The Canvas Noise 
+         * Replaces the SVG data URI to prevent banding/pixelation on mobile.
+         * Rendered via JS for pixel-perfect mapping.
+         */
+        #noise-canvas {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 50;
-            opacity: 0.035;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.07; /* Adjusted for subtleties */
+            mix-blend-mode: overlay;
         }
 
+        /* * Layer 2: The Vignette
+         * Uses a complex gradient with ease-stops to prevent color banding
+         * on 8-bit displays.
+         */
         .vignette {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, #000 120%);
-            z-index: 40;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
             pointer-events: none;
+            z-index: 40;
+            /* Complex gradient for smoother falloff */
+            background: radial-gradient(
+                circle at 50% 50%, 
+                transparent 0%, 
+                rgba(3, 3, 3, 0.1) 40%, 
+                rgba(3, 3, 3, 0.8) 85%, 
+                rgba(0, 0, 0, 1) 120%
+            );
         }
 
+        /* * Layer 3: The Starfield
+         */
         #starfield {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
             z-index: 1;
         }
 
-        /* * =========================================
-         * CUSTOM CURSOR (PHYSICS)
-         * =========================================
+        /* * ============================================================================
+         * CUSTOM CURSOR (Physics Based)
+         * ============================================================================
          */
         .cursor-wrapper {
             position: fixed;
-            top: 0; left: 0;
+            top: 0; 
+            left: 0;
             z-index: 9999;
             pointer-events: none;
-            mix-blend-mode: difference;
+            mix-blend-mode: exclusion;
         }
         
         .cursor-dot {
-            width: 8px; height: 8px;
+            width: 6px; 
+            height: 6px;
             background: white;
             border-radius: 50%;
             position: absolute;
             transform: translate(-50%, -50%);
+            will-change: transform;
         }
 
         .cursor-ring {
-            width: 40px; height: 40px;
-            border: 1px solid rgba(255,255,255,0.4);
+            width: 40px; 
+            height: 40px;
+            border: 1px solid rgba(255,255,255,0.6);
             border-radius: 50%;
             position: absolute;
             transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, background-color 0.3s;
+            transition: width 0.3s var(--ease-out-expo), 
+                        height 0.3s var(--ease-out-expo), 
+                        background-color 0.3s, 
+                        border-color 0.3s;
+            will-change: transform, width, height;
         }
 
-        /* Desktop Only Styles */
+        /* Disable custom cursor on touch devices */
         @media (pointer: coarse) {
             .cursor-wrapper { display: none; }
         }
 
-        /* * =========================================
-         * LAYOUT STRUCTURE
-         * =========================================
+        /* * ============================================================================
+         * LAYOUT & CONTAINERS
+         * ============================================================================
          */
         .viewport {
             position: relative;
             z-index: 60;
             max-width: var(--container-width);
             margin: 0 auto;
-            padding: 80px 20px 40px 20px;
+            padding: 80px 20px 60px 20px;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* * =========================================
-         * HEADER SECTION
-         * =========================================
+        /* * ============================================================================
+         * HEADER COMPONENTS
+         * ============================================================================
          */
         header {
             text-align: center;
-            margin-bottom: 48px;
+            margin-bottom: 56px;
             perspective: 1000px;
         }
 
         .brand-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 100px;
-            margin-bottom: 24px;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
+            gap: 10px;
+            padding: 6px 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-pill);
+            margin-bottom: 28px;
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .brand-badge:hover {
+            transform: scale(1.02);
+            border-color: rgba(255,255,255,0.15);
         }
 
         .status-indicator {
-            width: 6px; height: 6px;
-            background: #00ff88;
+            width: 6px; 
+            height: 6px;
+            background: var(--text-accent);
             border-radius: 50%;
-            box-shadow: 0 0 10px #00ff88;
-            animation: pulse 2s infinite;
+            position: relative;
+        }
+        
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px;
+            width: 10px; height: 10px;
+            background: var(--text-accent);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
         }
 
         .brand-text {
@@ -215,33 +335,36 @@
             font-weight: 700;
             letter-spacing: 0.25em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.8);
         }
 
         h1 {
-            font-size: clamp(42px, 10vw, 56px);
-            font-weight: 800;
-            letter-spacing: -0.05em;
-            line-height: 0.95;
-            background: linear-gradient(180deg, #FFFFFF 0%, #666666 120%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            transform: translateY(20px);
-            opacity: 0; /* JS Animation */
-        }
+    font-size: clamp(42px, 12vw, 64px);
+    font-weight: 800;
+    letter-spacing: -0.04em; /* Чуть увеличили расстояние между буквами */
+    line-height: 1.1;        /* Увеличили с 0.9 до 1.1, чтобы 'y' не резалась */
+    background: linear-gradient(180deg, #FFFFFF 0%, #a0a0a0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;     /* Добавили чуть больше места снизу */
+    opacity: 0;
+    transform: translateY(20px);
+    filter: drop-shadow(0 0 30px rgba(255,255,255,0.1));
+    padding-bottom: 0.1em;   /* Технический запас для нижних элементов букв */
+}
 
         .subtitle {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--text-secondary);
             font-weight: 400;
+            letter-spacing: -0.01em;
             opacity: 0;
             transform: translateY(20px);
         }
 
-        /* * =========================================
+        /* * ============================================================================
          * COMPONENT: GLASS CARD
-         * =========================================
+         * ============================================================================
          */
         .card {
             position: relative;
@@ -254,21 +377,36 @@
             color: var(--text-primary);
             overflow: hidden;
             display: block;
-            transition: transform 0.4s var(--ease-elastic), border-color 0.3s;
+            transition: all 0.4s var(--ease-elastic);
             backdrop-filter: var(--glass-blur);
             -webkit-backdrop-filter: var(--glass-blur);
             transform-style: preserve-3d;
         }
 
-        /* The Glow Effect (Spotlight) container */
+        /* Dynamic Spotlight Effect Wrapper */
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(255, 255, 255, 0.04),
+                transparent 40%
+            );
+            opacity: 1;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Border Spotlight */
         .card::after {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            inset: 0;
             border-radius: var(--radius-lg);
-            padding: 1px; /* Border width */
+            padding: 1px;
             background: radial-gradient(
-                600px circle at var(--mouse-x) var(--mouse-y),
+                600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
                 rgba(255, 255, 255, 0.4),
                 transparent 40%
             );
@@ -276,67 +414,73 @@
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.5s;
             pointer-events: none;
-            z-index: 10;
-        }
-
-        .card:hover::after {
-            opacity: 1;
+            z-index: 2;
+            opacity: 0.5;
+            transition: opacity 0.3s;
         }
 
         .card:hover {
             transform: translateY(-5px);
             border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
         }
         
-        /* Mobile Touch State */
-        .card:active {
-            transform: scale(0.98);
+        .card:hover::after {
+            opacity: 1;
         }
 
-        /* * =========================================
-         * HERO SECTION (HUB)
-         * =========================================
+        .card:active {
+            transform: scale(0.98) translateY(-2px);
+        }
+
+        /* * ============================================================================
+         * HERO SECTION (THE HUB)
+         * ============================================================================
          */
         .hero-card {
-            position: relative;
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            min-height: 220px;
         }
 
         .hero-content {
             position: relative;
             z-index: 5;
-            transform: translateZ(20px);
         }
 
         .tag {
             font-size: 9px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
             padding: 6px 12px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: var(--radius-pill);
             display: inline-block;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             color: rgba(255,255,255,0.9);
             border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(4px);
         }
 
         .hero-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+            letter-spacing: -0.03em;
+            color: #fff;
         }
 
         .hero-desc {
             font-size: 15px;
-            line-height: 1.5;
+            line-height: 1.6;
             color: var(--text-secondary);
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             max-width: 90%;
+            font-weight: 400;
         }
 
         .cta-row {
@@ -345,79 +489,94 @@
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             color: #fff;
+            gap: 12px;
         }
 
-        .cta-arrow {
-            margin-left: 10px;
-            transition: transform 0.3s ease;
+        .cta-icon {
+            width: 28px;
+            height: 28px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            transition: transform 0.4s var(--ease-elastic);
         }
 
-        .hero-card:hover .cta-arrow {
-            transform: translateX(5px);
+        .hero-card:hover .cta-icon {
+            transform: translateX(6px) scale(1.1);
         }
 
-        /* * =========================================
+        /* * ============================================================================
          * GRID SYSTEM
-         * =========================================
+         * ============================================================================
          */
         .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;               /* Увеличили зазор между кнопками с 16px до 20px */
+    margin-bottom: 20px;
+}
 
-        .grid-card {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            justify-content: center;
-            height: 100%;
-        }
+.grid-card {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    height: auto;            /* Убрали жесткую привязку к высоте */
+    aspect-ratio: 1.1 / 1;   /* Сделали чуть более прямоугольными, чтобы не "давили" друг на друга */
+}
 
-        /* FIXED ICON BOX FOR PERFECT ALIGNMENT */
+        /* * ICON WRAPPERS 
+         * Enhanced styling for the glass look icons
+         */
         .icon-wrapper {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-            border-radius: 18px;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 24px -6px rgba(0,0,0,0.3);
             transition: all 0.4s var(--ease-elastic);
             position: relative;
+            overflow: hidden;
         }
 
-        /* Inner glow for icons */
+        /* Inner shine for icons */
         .icon-wrapper::before {
             content: '';
             position: absolute;
-            inset: 0;
-            border-radius: 18px;
-            padding: 1px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.2), transparent);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .grid-card:hover .icon-wrapper::before {
+            left: 100%;
         }
 
         .grid-card:hover .icon-wrapper {
-            transform: scale(1.1) rotate(3deg);
-            background: rgba(255,255,255,0.1);
+            transform: scale(1.1) rotate(2deg);
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.3);
         }
 
         .grid-title {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             color: #fff;
+            letter-spacing: -0.01em;
         }
 
         .grid-sub {
@@ -426,21 +585,22 @@
             font-weight: 500;
         }
 
-        /* * =========================================
-         * DONATE SECTION (DISTINCTIVE)
-         * =========================================
+        /* * ============================================================================
+         * SPECIAL COMPONENT: DONATE CARD
+         * ============================================================================
          */
         .donate-card {
             grid-column: span 2;
-            background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(10,10,10,0.9));
+            aspect-ratio: auto;
+            background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(5,5,5,0.9));
             border: 1px dashed rgba(255,255,255,0.15);
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 24px;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            gap: 16px;
+            padding: 28px;
+            transition: all 0.4s var(--ease-out-expo);
         }
 
         .donate-card:hover {
@@ -448,69 +608,56 @@
             border-style: solid;
             border-color: #ffffff;
             transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255,255,255,0.15);
+            box-shadow: 0 20px 50px rgba(255,255,255,0.2);
         }
 
-        /* Принудительно меняем цвет всех элементов внутри при наведении */
-        .donate-card:hover .grid-title { 
-            color: #000000 !important; 
-        }
+        /* Text color inversion on hover */
+        .donate-card:hover .grid-title { color: #000000 !important; }
+        .donate-card:hover .grid-sub { color: #555555 !important; }
+        .donate-card:hover svg { stroke: #000000; transform: scale(1.1) rotate(-10deg); }
 
-        .donate-card:hover .grid-sub { 
-            color: #444444 !important; 
-        }
-
-        .donate-card:hover svg { 
-            stroke: #000000; 
-            transform: scale(1.1);
-        }
-
-        /* Плавный переход для внутренних элементов */
         .donate-card .grid-title, 
         .donate-card .grid-sub, 
         .donate-card svg {
             transition: all 0.3s ease;
         }
 
-        /* * =========================================
+        /* * ============================================================================
          * FOOTER
-         * =========================================
+         * ============================================================================
          */
         footer {
             margin-top: auto;
             text-align: center;
             padding-top: 60px;
+            padding-bottom: 20px;
             opacity: 0;
+            transform: translateY(20px);
         }
 
         .footer-logo {
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 900;
             letter-spacing: 0.3em;
             text-transform: uppercase;
             color: var(--text-tertiary);
             transition: color 0.3s;
+            display: inline-block;
         }
         
         .footer-logo:hover { color: var(--text-secondary); }
 
-        /* * =========================================
-         * ANIMATION KEYFRAMES & UTILS
-         * =========================================
+        /* * ============================================================================
+         * MOBILE SHIMMER ANIMATION
+         * Adds a subtle premium "loading" feel on mobile where hover isn't present
+         * ============================================================================
          */
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-        }
-
         @keyframes shimmerMobile {
             0% { transform: translateX(-150%) skewX(-20deg); }
-            50% { transform: translateX(250%) skewX(-20deg); }
+            40% { transform: translateX(-150%) skewX(-20deg); }
             100% { transform: translateX(250%) skewX(-20deg); }
         }
 
-        /* Mobile Shimmer Overlay */
         .mobile-shimmer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -518,24 +665,35 @@
             pointer-events: none;
             display: none;
             border-radius: var(--radius-lg);
+            z-index: 3;
         }
 
         .mobile-shimmer::after {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            animation: shimmerMobile 4s infinite;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            animation: shimmerMobile 5s infinite;
         }
 
         @media (pointer: coarse) {
             .mobile-shimmer { display: block; }
         }
 
-        /* Utility for animation reveal */
+        /* * ============================================================================
+         * UTILITIES & HELPERS
+         * ============================================================================
+         */
         .reveal-el {
             opacity: 0;
             transform: translateY(30px);
+            will-change: opacity, transform;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
         }
 
     </style>
@@ -544,12 +702,14 @@
 
     <div id="preloader">
         <div class="loader-content">
-            <div style="font-weight: 900; font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase; color: #666;">Initializing</div>
-            <div class="loader-line"></div>
+            <div class="loader-text" id="loader-text">INITIALIZING</div>
+            <div class="loader-progress-wrap">
+                <div class="loader-bar"></div>
+            </div>
         </div>
     </div>
 
-    <div class="noise-layer"></div>
+    <canvas id="noise-canvas"></canvas>
     <div class="vignette"></div>
     <canvas id="starfield"></canvas>
 
@@ -579,11 +739,13 @@
                 <div class="hero-desc">Главный командный центр. Аналитика мировых рекордов, инсайды и управление экосистемой.</div>
                 
                 <div class="cta-row">
-                    Access Terminal
-                    <svg class="cta-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
+                    <span>Access Terminal</span>
+                    <div class="cta-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </a>
@@ -592,7 +754,7 @@
             <a href="https://t.me/ryft_hub/45" class="card grid-card reveal-el magnetic-wrap" style="transition-delay: 500ms;">
                 <div class="mobile-shimmer"></div>
                 <div class="icon-wrapper">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="5" y="2" width="14" height="20" rx="4"></rect>
                         <line x1="12" y1="18" x2="12" y2="18.01"></line>
                         <path d="M9 10h.01"></path>
@@ -608,7 +770,7 @@
             <a href="https://t.me/RyftAppBot" class="card grid-card reveal-el magnetic-wrap" style="transition-delay: 600ms;">
                 <div class="mobile-shimmer"></div>
                 <div class="icon-wrapper">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"></path>
                         <path d="M16 11v8a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-8"></path>
                         <line x1="8" y1="14" x2="16" y2="14"></line>
@@ -620,17 +782,17 @@
 
             <a href="https://pay.cloudtips.ru/p/77595375" class="card donate-card reveal-el magnetic-wrap" style="transition-delay: 700ms;">
                 <div class="mobile-shimmer"></div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
                 </svg>
-                <div>
-                    <div class="grid-title" style="font-size: 14px;">Donate</div>
-                    <div class="grid-sub" style="font-size: 10px; opacity: 0.7;">Support Development</div>
+                <div style="text-align: left;">
+                    <div class="grid-title" style="font-size: 15px; margin-bottom: 2px;">Donate</div>
+                    <div class="grid-sub" style="font-size: 11px; opacity: 0.7;">Support Development</div>
                 </div>
             </a>
         </div>
 
-        <footer class="reveal-el" style="transition-delay: 800ms;">
+        <footer class="reveal-el" style="transition-delay: 850ms;">
             <div class="footer-logo">RYFT PROTOCOL © 2026</div>
         </footer>
 
@@ -638,211 +800,400 @@
 
     <script>
         /**
-         * =========================================
-         * CORE ENGINE v2.0
-         * =========================================
+         * ============================================================================
+         * ENGINE ARCHITECTURE v3.1 (Mobile Optimized)
+         * ============================================================================
+         * Modular, Class-based architecture for better performance and maintenance.
+         * Explicitly fixes rendering issues on high-DPI (Retina) mobile screens.
          */
 
-        const config = {
+        // Global Configuration State
+        const CONFIG = {
             isDesktop: window.matchMedia("(pointer: fine)").matches,
-            mouse: { x: 0, y: 0 },
-            smoothMouse: { x: 0, y: 0 }
+            isMobile: window.matchMedia("(max-width: 768px)").matches,
+            pixelRatio: window.devicePixelRatio || 1,
+            colors: {
+                white: 'rgba(255, 255, 255, 1)',
+                accent: '#00ff88'
+            },
+            physics: {
+                mouseLag: 0.12,
+                starCount: window.matchMedia("(pointer: fine)").matches ? 70 : 30, // Optimized count
+                connectionDist: 140
+            }
         };
 
-        // --- 1. PRELOADER LOGIC ---
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const loader = document.getElementById('preloader');
-                loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    revealInterface();
-                }, 800);
-            }, 1200); // Artificial delay for cinematic effect
-        });
-
-        function revealInterface() {
-            const elements = document.querySelectorAll('.reveal-el');
-            elements.forEach(el => {
-                el.style.opacity = '1';
-                el.style.transform = 'translateY(0)';
-                el.style.transition = 'opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1)';
-                // Keep delay from inline styles
-            });
-        }
-
-        // --- 2. CURSOR PHYSICS & SPOTLIGHT ---
-const dot = document.getElementById('c-dot');
-const ring = document.getElementById('c-ring');
-
-window.addEventListener('mousemove', (e) => {
-    config.mouse.x = e.clientX;
-    config.mouse.y = e.clientY;
-
-    // Исправлено: добавляем смещение -50% прямо в transform
-    if(config.isDesktop) {
-        dot.style.transform = `translate(calc(${e.clientX}px - 50%), calc(${e.clientY}px - 50%))`;
-        
-        // Spotlight эффект (тут всё ок, это координаты внутри карты)
-        document.querySelectorAll('.card').forEach(card => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            card.style.setProperty('--mouse-x', `${x}px`);
-            card.style.setProperty('--mouse-y', `${y}px`);
-        });
-    }
-});
-
-// Smooth Ring Animation Loop
-function animateCursor() {
-    if (config.isDesktop) {
-        const dx = config.mouse.x - config.smoothMouse.x;
-        const dy = config.mouse.y - config.smoothMouse.y;
-        
-        config.smoothMouse.x += dx * 0.15;
-        config.smoothMouse.y += dy * 0.15;
-
-        // Исправлено: кольцо теперь тоже центрируется идеально
-        ring.style.transform = `translate(calc(${config.smoothMouse.x}px - 50%), calc(${config.smoothMouse.y}px - 50%))`;
-    }
-    requestAnimationFrame(animateCursor);
-}
-animateCursor();
-
-        // Magnetic Effect on Hover
-        const magnetics = document.querySelectorAll('.magnetic-wrap');
-        magnetics.forEach(el => {
-            el.addEventListener('mousemove', (e) => {
-                if (!config.isDesktop) return;
-                
-                const rect = el.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                // Calculate distance from center
-                const deltaX = Math.floor((centerX - e.clientX)) * -0.2; // Strength
-                const deltaY = Math.floor((centerY - e.clientY)) * -0.2;
-
-                // Scale cursor
-                ring.style.width = '60px';
-                ring.style.height = '60px';
-                ring.style.borderColor = 'rgba(255,255,255,0)';
-                ring.style.backgroundColor = 'rgba(255,255,255,0.1)';
-
-                // Move element
-                el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.02)`;
-            });
-
-            el.addEventListener('mouseleave', () => {
-                if (!config.isDesktop) return;
-
-                // Reset cursor
-                ring.style.width = '40px';
-                ring.style.height = '40px';
-                ring.style.borderColor = 'rgba(255,255,255,0.4)';
-                ring.style.backgroundColor = 'transparent';
-
-                // Reset element
-                el.style.transform = `translate(0px, 0px) scale(1)`;
-            });
-        });
-
-        // --- 3. CANVAS STARFIELD ENGINE ---
-        const canvas = document.getElementById('starfield');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        let stars = [];
-        
-        // Configuration
-        const STAR_COUNT = config.isDesktop ? 60 : 25;
-        const CONNECTION_DIST = 130;
-
-        function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        class Star {
+        /**
+         * 1. NOISE GENERATOR SYSTEM
+         * Replaces static images with procedurally generated noise on Canvas.
+         * This solves the "compression artifacts" and "banding" on OLED screens.
+         */
+        class NoiseSystem {
             constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.3; // Velocity
-                this.vy = (Math.random() - 0.5) * 0.3;
-                this.size = Math.random() * 2;
-                this.alpha = Math.random() * 0.5 + 0.2;
-                this.baseAlpha = this.alpha;
-                this.phase = Math.random() * Math.PI * 2;
+                this.canvas = document.getElementById('noise-canvas');
+                this.ctx = this.canvas.getContext('2d', { alpha: true });
+                this.resize();
+                
+                // Regenerate on resize to maintain crispness
+                window.addEventListener('resize', () => {
+                    clearTimeout(this.resizeTimer);
+                    this.resizeTimer = setTimeout(() => this.resize(), 200);
+                });
             }
 
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.phase += 0.03;
+            resize() {
+                // Handle High DPI displays explicitly
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                
+                this.canvas.width = width * CONFIG.pixelRatio;
+                this.canvas.height = height * CONFIG.pixelRatio;
+                this.canvas.style.width = `${width}px`;
+                this.canvas.style.height = `${height}px`;
+                
+                // Scale context to match
+                this.ctx.scale(CONFIG.pixelRatio, CONFIG.pixelRatio);
+                
+                this.generateNoise(width, height);
+            }
 
-                // Breathing effect
-                this.alpha = this.baseAlpha + Math.sin(this.phase) * 0.1;
+            generateNoise(width, height) {
+                const w = width * CONFIG.pixelRatio;
+                const h = height * CONFIG.pixelRatio;
+                
+                const iData = this.ctx.createImageData(w, h);
+                const buffer32 = new Uint32Array(iData.data.buffer);
+                const len = buffer32.length;
 
-                // Boundary check
-                if (this.x < 0) this.x = width;
-                if (this.x > width) this.x = 0;
-                if (this.y < 0) this.y = height;
-                if (this.y > height) this.y = 0;
+                // Fast noise generation loop
+                for (let i = 0; i < len; i++) {
+                    // Random grain logic: subtle monochromatic noise
+                    // High values (e.g. 255) with low alpha avoid "color noise"
+                    if (Math.random() < 0.5) {
+                        // Color: White, Alpha: ~10-15% (randomized for organic feel)
+                        // Format: 0xAABBGGRR (little endian) -> Alpha, Blue, Green, Red
+                        const alpha = Math.floor(Math.random() * 30); // 0-30 alpha
+                        buffer32[i] = (alpha << 24) | (255 << 16) | (255 << 8) | 255; 
+                    }
+                }
+
+                this.ctx.putImageData(iData, 0, 0);
+            }
+        }
+
+        /**
+         * 2. INPUT MANAGER
+         * Handles Mouse and Touch coordinates unified.
+         */
+        class InputManager {
+            constructor() {
+                this.x = window.innerWidth / 2;
+                this.y = window.innerHeight / 2;
+                this.smoothX = this.x;
+                this.smoothY = this.y;
+                
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                window.addEventListener('mousemove', (e) => {
+                    this.x = e.clientX;
+                    this.y = e.clientY;
+                    this.updateCSSVariables();
+                });
+            }
+
+            // Spotlight effect calculations for CSS
+            updateCSSVariables() {
+                if (!CONFIG.isDesktop) return;
+                
+                const cards = document.querySelectorAll('.card');
+                cards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const x = this.x - rect.left;
+                    const y = this.y - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            }
+
+            // Returns interpolated coordinates for smooth animations
+            getSmoothedCoordinates() {
+                const dx = this.x - this.smoothX;
+                const dy = this.y - this.smoothY;
+                this.smoothX += dx * CONFIG.physics.mouseLag;
+                this.smoothY += dy * CONFIG.physics.mouseLag;
+                return { x: this.smoothX, y: this.smoothY };
+            }
+        }
+
+        /**
+         * 3. CURSOR RENDERER
+         * Physics-based custom cursor.
+         */
+        class CursorSystem {
+            constructor(inputManager) {
+                if (!CONFIG.isDesktop) return;
+                
+                this.input = inputManager;
+                this.dot = document.getElementById('c-dot');
+                this.ring = document.getElementById('c-ring');
+                
+                this.render();
+                this.initMagneticEffects();
+            }
+
+            render() {
+                const { x, y } = this.input.getSmoothedCoordinates();
+                
+                // Hardware accelerated transforms
+                // Direct mapping for dot (instant)
+                this.dot.style.transform = `translate3d(${this.input.x}px, ${this.input.y}px, 0) translate(-50%, -50%)`;
+                
+                // Smoothed mapping for ring
+                this.ring.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+                
+                requestAnimationFrame(() => this.render());
+            }
+
+            initMagneticEffects() {
+                const magnetics = document.querySelectorAll('.magnetic-wrap');
+                
+                magnetics.forEach(el => {
+                    el.addEventListener('mousemove', (e) => {
+                        const rect = el.getBoundingClientRect();
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+                        
+                        // Strength of magnetic pull
+                        const pullStrength = 0.2; 
+                        const deltaX = (e.clientX - centerX) * pullStrength;
+                        const deltaY = (e.clientY - centerY) * pullStrength;
+
+                        // Visual feedback on cursor
+                        this.ring.style.width = '60px';
+                        this.ring.style.height = '60px';
+                        this.ring.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                        this.ring.style.borderColor = 'transparent';
+
+                        // Move element
+                        el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.02)`;
+                    });
+
+                    el.addEventListener('mouseleave', () => {
+                        // Reset cursor
+                        this.ring.style.width = '40px';
+                        this.ring.style.height = '40px';
+                        this.ring.style.backgroundColor = 'transparent';
+                        this.ring.style.borderColor = 'rgba(255,255,255,0.6)';
+
+                        // Reset element
+                        el.style.transform = 'translate(0, 0) scale(1)';
+                    });
+                });
+            }
+        }
+
+        /**
+         * 4. STARFIELD ENGINE
+         * Canvas-based particle system with connection lines.
+         */
+        class StarfieldEngine {
+            constructor() {
+                this.canvas = document.getElementById('starfield');
+                this.ctx = this.canvas.getContext('2d');
+                this.stars = [];
+                this.width = 0;
+                this.height = 0;
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                this.initStars();
+                this.animate();
+            }
+
+            resize() {
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+            }
+
+            initStars() {
+                this.stars = [];
+                for (let i = 0; i < CONFIG.physics.starCount; i++) {
+                    this.stars.push({
+                        x: Math.random() * this.width,
+                        y: Math.random() * this.height,
+                        vx: (Math.random() - 0.5) * 0.4, // Velocity
+                        vy: (Math.random() - 0.5) * 0.4,
+                        size: Math.random() * 1.5 + 0.5,
+                        baseAlpha: Math.random() * 0.4 + 0.1, // Random opacity
+                        phase: Math.random() * Math.PI * 2 // Animation phase
+                    });
+                }
             }
 
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
-                ctx.fill();
+                this.ctx.clearRect(0, 0, this.width, this.height);
+                
+                // Draw Connections First (Background)
+                this.ctx.lineWidth = 0.5;
+                for (let i = 0; i < this.stars.length; i++) {
+                    for (let j = i + 1; j < this.stars.length; j++) {
+                        const s1 = this.stars[i];
+                        const s2 = this.stars[j];
+                        const dx = s1.x - s2.x;
+                        const dy = s1.y - s2.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+
+                        if (dist < CONFIG.physics.connectionDist) {
+                            // Opacity based on distance
+                            const alpha = (1 - dist / CONFIG.physics.connectionDist) * 0.15;
+                            this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(s1.x, s1.y);
+                            this.ctx.lineTo(s2.x, s2.y);
+                            this.ctx.stroke();
+                        }
+                    }
+                }
+
+                // Draw Stars
+                for (let i = 0; i < this.stars.length; i++) {
+                    const s = this.stars[i];
+                    
+                    // Update Position
+                    s.x += s.vx;
+                    s.y += s.vy;
+                    
+                    // Boundary Wrap
+                    if (s.x < 0) s.x = this.width;
+                    if (s.x > this.width) s.x = 0;
+                    if (s.y < 0) s.y = this.height;
+                    if (s.y > this.height) s.y = 0;
+
+                    // Twinkle Effect (Sine wave)
+                    s.phase += 0.02;
+                    const alpha = s.baseAlpha + Math.sin(s.phase) * 0.1;
+
+                    this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, alpha)})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+
+            animate() {
+                this.draw();
+                requestAnimationFrame(() => this.animate());
             }
         }
 
-        // Init Stars
-        for(let i = 0; i < STAR_COUNT; i++) {
-            stars.push(new Star());
+        /**
+         * 5. UI CONTROLLER (Boot Sequence)
+         * Handles the loading screen and element reveals.
+         */
+        class UIController {
+            constructor() {
+                this.loader = document.getElementById('preloader');
+                this.textEl = document.getElementById('loader-text');
+                this.boot();
+            }
+
+            async boot() {
+                // Text Scramble Effect for Loader
+                await this.scrambleText("INITIALIZING");
+                await this.wait(400);
+                await this.scrambleText("LOADING ASSETS");
+                await this.wait(600);
+                await this.scrambleText("ESTABLISHING LINK");
+                await this.wait(400);
+                
+                // Fade out loader
+                this.loader.style.opacity = '0';
+                
+                // Reveal Content
+                setTimeout(() => {
+                    this.loader.style.display = 'none';
+                    this.revealInterface();
+                }, 800);
+            }
+
+            revealInterface() {
+                const elements = document.querySelectorAll('.reveal-el');
+                elements.forEach(el => {
+                    // Force GPU Layer creation for smoother animation
+                    el.style.willChange = 'transform, opacity'; 
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                    el.style.transition = 'opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1)';
+                    
+                    // Cleanup will-change to save memory after animation
+                    setTimeout(() => {
+                        el.style.willChange = 'auto';
+                    }, 2000);
+                });
+            }
+
+            // Utility: Text Scramble Effect
+            scrambleText(finalText) {
+                return new Promise(resolve => {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    let iteration = 0;
+                    const maxIterations = 15;
+                    
+                    const interval = setInterval(() => {
+                        this.textEl.innerText = finalText
+                            .split('')
+                            .map((letter, index) => {
+                                if (index < iteration) return finalText[index];
+                                return chars[Math.floor(Math.random() * chars.length)];
+                            })
+                            .join('');
+                        
+                        if (iteration >= finalText.length) { 
+                            clearInterval(interval);
+                            resolve();
+                        }
+                        
+                        iteration += 1 / 3;
+                    }, 30);
+                });
+            }
+
+            wait(ms) {
+                return new Promise(r => setTimeout(r, ms));
+            }
         }
 
-        function animateStars() {
-            ctx.clearRect(0, 0, width, height);
-            
-            stars.forEach((star, index) => {
-                star.update();
-                star.draw();
+        /**
+         * ============================================================================
+         * MAIN ENTRY POINT
+         * ============================================================================
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. Initialize Noise (Critical for Background Quality)
+            const noise = new NoiseSystem();
 
-                // Draw Connections
-                for (let j = index + 1; j < stars.length; j++) {
-                    const other = stars[j];
-                    const dist = Math.hypot(star.x - other.x, star.y - other.y);
+            // 2. Initialize Input
+            const input = new InputManager();
 
-                    if (dist < CONNECTION_DIST) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - dist / CONNECTION_DIST)})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.moveTo(star.x, star.y);
-                        ctx.lineTo(other.x, other.y);
-                        ctx.stroke();
-                    }
-                }
-            });
+            // 3. Initialize Visuals
+            const stars = new StarfieldEngine();
+            const cursor = new CursorSystem(input);
 
-            requestAnimationFrame(animateStars);
-        }
-        animateStars();
+            // 4. Start UI Flow
+            const ui = new UIController();
 
-        // --- 4. TOUCH RIPPLE (MOBILE ONLY) ---
-        if (!config.isDesktop) {
-            document.addEventListener('touchstart', (e) => {
-                // Simple feedback logic if needed
-            }, { passive: true });
-            
-            // Note: Card scaling is handled via CSS :active pseudo-class for best performance
-        }
+            // 5. Console Signature
+            console.log(
+                "%c RYFT PROTOCOL %c V3.0 ONLINE ",
+                "background: #fff; color: #000; font-weight: bold; padding: 4px;",
+                "background: #000; color: #fff; border: 1px solid #fff; padding: 4px;"
+            );
+        });
 
     </script>
 </body>
