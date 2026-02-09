@@ -6,344 +6,304 @@
     <title>RYFT | ECOSYSTEM PROTOCOL</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* --- ПЕРЕМЕННЫЕ ИЗ LIGHT MOD --- */
         :root {
-            --bg-page: #ffffff;
-            --bg-surface: #F5F5F7;
-            --bg-surface-hover: #EBEBF0;
+            --bg: #ffffff;
+            --surface: #f9f9fb;
+            --text: #1d1d1f;
+            --text-dim: #86868b;
             --accent: #007AFF;
-            --accent-dark: #005ecb;
-            --text-primary: #1d1d1f;
-            --text-secondary: #86868b;
-            --border: rgba(0,0,0,0.08);
-            --success: #34c759;
-            --radius-pill: 999px;
-            --radius-l: 28px;
-            --radius-m: 18px;
-            --shadow-soft: 0 4px 20px rgba(0,0,0,0.03);
-            --shadow-bold: 0 20px 40px rgba(0,0,0,0.08);
+            --border: rgba(0,0,0,0.06);
+            --radius: 32px;
+            --shadow: 0 10px 40px rgba(0,0,0,0.04);
         }
 
-        /* --- ГЛОБАЛЬНЫЙ СТИЛЬ --- */
-        * { 
-            box-sizing: border-box; 
-            -webkit-font-smoothing: antialiased; 
-            margin: 0; 
-            padding: 0; 
-        }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
         
         body {
-            background-color: var(--bg-page);
-            color: var(--text-primary);
+            background-color: var(--bg);
+            color: var(--text);
             font-family: 'Inter', sans-serif;
-            line-height: 1.6;
             overflow-x: hidden;
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 680px;
+            max-width: 640px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 80px 20px;
         }
 
-        /* --- АНИМАЦИИ ПОЯВЛЕНИЯ --- */
-        @keyframes revealUp {
-            from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
-            to { opacity: 1; transform: translateY(0); filter: blur(0); }
-        }
-
-        .animate {
-            animation: revealUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        /* --- АНИМАЦИИ ПРИ СКРОЛЛЕ --- */
+        .reveal {
             opacity: 0;
+            transform: translateY(40px) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-        .delay-4 { animation-delay: 0.4s; }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
 
         /* --- ШАПКА --- */
         header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 80px;
         }
 
-        .brand-label {
-            display: inline-block;
+        .logo {
             font-weight: 900;
-            font-size: 11px;
-            letter-spacing: 0.4em;
+            font-size: 13px;
+            letter-spacing: 0.5em;
             text-transform: uppercase;
-            padding: 8px 20px;
-            background: var(--text-primary);
-            color: white;
-            border-radius: var(--radius-pill);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            display: inline-block;
+            border-bottom: 2px solid var(--text);
+            padding-bottom: 4px;
         }
 
         h1 {
-            font-size: clamp(32px, 8vw, 48px);
+            font-size: 48px;
             font-weight: 800;
-            letter-spacing: -0.04em;
-            line-height: 1.1;
-            margin-bottom: 16px;
+            letter-spacing: -0.05em;
+            line-height: 1;
         }
 
-        .header-desc {
-            color: var(--text-secondary);
-            font-size: 18px;
-            font-weight: 400;
-            max-width: 450px;
-            margin: 0 auto;
-        }
-
-        /* --- КАРТОЧКА ПРИЛОЖЕНИЯ (ГЛАВНАЯ) --- */
-        .app-hero {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-l);
-            padding: 40px;
+        /* --- ГЛАВНЫЙ АКЦЕНТ: КАНАЛ --- */
+        .hero-channel {
+            background: var(--text);
+            color: white;
+            border-radius: var(--radius);
+            padding: 50px 40px;
             margin-bottom: 24px;
             position: relative;
-            transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1);
-        }
-
-        .app-hero:hover {
-            transform: scale(1.01);
-            background: var(--bg-surface-hover);
-        }
-
-        /* Фикс iOS Coming Soon */
-        .ios-status {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 122, 255, 0.08);
-            color: var(--accent);
-            padding: 6px 14px;
-            border-radius: var(--radius-pill);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0, 122, 255, 0.1);
-        }
-
-        .ios-status::before {
-            content: "";
-            width: 6px;
-            height: 6px;
-            background: var(--accent);
-            border-radius: 50%;
-            margin-right: 8px;
-            box-shadow: 0 0 8px var(--accent);
-        }
-
-        .app-hero h2 {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
-        }
-
-        .app-features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 24px 0;
-        }
-
-        .f-item {
-            font-size: 14px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            background: white;
-            padding: 10px 14px;
-            border-radius: var(--radius-m);
-            border: 1px solid var(--border);
-        }
-
-        /* --- КНОПКИ --- */
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 20px;
-            border-radius: var(--radius-m);
-            font-size: 16px;
-            font-weight: 700;
+            overflow: hidden;
             text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            border: none;
+            display: block;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
 
-        .btn-primary {
-            background: var(--text-primary);
+        .hero-channel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .hero-channel .tag {
+            background: rgba(255,255,255,0.15);
             color: white;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 30px;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        .hero-channel h2 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.1;
+        }
+
+        .hero-channel p {
+            color: rgba(255,255,255,0.7);
+            font-size: 18px;
+            max-width: 400px;
+            margin-bottom: 40px;
+        }
+
+        .icon-bw {
+            filter: grayscale(1) invert(1);
             opacity: 0.9;
         }
 
-        /* --- СЕТКА КАНАЛА И БОТА --- */
-        .ecosystem-grid {
+        /* --- ВТОРОСТЕПЕННЫЕ БЛОКИ (СЕТКА) --- */
+        .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 35px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            background: #ffffff;
+            border-color: var(--text);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .card-icon {
             margin-bottom: 24px;
         }
 
-        .eco-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-l);
-            padding: 24px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s ease;
-        }
-
-        .eco-card:hover {
-            border-color: var(--accent);
-            box-shadow: var(--shadow-soft);
-            transform: translateY(-4px);
-        }
-
-        .eco-tag {
-            font-size: 10px;
+        .card h3 {
+            font-size: 22px;
             font-weight: 800;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 8px;
-            display: block;
+            margin-bottom: 10px;
         }
 
-        .eco-card h3 { font-size: 18px; margin-bottom: 8px; }
-        .eco-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+        .card p {
+            color: var(--text-dim);
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
 
-        /* --- БЛОК ДОНАТОВ (ВЫДЕЛЕННЫЙ) --- */
-        .donate-section {
-            background: rgba(52, 199, 89, 0.04);
-            border: 1px dashed rgba(52, 199, 89, 0.3);
-            border-radius: var(--radius-l);
-            padding: 30px;
+        /* --- КНОПКА ДОНАТА --- */
+        .donate-wrapper {
+            margin-top: 60px;
             text-align: center;
         }
 
         .btn-donate {
-            background: #34c759;
-            color: white;
-            max-width: 280px;
-            margin: 0 auto;
-            padding: 14px 24px;
+            display: inline-flex;
+            align-items: center;
+            padding: 16px 32px;
+            background: white;
+            color: var(--text);
+            border: 1.5px solid var(--text);
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
             font-size: 15px;
         }
 
-        .btn-donate svg { margin-right: 10px; }
+        .btn-donate:hover {
+            background: var(--text);
+            color: white;
+        }
 
-        /* --- ФУТЕР (СТИЛЬ LIGHT MOD) --- */
+        .btn-donate svg { margin-right: 12px; }
+
+        /* --- ФУТЕР --- */
         footer {
-            margin-top: 80px;
-            padding-top: 40px;
-            border-top: 1px solid var(--border);
+            margin-top: 100px;
             text-align: center;
+            padding-bottom: 40px;
+            border-top: 1px solid var(--border);
+            padding-top: 40px;
         }
 
         .footer-logo {
-            font-size: 12px;
             font-weight: 900;
-            letter-spacing: 0.2em;
-            color: var(--text-primary);
+            font-size: 12px;
+            letter-spacing: 0.3em;
             text-transform: uppercase;
-            margin-bottom: 8px;
+            color: var(--text-dim);
         }
 
-        .footer-logo span { color: var(--accent); }
-
-        .footer-sub {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        /* --- АДАПТИВНОСТЬ --- */
+        /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
         @media (max-width: 600px) {
             .container { padding: 40px 16px; }
-            .app-features, .ecosystem-grid { grid-template-columns: 1fr; }
-            .app-hero { padding: 30px 20px; }
-            h1 { font-size: 34px; }
+            h1 { font-size: 38px; }
+            .hero-channel { padding: 40px 30px; }
+            .hero-channel h2 { font-size: 30px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    
-    <header class="animate delay-1">
-        <div class="brand-label">RYFT PROTOCOL</div>
-        <h1>Ecosystem Central</h1>
-        <p class="header-desc">Профессиональный стек технологий для анализа водных видов спорта.</p>
+    <header class="reveal">
+        <div class="logo">RYFT PROTOCOL</div>
+        <h1>Evolution of Swimming</h1>
     </header>
 
-    <section class="app-hero animate delay-2">
-        <div style="text-align: center;">
-            <div class="ios-status">IOS DEVELOPMENT STARTED</div>
-        </div>
-        <h2>RYFT | APP 2.0</h2>
-        <p style="color: var(--text-secondary); font-size: 15px;">Персональный аналитический комплекс на Android. Мгновенный расчет FINA и отслеживание нормативов в один тап.</p>
+    <a href="https://t.me/ryft_hub" class="hero-channel reveal">
+        <span class="tag">Main Priority</span>
+        <h2>RYFT | HUB</h2>
+        <p>Центральный узел экосистемы. Аналитика мировых рекордов, глубокий разбор техники и новости всех инструментов в одном канале.</p>
         
-        <div class="app-features">
-            <div class="f-item">📊 FINA 2024-2025</div>
-            <div class="f-item">🏆 Разрядная сетка</div>
-            <div class="f-item">🌘 Темная тема</div>
-            <div class="f-item">⚡️ Плавный UI</div>
+        <div style="display: flex; align-items: center; font-weight: 800; font-size: 14px;">
+            ПЕРЕЙТИ В КАНАЛ 
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-left: 10px;">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
         </div>
+    </a>
 
-        <a href="ССЫЛКА_НА_APK" class="btn btn-primary">
-            Установить версию для Android
+    <div class="grid">
+        <a href="ССЫЛКА_НА_ПОСТ_В_КАНАЛЕ" class="card reveal">
+            <div>
+                <div class="card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2">
+                        <rect x="5" y="2" width="14" height="20" rx="3"></rect>
+                        <line x1="12" y1="18" x2="12" y2="18.01"></line>
+                    </svg>
+                </div>
+                <h3>Ryft App 2.0</h3>
+                <p>Ваш персональный калькулятор очков FINA и нормативов. Плавные анимации, темная тема и мгновенный расчет без интернета.</p>
+            </div>
+            <span style="font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Скачать (Android) →</span>
         </a>
-    </section>
 
-    <div class="ecosystem-grid animate delay-3">
-        <a href="https://t.me/ryft_hub" class="eco-card">
-            <span class="eco-tag">Community</span>
-            <h3>Telegram Channel</h3>
-            <p>Аналитика, новости и прямая связь с разработчиками.</p>
-        </a>
-
-        <a href="https://t.me/RyftAppBot" class="eco-card">
-            <span class="eco-tag">AI Assistant</span>
-            <h3>Ryft Bot</h3>
-            <p>Быстрый доступ к базе данных и калькулятору в ТГ.</p>
+        <a href="https://t.me/RyftAppBot" class="card reveal">
+            <div>
+                <div class="card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2">
+                        <path d="M21 12V7H5v10h10"></path>
+                        <path d="M16 5V3h2v2h2v2h-2v2h-2V7h-2V5h2z"></path>
+                        <circle cx="9" cy="12" r="1"></circle>
+                        <circle cx="15" cy="12" r="1"></circle>
+                    </svg>
+                </div>
+                <h3>Ryft Assistant</h3>
+                <p>Быстрый доступ к разрядным сеткам и статистике прямо в Telegram. Удобно использовать прямо на бортике во время соревнований.</p>
+            </div>
+            <span style="font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Запустить бота →</span>
         </a>
     </div>
 
-    <div class="donate-section animate delay-4">
-        <p style="font-size: 14px; font-weight: 600; margin-bottom: 20px;">Поддержать развитие экосистемы</p>
-        
-        <a href="ССЫЛКА_НА_ДОНАТ" class="btn btn-donate">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            Отправить донат
+    <div class="donate-wrapper reveal">
+        <a href="ССЫЛКА_НА_ДОНАТ" class="btn-donate">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            Поддержать проект
         </a>
-        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 15px;">Все средства идут на ускорение релиза iOS версии</p>
     </div>
 
-    <footer class="animate delay-4">
-        <div class="footer-logo">RYFT | PROTOCOL <span>© 2026</span></div>
-        <div class="footer-sub">Swim • Analyze • Evolve</div>
+    <footer class="reveal">
+        <div class="footer-logo">RYFT PROTOCOL © 2026</div>
+        <p style="color: var(--text-dim); font-size: 11px; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px;">Swim • Analyze • Evolve</p>
     </footer>
-
 </div>
+
+<script>
+    // СКРИПТ АНИМАЦИИ ПРИ СКРОЛЛЕ
+    const observerOptions = {
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            } else {
+                // Если хочешь, чтобы анимация повторялась при скролле вверх:
+                // entry.target.classList.remove('active');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal').forEach(el => {
+        observer.observe(el);
+    });
+</script>
 
 </body>
 </html>
