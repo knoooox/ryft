@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#030303">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="theme-color" content="#030303">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
@@ -271,15 +270,16 @@
          * ============================================================================
          */
         .viewport {
-            position: relative;
-            z-index: 60;
-            max-width: var(--container-width);
-            margin: 0 auto;
-            padding: 80px 20px 60px 20px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+    position: relative;
+    z-index: 60;
+    width: 100%; /* Занимаем всю ширину */
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 60px 20px; /* Немного уменьшили верхний отступ для мобилок */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 
         /* * ============================================================================
          * HEADER COMPONENTS
@@ -439,12 +439,13 @@
          * ============================================================================
          */
         .hero-card {
-            padding: 36px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            min-height: 220px;
-        }
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Центрируем контент внутри */
+    min-height: 200px;
+    height: auto; /* Позволяем карточке расти, если текст не влезает */
+}
 
         .hero-content {
             position: relative;
@@ -516,20 +517,21 @@
          */
         .grid-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;               /* Увеличили зазор между кнопками с 16px до 20px */
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Умная сетка: кнопки сами решают, встать в ряд или друг под друга */
+    gap: 12px;
+    margin-bottom: 12px;
+    width: 100%;
 }
 
 .grid-card {
-    padding: 24px;
+    padding: 24px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     justify-content: center;
-    height: auto;            /* Убрали жесткую привязку к высоте */
-    aspect-ratio: 1.1 / 1;   /* Сделали чуть более прямоугольными, чтобы не "давили" друг на друга */
+    min-height: 160px; /* Вместо жесткого aspect-ratio используем минимальную высоту */
+    height: 100%;
 }
 
         /* * ICON WRAPPERS 
