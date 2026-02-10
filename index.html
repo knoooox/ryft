@@ -1,761 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="theme-color" content="#030303">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="description" content="RYFT Ecosystem Unified Access Protocol">
-    
-    <title>RYFT | ECOSYSTEM PROTOCOL</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <style>
+     <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="theme-color" content="#030303">
+     <meta name="apple-mobile-web-app-capable" content="yes">
+     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     <meta name="format-detection" content="telephone=no">
+     <meta name="description" content="RYFT Ecosystem Unified Access Protocol">
+     
+     <title>RYFT | ECOSYSTEM PROTOCOL</title>
+     
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+ 
+     <style>
+         /* * ============================================================================
+          * GLOBAL VARIABLES & CONFIGURATION
+          * ============================================================================
+          * Defines the design tokens for the entire ecosystem.
+          */
+         :root {
+             /* * Color Palette 
+              * Using dark greys instead of pure #000 to reduce OLED smearing 
+              */
+ 	    --ui-scale: 1;
++            --grid-card-size: clamp(136px, 41vw, 208px);
+ 
+             --bg-deep: #030303; 
+             --bg-surface: #0a0a0a;
+             --bg-overlay: rgba(20, 20, 20, 0.6);
+             
+             /* Text Colors */
+             --text-primary: #ffffff;
+             --text-secondary: #888888;
+             --text-tertiary: #444444;
+             --text-accent: #00ff88;
+ 
+             /* Glassmorphism System */
+             --glass-bg: rgba(255, 255, 255, 0.03);
+             --glass-border: rgba(255, 255, 255, 0.08);
+             --glass-highlight: rgba(255, 255, 255, 0.15);
+             --glass-blur: blur(20px);
+             --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+ 
+             /* Layout Dimensions */
+             --container-width: 540px;
+             --spacing-unit: 8px;
+             --header-height: 120px;
+ 
+             /* Radii */
+             --radius-lg: 28px;
+             --radius-md: 20px;
+             --radius-sm: 12px;
+             --radius-pill: 100px;
+ 
+             /* Animation Bezier Curves */
+             --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+             --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+             --ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+         }
+ 
+         /* * ============================================================================
+          * RESET & NORMALIZATION
+          * ============================================================================
+          */
+         * {
+             margin: 0;
+             padding: 0;
+             box-sizing: border-box;
+             outline: none;
+             -webkit-tap-highlight-color: transparent;
+             -webkit-font-smoothing: antialiased;
+             -moz-osx-font-smoothing: grayscale;
+         }
+ 
+-        html, body {
+-    width: 100%;
+-    min-height: 100vh;
+-    background-color: var(--bg-deep);
+-    color: var(--text-primary);
+-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+-    /* Убираем overscroll-behavior-y: none, так как он ломает скролл в Safari */
+-    overflow-x: hidden;
+-    overflow-y: auto; /* Явно разрешаем вертикальный скролл */
+-    -webkit-overflow-scrolling: touch; /* Улучшаем плавность на iOS */
+-    position: relative;
+-    font-feature-settings: "ss01", "ss02", "cv01"; 
+-}
++        html,
++        body {
++            width: 100%;
++            background-color: var(--bg-deep);
++            color: var(--text-primary);
++            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
++            overflow-x: hidden;
++            position: relative;
++            font-feature-settings: "ss01", "ss02", "cv01";
++        }
++
++        html {
++            min-height: 100%;
++            overflow-y: auto;
++            -webkit-overflow-scrolling: touch;
++            overscroll-behavior-y: contain;
++        }
++
++        body {
++            min-height: 100dvh;
++            overflow-y: visible;
++            touch-action: pan-y;
++        }
+ 	/* iOS Safari: фикс авто-увеличения текста */
+ html {
+     -webkit-text-size-adjust: 100%;
+     text-size-adjust: 100%;
+ }
+ 
+ 
+         /* Hide Scrollbar but allow scrolling */
+         body::-webkit-scrollbar {
+             width: 0px;
+             background: transparent;
+         }
+ 
+         /* * ============================================================================
+          * CURSOR MANAGEMENT
+          * ============================================================================
+          */
+         @media (pointer: fine) {
+             body { cursor: none; }
+             a { cursor: none; }
+             button { cursor: none; }
+         }
+ 
         /* * ============================================================================
-         * GLOBAL VARIABLES & CONFIGURATION
-         * ============================================================================
-         * Defines the design tokens for the entire ecosystem.
-         */
-        :root {
-            /* * Color Palette 
-             * Using dark greys instead of pure #000 to reduce OLED smearing 
-             */
-	    --ui-scale: 1;
-
-            --bg-deep: #030303; 
-            --bg-surface: #0a0a0a;
-            --bg-overlay: rgba(20, 20, 20, 0.6);
-            
-            /* Text Colors */
-            --text-primary: #ffffff;
-            --text-secondary: #888888;
-            --text-tertiary: #444444;
-            --text-accent: #00ff88;
-
-            /* Glassmorphism System */
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-highlight: rgba(255, 255, 255, 0.15);
-            --glass-blur: blur(20px);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-
-            /* Layout Dimensions */
-            --container-width: 540px;
-            --spacing-unit: 8px;
-            --header-height: 120px;
-
-            /* Radii */
-            --radius-lg: 28px;
-            --radius-md: 20px;
-            --radius-sm: 12px;
-            --radius-pill: 100px;
-
-            /* Animation Bezier Curves */
-            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-            --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
-            --ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-
-        /* * ============================================================================
-         * RESET & NORMALIZATION
-         * ============================================================================
-         */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        html, body {
-    width: 100%;
-    min-height: 100vh;
-    background-color: var(--bg-deep);
-    color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    /* Убираем overscroll-behavior-y: none, так как он ломает скролл в Safari */
-    overflow-x: hidden;
-    overflow-y: auto; /* Явно разрешаем вертикальный скролл */
-    -webkit-overflow-scrolling: touch; /* Улучшаем плавность на iOS */
-    position: relative;
-    font-feature-settings: "ss01", "ss02", "cv01"; 
-}
-	/* iOS Safari: фикс авто-увеличения текста */
-html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-}
-
-
-        /* Hide Scrollbar but allow scrolling */
-        body::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-        }
-
-        /* * ============================================================================
-         * CURSOR MANAGEMENT
-         * ============================================================================
-         */
-        @media (pointer: fine) {
-            body { cursor: none; }
-            a { cursor: none; }
-            button { cursor: none; }
-        }
-
-       /* * ============================================================================
-         * LOADING SYSTEM (FIXED CENTERING)
-         * ============================================================================
-         */
-        #preloader {
-            position: fixed;
-            top: 0; 
-            left: 0; 
-            width: 100vw;   /* Используем vh/vw для точности */
-            height: 100vh;
-            background: #000000;
-            z-index: 10000;
-            display: flex;
-            align-items: center;     /* Центровка по вертикали */
-            justify-content: center;  /* Центровка по горизонтали */
-            transition: opacity 0.8s var(--ease-out-expo), visibility 0.8s;
-            /* Убираем любые возможные смещения */
-            margin: 0;
-            padding: 0;
-        }
-        
-        .loader-content {
-            text-align: center;
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .loader-text {
-            font-family: 'Inter', monospace;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: #666;
-            margin-bottom: 20px;
-            display: block; /* Изменили с inline-block для лучшего выравнивания */
-            width: 100%;
-        }
-
-        .loader-progress-wrap {
-            width: 140px; /* Немного увеличили для солидности */
-            height: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .loader-bar {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 0%;
-            background: #fff;
-            animation: loadProgress 2.2s var(--ease-out-expo) forwards;
-        }
-
-        @keyframes loadProgress {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
-
-        /* * ============================================================================
-         * BACKGROUND LAYERS (Quality Fix)
-         * ============================================================================
-         */
-        
-        /* * Layer 1: The Canvas Noise 
-         * Replaces the SVG data URI to prevent banding/pixelation on mobile.
-         * Rendered via JS for pixel-perfect mapping.
-         */
-        #noise-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 50;
-            pointer-events: none;
-            opacity: 0.07; /* Adjusted for subtleties */
-            mix-blend-mode: overlay;
-        }
-
-        /* * Layer 2: The Vignette
-         * Uses a complex gradient with ease-stops to prevent color banding
-         * on 8-bit displays.
-         */
-        .vignette {
-            position: fixed;
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            pointer-events: none;
-            z-index: 40;
-            /* Complex gradient for smoother falloff */
-            background: radial-gradient(
-                circle at 50% 50%, 
-                transparent 0%, 
-                rgba(3, 3, 3, 0.1) 40%, 
-                rgba(3, 3, 3, 0.8) 85%, 
-                rgba(0, 0, 0, 1) 120%
-            );
-        }
-
-        /* * Layer 3: The Starfield
-         */
-        #starfield {
-    position: fixed;
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%;
-    z-index: 1;
-    pointer-events: none; /* ОБЯЗАТЕЛЬНО: позволяет кликам и скроллу проходить сквозь холст */
-}
-
-        /* * ============================================================================
-         * CUSTOM CURSOR (Physics Based)
-         * ============================================================================
-         */
-        .cursor-wrapper {
-            position: fixed;
-            top: 0; 
-            left: 0;
-            z-index: 9999;
-            pointer-events: none;
-            mix-blend-mode: exclusion;
-        }
-        
-        .cursor-dot {
-            width: 6px; 
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            transform: translate(-50%, -50%);
-            will-change: transform;
-        }
-
-        .cursor-ring {
-            width: 40px; 
-            height: 40px;
-            border: 1px solid rgba(255,255,255,0.6);
-            border-radius: 50%;
-            position: absolute;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s var(--ease-out-expo), 
-                        height 0.3s var(--ease-out-expo), 
-                        background-color 0.3s, 
-                        border-color 0.3s;
-            will-change: transform, width, height;
-        }
-
-        /* Disable custom cursor on touch devices */
-        @media (pointer: coarse) {
-            .cursor-wrapper { display: none; }
-        }
-
-        /* * ============================================================================
-         * LAYOUT & CONTAINERS
-         * ============================================================================
-         */
-       .viewport {
-    position: relative;
-    z-index: 60;
-    width: 100%;
-    max-width: calc(var(--container-width) * var(--ui-scale));
-    margin: 0 auto;
-    padding: calc(60px * var(--ui-scale)) calc(20px * var(--ui-scale));
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-
-        /* * ============================================================================
-         * HEADER COMPONENTS
-         * ============================================================================
-         */
-        header {
-            text-align: center;
-            margin-bottom: 56px;
-            perspective: 1000px;
-        }
-
-        .brand-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: var(--radius-pill);
-            margin-bottom: 28px;
-            background: rgba(10, 10, 10, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-        }
-        
-        .brand-badge:hover {
-            transform: scale(1.02);
-            border-color: rgba(255,255,255,0.15);
-        }
-
-        .status-indicator {
-            width: 6px; 
-            height: 6px;
-            background: var(--text-accent);
-            border-radius: 50%;
-            position: relative;
-        }
-        
-        .status-indicator::after {
-            content: '';
-            position: absolute;
-            top: -2px; left: -2px;
-            width: 10px; height: 10px;
-            background: var(--text-accent);
-            border-radius: 50%;
-            opacity: 0.4;
-            animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
-        }
-
-        .brand-text {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.8);
-        }
-
-        h1 {
-    font-size: clamp(42px, 12vw, 64px);
-    font-weight: 800;
-    letter-spacing: -0.04em; /* Чуть увеличили расстояние между буквами */
-    line-height: 1.1;        /* Увеличили с 0.9 до 1.1, чтобы 'y' не резалась */
-    background: linear-gradient(180deg, #FFFFFF 0%, #a0a0a0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 16px;     /* Добавили чуть больше места снизу */
-    opacity: 0;
-    transform: translateY(20px);
-    filter: drop-shadow(0 0 30px rgba(255,255,255,0.1));
-    padding-bottom: 0.1em;   /* Технический запас для нижних элементов букв */
-}
-
-        .subtitle {
-            font-size: 15px;
-            color: var(--text-secondary);
-            font-weight: 400;
-            letter-spacing: -0.01em;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        /* * ============================================================================
-         * COMPONENT: GLASS CARD
-         * ============================================================================
-         */
-        .card {
-            position: relative;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            margin-bottom: 16px;
-            text-decoration: none;
-            color: var(--text-primary);
-            overflow: hidden;
-            display: block;
-            transition: all 0.4s var(--ease-elastic);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            transform-style: preserve-3d;
-        }
-
-        /* Dynamic Spotlight Effect Wrapper */
-        .card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(
-                800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                rgba(255, 255, 255, 0.04),
-                transparent 40%
-            );
-            opacity: 1;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* Border Spotlight */
-        .card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: var(--radius-lg);
-            padding: 1px;
-            background: radial-gradient(
-                600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                rgba(255, 255, 255, 0.4),
-                transparent 40%
-            );
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-            z-index: 2;
-            opacity: 0.5;
-            transition: opacity 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255,255,255,0.15);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
-        }
-        
-        .card:hover::after {
-            opacity: 1;
-        }
-
-        .card:active {
-            transform: scale(0.98) translateY(-2px);
-        }
-
-        /* * ============================================================================
-         * HERO SECTION (THE HUB)
-         * ============================================================================
-         */
-        .hero-card {
-    padding: 32px 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Центрируем контент внутри */
-    min-height: 200px;
-    height: auto; /* Позволяем карточке расти, если текст не влезает */
-}
-
-        .hero-content {
-            position: relative;
-            z-index: 5;
-        }
-
-        .tag {
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            padding: 6px 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: var(--radius-pill);
-            display: inline-block;
-            margin-bottom: 18px;
-            color: rgba(255,255,255,0.9);
-            border: 1px solid rgba(255,255,255,0.05);
-            backdrop-filter: blur(4px);
-        }
-
-        .hero-title {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            letter-spacing: -0.03em;
-            color: #fff;
-        }
-
-        .hero-desc {
-            font-size: 15px;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            margin-bottom: 28px;
-            max-width: 90%;
-            font-weight: 400;
-        }
-
-        .cta-row {
-            display: flex;
-            align-items: center;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #fff;
-            gap: 12px;
-        }
-
-        .cta-icon {
-            width: 28px;
-            height: 28px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            transition: transform 0.4s var(--ease-elastic);
-        }
-
-        .hero-card:hover .cta-icon {
-            transform: translateX(6px) scale(1.1);
-        }
-
-        /* * ============================================================================
-         * GRID SYSTEM
-         * ============================================================================
-         */
-        .grid-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Всегда две колонки рядом */
-    gap: 12px;
-    margin-bottom: 12px;
-    width: 100%;
-}
-
-.grid-card {
-    padding: 20px 12px; /* Уменьшили внутренние отступы для узких экранов */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    justify-content: center;
-    min-height: 140px; /* Немного снизили высоту для баланса */
-    height: 100%;
-}
-
-        /* * ICON WRAPPERS 
-         * Enhanced styling for the glass look icons
-         */
-        .icon-wrapper {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 8px 24px -6px rgba(0,0,0,0.3);
-            transition: all 0.4s var(--ease-elastic);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Inner shine for icons */
-        .icon-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .grid-card:hover .icon-wrapper::before {
-            left: 100%;
-        }
-
-        .grid-card:hover .icon-wrapper {
-            transform: scale(1.1) rotate(2deg);
-            background: rgba(255,255,255,0.12);
-            border-color: rgba(255,255,255,0.3);
-        }
-
-        .grid-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: #fff;
-            letter-spacing: -0.01em;
-        }
-
-        .grid-sub {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        /* * ============================================================================
-         * SPECIAL COMPONENT: DONATE CARD
-         * ============================================================================
-         */
-        .donate-card {
-    grid-column: span 2;
-    aspect-ratio: auto;
-    background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(5,5,5,0.9));
-    border: 1px dashed rgba(255,255,255,0.15);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: calc(16px * var(--ui-scale));
-    padding: calc(28px * var(--ui-scale));
-    transition: all 0.4s var(--ease-out-expo);
-}
-
-
-        .donate-card:hover {
-            background: #ffffff;
-            border-style: solid;
-            border-color: #ffffff;
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(255,255,255,0.2);
-        }
-
-        /* Text color inversion on hover */
-        .donate-card:hover .grid-title { color: #000000 !important; }
-        .donate-card:hover .grid-sub { color: #555555 !important; }
-        .donate-card:hover svg { stroke: #000000; transform: scale(1.1) rotate(-10deg); }
-
-        .donate-card .grid-title, 
-        .donate-card .grid-sub, 
-        .donate-card svg {
-            transition: all 0.3s ease;
-        }
-
-        /* * ============================================================================
-         * FOOTER
-         * ============================================================================
-         */
-        footer {
-            margin-top: auto;
-            text-align: center;
-            padding-top: 60px;
-            padding-bottom: 20px;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .footer-logo {
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--text-tertiary);
-            transition: color 0.3s;
-            display: inline-block;
-        }
-        
-        .footer-logo:hover { color: var(--text-secondary); }
-
-        /* * ============================================================================
-         * MOBILE SHIMMER ANIMATION
-         * Adds a subtle premium "loading" feel on mobile where hover isn't present
-         * ============================================================================
-         */
-        @keyframes shimmerMobile {
-            0% { transform: translateX(-150%) skewX(-20deg); }
-            40% { transform: translateX(-150%) skewX(-20deg); }
-            100% { transform: translateX(250%) skewX(-20deg); }
-        }
-
-        .mobile-shimmer {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            overflow: hidden;
-            pointer-events: none;
-            display: none;
-            border-radius: var(--radius-lg);
-            z-index: 3;
-        }
-
-        .mobile-shimmer::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-            animation: shimmerMobile 5s infinite;
-        }
-
-        @media (pointer: coarse) {
-            .mobile-shimmer { display: block; }
-        }
-
-        /* * ============================================================================
-         * UTILITIES & HELPERS
-         * ============================================================================
-         */
-        .reveal-el {
-            opacity: 0;
-            transform: translateY(30px);
-            will-change: opacity, transform;
-        }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
-            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-        }
-
-	/* ===========================
-   RESPONSIVE SCALE PROFILES
-   =========================== */
-
-/* Большие телефоны */
-@media (max-width: 430px) {
-    :root {
-        --ui-scale: 0.95;
-    }
-}
-
-/* Обычные айфоны */
-@media (max-width: 390px) {
-    :root {
-        --ui-scale: 0.9;
-    }
-}
-
-/* Маленькие телефоны */
-@media (max-width: 360px) {
-    :root {
-        --ui-scale: 0.85;
-    }
-}
-
-	.card,
-.grid-card,
-.donate-card {
-    flex-shrink: 0;
-}
-
-
-    </style>
-</head>
-<body>
-
-    <div id="preloader">
-        <div class="loader-content">
-            <div class="loader-text" id="loader-text">INITIALIZING</div>
-            <div class="loader-progress-wrap">
-                <div class="loader-bar"></div>
-            </div>
-        </div>
-    </div>
-
-    <canvas id="noise-canvas"></canvas>
-    <div class="vignette"></div>
+          * LOADING SYSTEM (FIXED CENTERING)
+@@ -505,65 +516,67 @@ html {
+             gap: 12px;
+         }
+ 
+         .cta-icon {
+             width: 28px;
+             height: 28px;
+             background: #fff;
+             border-radius: 50%;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: #000;
+             transition: transform 0.4s var(--ease-elastic);
+         }
+ 
+         .hero-card:hover .cta-icon {
+             transform: translateX(6px) scale(1.1);
+         }
+ 
+         /* * ============================================================================
+          * GRID SYSTEM
+          * ============================================================================
+          */
+         .grid-layout {
+     display: grid;
+-    grid-template-columns: 1fr 1fr; /* Всегда две колонки рядом */
++    grid-template-columns: repeat(2, minmax(0, var(--grid-card-size)));
++    justify-content: center;
+     gap: 12px;
+     margin-bottom: 12px;
+     width: 100%;
+ }
+ 
+ .grid-card {
+-    padding: 20px 12px; /* Уменьшили внутренние отступы для узких экранов */
++    width: 100%;
++    aspect-ratio: 1 / 1;
++    padding: 18px 12px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     text-align: center;
+     justify-content: center;
+-    min-height: 140px; /* Немного снизили высоту для баланса */
+-    height: 100%;
++    min-height: 0;
+ }
+ 
+         /* * ICON WRAPPERS 
+          * Enhanced styling for the glass look icons
+          */
+         .icon-wrapper {
+             width: 64px;
+             height: 64px;
+             background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+             border-radius: 20px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             margin-bottom: 20px;
+             border: 1px solid rgba(255,255,255,0.1);
+             box-shadow: 0 8px 24px -6px rgba(0,0,0,0.3);
+             transition: all 0.4s var(--ease-elastic);
+             position: relative;
+             overflow: hidden;
+         }
+ 
+         /* Inner shine for icons */
+         .icon-wrapper::before {
+             content: '';
+             position: absolute;
+@@ -581,51 +594,52 @@ html {
+             transform: scale(1.1) rotate(2deg);
+             background: rgba(255,255,255,0.12);
+             border-color: rgba(255,255,255,0.3);
+         }
+ 
+         .grid-title {
+             font-size: 16px;
+             font-weight: 700;
+             margin-bottom: 6px;
+             color: #fff;
+             letter-spacing: -0.01em;
+         }
+ 
+         .grid-sub {
+             font-size: 12px;
+             color: var(--text-secondary);
+             font-weight: 500;
+         }
+ 
+         /* * ============================================================================
+          * SPECIAL COMPONENT: DONATE CARD
+          * ============================================================================
+          */
+         .donate-card {
+     grid-column: span 2;
+-    aspect-ratio: auto;
++    width: 100%;
++    min-height: clamp(112px, 24vw, 138px);
+     background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(5,5,5,0.9));
+     border: 1px dashed rgba(255,255,255,0.15);
+     display: flex;
+     flex-direction: row;
+     align-items: center;
+     justify-content: center;
+     gap: calc(16px * var(--ui-scale));
+     padding: calc(28px * var(--ui-scale));
+     transition: all 0.4s var(--ease-out-expo);
+ }
+ 
+ 
+         .donate-card:hover {
+             background: #ffffff;
+             border-style: solid;
+             border-color: #ffffff;
+             transform: translateY(-5px) scale(1.02);
+             box-shadow: 0 20px 50px rgba(255,255,255,0.2);
+         }
+ 
+         /* Text color inversion on hover */
+         .donate-card:hover .grid-title { color: #000000 !important; }
+         .donate-card:hover .grid-sub { color: #555555 !important; }
+         .donate-card:hover svg { stroke: #000000; transform: scale(1.1) rotate(-10deg); }
+ 
+@@ -695,64 +709,67 @@ html {
+ 
+         /* * ============================================================================
+          * UTILITIES & HELPERS
+          * ============================================================================
+          */
+         .reveal-el {
+             opacity: 0;
+             transform: translateY(30px);
+             will-change: opacity, transform;
+         }
+ 
+         @keyframes pulse-ring {
+             0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+             70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
+             100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+         }
+ 
+ 	/* ===========================
+    RESPONSIVE SCALE PROFILES
+    =========================== */
+ 
+ /* Большие телефоны */
+ @media (max-width: 430px) {
+     :root {
+         --ui-scale: 0.95;
++        --grid-card-size: clamp(132px, 40.5vw, 188px);
+     }
+ }
+ 
+ /* Обычные айфоны */
+ @media (max-width: 390px) {
+     :root {
+         --ui-scale: 0.9;
++        --grid-card-size: clamp(124px, 40vw, 176px);
+     }
+ }
+ 
+ /* Маленькие телефоны */
+ @media (max-width: 360px) {
+     :root {
+         --ui-scale: 0.85;
++        --grid-card-size: clamp(116px, 39.5vw, 164px);
+     }
+ }
+ 
+ 	.card,
+ .grid-card,
+ .donate-card {
+     flex-shrink: 0;
+ }
+ 
+ 
+     </style>
+ </head>
+ <body>
+ 
+     <div id="preloader">
+         <div class="loader-content">
+             <div class="loader-text" id="loader-text">INITIALIZING</div>
+             <div class="loader-progress-wrap">
+                 <div class="loader-bar"></div>
+             </div>
+         </div>
+     </div>
+ 
+     <canvas id="noise-canvas"></canvas>
+     <div class="vignette"></div>
     <canvas id="starfield"></canvas>
 
     <div class="cursor-wrapper">
