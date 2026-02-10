@@ -73,18 +73,18 @@
         }
 
         html, body {
-            width: 100%;
-            min-height: 100vh;
-            background-color: var(--bg-deep);
-            color: var(--text-primary);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow-x: hidden;
-            position: relative;
-            /* CV01: Alternate "1", SS01: Stylized sets */
-            font-feature-settings: "ss01", "ss02", "cv01"; 
-            /* Fix for overscroll bounce on iOS */
-            overscroll-behavior-y: none;
-        }
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Убираем overscroll-behavior-y: none, так как он ломает скролл в Safari */
+    overflow-x: hidden;
+    overflow-y: auto; /* Явно разрешаем вертикальный скролл */
+    -webkit-overflow-scrolling: touch; /* Улучшаем плавность на iOS */
+    position: relative;
+    font-feature-settings: "ss01", "ss02", "cv01"; 
+}
 
         /* Hide Scrollbar but allow scrolling */
         body::-webkit-scrollbar {
@@ -215,13 +215,14 @@
         /* * Layer 3: The Starfield
          */
         #starfield {
-            position: fixed;
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            z-index: 1;
-        }
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    z-index: 1;
+    pointer-events: none; /* ОБЯЗАТЕЛЬНО: позволяет кликам и скроллу проходить сквозь холст */
+}
 
         /* * ============================================================================
          * CUSTOM CURSOR (Physics Based)
