@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RYFT | Info Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-page: #ffffff;
+    --bg-surface: #F5F5F7;
+    --bg-surface-hover: #EBEBF0;
+    --accent: #007AFF;
+    --accent-dark: #005ecb;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --border: #d2d2d7;
+    --radius-s: 8px;
+    --radius-m: 16px;
+    --radius-l: 24px;
+    --radius-pill: 999px;
+}
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    margin: 0; padding: 0;
+    line-height: 1.5;
+}
+.container { width: 100%; max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+header { margin-bottom: 40px; border-left: 4px solid var(--text-primary); padding-left: 20px; }
+.kicker { color: var(--accent); text-transform: uppercase; font-weight: 800; letter-spacing: 4px; font-size: 11px; margin-bottom: 8px; display:block; }
+h1 { font-size: clamp(32px, 8vw, 60px); font-weight: 900; margin: 0; letter-spacing: -0.03em; line-height: 1.1; text-transform: uppercase; }
+p { color: var(--text-secondary); font-size: 15px; margin-bottom: 16px; }
+.insight-box { background: #fff; border-left: 4px solid var(--accent); padding: 25px 20px; margin-bottom: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border-radius: 0 var(--radius-m) var(--radius-m) 0; }
+.insight-text { font-size: 16px; font-weight: 600; line-height: 1.4; }
+.impact-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 40px; }
+@media (min-width: 600px) { .impact-grid { grid-template-columns: 1fr 1fr; } }
+.impact-card { background: var(--bg-surface); padding: 20px; border-radius: var(--radius-l); transition: 0.3s; cursor: pointer; text-align: center; }
+.impact-card:hover { background: var(--bg-surface-hover); }
+.impact-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 10px; }
+.impact-card p { font-size: 14px; margin: 0; color: var(--text-secondary); }
+.tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; }
+.tag-blue { color: var(--accent); }
+.cta-section { text-align: center; margin: 50px 0; }
+.cta-btn { display: inline-flex; align-items: center; justify-content: center; background: var(--accent); color: white; padding: 18px 40px; border-radius: var(--radius-pill); text-decoration: none; font-weight: 700; font-size: 14px; transition: all 0.3s ease; }
+.cta-btn:hover { transform: scale(1.03); background: var(--accent-dark); }
+footer { text-align: center; padding: 40px 0 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <span class="kicker">RYFT Intelligence</span>
+        <h1>Справочная информация</h1>
+    </header>
+
+    <div class="insight-box">
+        <div class="insight-text">
+            Бот находится на стадии активной <b>модернизации</b>. Возможны кратковременные технические работы и перезапуски.<br><br>
+            Проект создается и поддерживается <b>одним человеком — @knoooox</b>. Ваши отзывы и предложения помогают делать бота лучше!<br><br>
+            Бот работает на бесплатной основе, но требует затрат на хостинг. Если вы хотите поддержать автора и ускорить выход обновлений, буду искренне благодарен за любую помощь.
+        </div>
+    </div>
+
+    <div class="impact-grid">
+        <div class="impact-card" onclick="window.location.href='about_profile_card.html'">
+            <span class="tag tag-blue">Функция</span>
+            <h3>Моя карточка</h3>
+            <p>Просмотр и редактирование вашей персональной карточки спортсмена.</p>
+        </div>
+        <div class="impact-card" onclick="window.location.href='feat_records.html'">
+            <span class="tag tag-blue">Функция</span>
+            <h3>Мои рекорды</h3>
+            <p>Список ваших достижений и рекордов.</p>
+        </div>
+        <div class="impact-card" onclick="window.location.href='feat_calc.html'">
+            <span class="tag tag-blue">Функция</span>
+            <h3>Калькулятор FINA</h3>
+            <p>Расчёт очков и нормативов по стандартам FINA.</p>
+        </div>
+        <div class="impact-card" onclick="window.location.href='feat_norms.html'">
+            <span class="tag tag-blue">Функция</span>
+            <h3>Нормативы</h3>
+            <p>Доступ к официальным нормам и таблицам.</p>
+        </div>
+        <div class="impact-card" onclick="window.location.href='feat_gps.html'">
+            <span class="tag tag-blue">Функция</span>
+            <h3>Таблица ГПС</h3>
+            <p>Анализ тренировок и отслеживание прогресса.</p>
+        </div>
+        <div class="impact-card" onclick="window.location.href='for_coach.html'">
+            <span class="tag tag-blue">Функция</span>
+            <h3>Для тренеров</h3>
+            <p>Инструменты для тренеров и аналитика спортсменов.</p>
+        </div>
+    </div>
+
+    <div class="cta-section">
+        <a href="https://t.me/knoooox" class="cta-btn">Поддержать проект / Донат</a>
+    </div>
+
+    <footer>
+        RYFT | CHANNEL © 2026
+    </footer>
+</div>
+</body>
+</html>
