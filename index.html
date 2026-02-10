@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="theme-color" content="#030303">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#030303">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
@@ -25,6 +26,8 @@
              * Using dark greys instead of pure #000 to reduce OLED smearing 
              */
 	    --ui-scale: 1;
+            --grid-card-size: clamp(136px, 41vw, 208px);
+
 
             --bg-deep: #030303; 
             --bg-surface: #0a0a0a;
@@ -74,19 +77,32 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        html, body {
-    width: 100%;
-    min-height: 100vh;
-    background-color: var(--bg-deep);
-    color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    /* Убираем overscroll-behavior-y: none, так как он ломает скролл в Safari */
-    overflow-x: hidden;
-    overflow-y: auto; /* Явно разрешаем вертикальный скролл */
-    -webkit-overflow-scrolling: touch; /* Улучшаем плавность на iOS */
-    position: relative;
-    font-feature-settings: "ss01", "ss02", "cv01"; 
-}
+                html,
+        body {
+            width: 100%;
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            font-feature-settings: "ss01", "ss02", "cv01";
+        }
+
+        html {
+            min-height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
+
+        body {
+            min-height: 100dvh;
+            overflow-y: visible;
+            touch-action: pan-y;
+        }
+
+
+
 	/* iOS Safari: фикс авто-увеличения текста */
 html {
     -webkit-text-size-adjust: 100%;
@@ -378,6 +394,7 @@ html {
          */
         .card {
             position: relative;
+            touch-action: pan-y;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
@@ -527,21 +544,23 @@ html {
          */
         .grid-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Всегда две колонки рядом */
+    grid-template-columns: repeat(2, minmax(0, var(--grid-card-size)));
+    justify-content: center;
     gap: 12px;
     margin-bottom: 12px;
     width: 100%;
 }
 
 .grid-card {
-    padding: 20px 12px; /* Уменьшили внутренние отступы для узких экранов */
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    padding: 18px 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     justify-content: center;
-    min-height: 140px; /* Немного снизили высоту для баланса */
-    height: 100%;
+    min-height: 0;
 }
 
         /* * ICON WRAPPERS 
@@ -584,7 +603,8 @@ html {
         }
 
         .grid-title {
-            font-size: 16px;
+            font-size: clamp(14px, 1.7vw, 16px);
+            line-height: 1.2;
             font-weight: 700;
             margin-bottom: 6px;
             color: #fff;
@@ -592,7 +612,9 @@ html {
         }
 
         .grid-sub {
-            font-size: 12px;
+            font-size: clamp(11px, 1.5vw, 12px);
+            line-height: 1.2;
+            overflow-wrap: anywhere;
             color: var(--text-secondary);
             font-weight: 500;
         }
@@ -603,7 +625,8 @@ html {
          */
         .donate-card {
     grid-column: span 2;
-    aspect-ratio: auto;
+    width: 100%;
+    min-height: clamp(112px, 24vw, 138px);
     background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(5,5,5,0.9));
     border: 1px dashed rgba(255,255,255,0.15);
     display: flex;
@@ -717,6 +740,7 @@ html {
 @media (max-width: 430px) {
     :root {
         --ui-scale: 0.95;
+        --grid-card-size: clamp(132px, 40.5vw, 188px);
     }
 }
 
@@ -724,6 +748,7 @@ html {
 @media (max-width: 390px) {
     :root {
         --ui-scale: 0.9;
+        --grid-card-size: clamp(124px, 40vw, 176px);
     }
 }
 
@@ -731,6 +756,7 @@ html {
 @media (max-width: 360px) {
     :root {
         --ui-scale: 0.85;
+        --grid-card-size: clamp(116px, 39.5vw, 164px);
     }
 }
 
