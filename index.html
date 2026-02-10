@@ -24,6 +24,8 @@
             /* * Color Palette 
              * Using dark greys instead of pure #000 to reduce OLED smearing 
              */
+	    --ui-scale: 1;
+
             --bg-deep: #030303; 
             --bg-surface: #0a0a0a;
             --bg-overlay: rgba(20, 20, 20, 0.6);
@@ -85,6 +87,12 @@
     position: relative;
     font-feature-settings: "ss01", "ss02", "cv01"; 
 }
+	/* iOS Safari: фикс авто-увеличения текста */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 
         /* Hide Scrollbar but allow scrolling */
         body::-webkit-scrollbar {
@@ -270,17 +278,18 @@
          * LAYOUT & CONTAINERS
          * ============================================================================
          */
-        .viewport {
+       .viewport {
     position: relative;
     z-index: 60;
-    width: 100%; /* Занимаем всю ширину */
-    max-width: var(--container-width);
+    width: 100%;
+    max-width: calc(var(--container-width) * var(--ui-scale));
     margin: 0 auto;
-    padding: 60px 20px; /* Немного уменьшили верхний отступ для мобилок */
+    padding: calc(60px * var(--ui-scale)) calc(20px * var(--ui-scale));
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
+
 
         /* * ============================================================================
          * HEADER COMPONENTS
@@ -518,20 +527,20 @@
          */
         .grid-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Умная сетка: кнопки сами решают, встать в ряд или друг под друга */
+    grid-template-columns: 1fr 1fr; /* Всегда две колонки рядом */
     gap: 12px;
     margin-bottom: 12px;
     width: 100%;
 }
 
 .grid-card {
-    padding: 24px 16px;
+    padding: 20px 12px; /* Уменьшили внутренние отступы для узких экранов */
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     justify-content: center;
-    min-height: 160px; /* Вместо жесткого aspect-ratio используем минимальную высоту */
+    min-height: 140px; /* Немного снизили высоту для баланса */
     height: 100%;
 }
 
@@ -593,18 +602,19 @@
          * ============================================================================
          */
         .donate-card {
-            grid-column: span 2;
-            aspect-ratio: auto;
-            background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(5,5,5,0.9));
-            border: 1px dashed rgba(255,255,255,0.15);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            padding: 28px;
-            transition: all 0.4s var(--ease-out-expo);
-        }
+    grid-column: span 2;
+    aspect-ratio: auto;
+    background: linear-gradient(135deg, rgba(20,20,20,0.8), rgba(5,5,5,0.9));
+    border: 1px dashed rgba(255,255,255,0.15);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: calc(16px * var(--ui-scale));
+    padding: calc(28px * var(--ui-scale));
+    transition: all 0.4s var(--ease-out-expo);
+}
+
 
         .donate-card:hover {
             background: #ffffff;
@@ -698,6 +708,38 @@
             70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
             100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
         }
+
+	/* ===========================
+   RESPONSIVE SCALE PROFILES
+   =========================== */
+
+/* Большие телефоны */
+@media (max-width: 430px) {
+    :root {
+        --ui-scale: 0.95;
+    }
+}
+
+/* Обычные айфоны */
+@media (max-width: 390px) {
+    :root {
+        --ui-scale: 0.9;
+    }
+}
+
+/* Маленькие телефоны */
+@media (max-width: 360px) {
+    :root {
+        --ui-scale: 0.85;
+    }
+}
+
+	.card,
+.grid-card,
+.donate-card {
+    flex-shrink: 0;
+}
+
 
     </style>
 </head>
