@@ -481,6 +481,30 @@
     }
 }
 
+/* Фикс наслоения заголовка (буква Д) */
+.hero-title {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1; /* Увеличиваем межстрочный интервал */
+}
+
+.hero-title span {
+    display: block;
+    margin-top: 0.1em; /* Создаем безопасный зазор для ножек буквы Д */
+    color: var(--text-ghost);
+    opacity: 0.4;
+}
+
+/* Дополнительный фикс для мобильных устройств */
+@media (max-width: 768px) {
+    .hero-title {
+        line-height: 1.2; /* Еще чуть больше воздуха на маленьких экранах */
+    }
+    .hero-title span {
+        margin-top: 5px;
+    }
+}
+		
     </style>
 </head>
 <body>
