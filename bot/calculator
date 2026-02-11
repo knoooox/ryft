@@ -489,7 +489,7 @@
 
     <nav class="nav-system">
         <div class="nav-container">
-            <a href="index.html" class="btn-back-hub">
+            <a href="http://ryft-official.ru/bot/info" class="btn-back-hub">
                 <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Вернуться в хаб
             </a>
@@ -572,14 +572,14 @@
             <div class="hub-label">Быстрый доступ к протоколам</div>
             <div class="mini-grid">
                 
-                <a href="card.html" class="mini-item">
+                <a href="http://ryft-official.ru/bot/profile" class="mini-item">
     <div class="mini-icon-box">
            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
     </div>
     <span class="mini-name">Карточка</span>
 </a>
 
-                <a href="feat_records.html" class="mini-item">
+                <a href="http://ryft-official.ru/bot/records" class="mini-item">
                     <div class="mini-icon-box">
                         <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     </div>
@@ -587,21 +587,21 @@
                 </a>
 
 
-                <a href="feat_norms.html" class="mini-item">
+                <a href="http://ryft-official.ru/bot/standards" class="mini-item">
                     <div class="mini-icon-box">
                         <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                     </div>
                     <span class="mini-name">Нормативы</span>
                 </a>
 
-                <a href="feat_gps.html" class="mini-item">
+                <a href="http://ryft-official.ru/bot/gps" class="mini-item">
                     <div class="mini-icon-box">
                         <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L3.6 18"/></svg>
                     </div>
                     <span class="mini-name">ГПС</span>
                 </a>
 
-                <a href="for_coach.html" class="mini-item">
+                <a href="http://ryft-official.ru/bot/coach" class="mini-item">
                     <div class="mini-icon-box">
                         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
