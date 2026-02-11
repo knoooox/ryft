@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RYFT | RECORDS PROTOCOL — ULTIMATE WHITE</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <style>
+        /**
+         * ============================================================================
+         * 1. ARCHITECTURAL DESIGN TOKENS
+         * ============================================================================
+         * Переменные сохранены без изменений. Размеры, цвета и физика анимаций
+         * полностью соответствуют вашему эталонному коду.
+         */
+        :root {
+            /* Core Surfaces */
+            --base-bg: #FFFFFF;
+            --surface-subtle: #FBFBFD; 
+            --surface-card: #F5F5F7;   
+            --surface-deep: #EBEBF0;   
+            
+            /* Typography Scale */
+            --text-primary: #1D1D1F;   
+            --text-secondary: #86868B; 
+            --text-ghost: #D2D2D7;     
+            
+            /* Functional Accents */
+            --accent-blue: #007AFF;    
+            --accent-glow: rgba(0, 122, 255, 0.25);
+            --accent-soft: rgba(0, 122, 255, 0.08);
+            
+            /* Motion Physics */
+            --ease-ios: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            
+            /* Transitions */
+            --t-micro: 0.2s var(--ease-ios);
+            --t-normal: 0.5s var(--ease-ios);
+            --t-slow: 0.9s var(--ease-out-expo);
+
+            /* Geometry */
+            --radius-massive: 48px;
+            --radius-large: 32px;
+            --radius-medium: 20px;
+            --radius-pill: 1000px;
+            
+            /* Layout Guards */
+            --container-max: 1100px;
+            --section-gap: 120px;
+        }
+
+        /**
+         * ============================================================================
+         * 2. GLOBAL RESET & OPTIMIZATION
+         * ============================================================================
+         */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        html {
+            font-size: 16px;
+            background-color: var(--base-bg);
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        a, button, .clickable {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        /**
+         * ============================================================================
+         * 3. KEYFRAMES & MOTION DESIGN
+         * ============================================================================
+         */
+        @keyframes masterReveal {
+            0% { opacity: 0; transform: scale(0.95) translateY(40px); filter: blur(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        @keyframes softPulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .reveal-node {
+            opacity: 0;
+            animation: masterReveal var(--t-slow) forwards;
+            will-change: transform, opacity, filter;
+        }
+
+        /**
+         * ============================================================================
+         * 4. UI COMPONENTS: NAVIGATION
+         * ============================================================================
+         */
+        .nav-system {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 88px;
+            z-index: 2000;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: var(--t-normal);
+        }
+
+        .nav-container {
+            max-width: var(--container-max);
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .btn-back-hub {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            transition: var(--t-normal);
+            padding: 12px 20px;
+            background: var(--surface-card);
+            border-radius: var(--radius-pill);
+        }
+
+        .btn-back-hub:hover {
+            background: var(--text-primary);
+            color: var(--base-bg);
+            transform: translateX(-5px);
+        }
+
+        .btn-back-hub svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            transition: var(--t-normal);
+        }
+
+        /**
+         * ============================================================================
+         * 5. HERO MODULE: THE RECORDS CORE
+         * ============================================================================
+         */
+        .hero-module {
+            padding-top: 180px;
+            margin-bottom: 80px;
+            text-align: left;
+        }
+
+        .badge-system {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: var(--accent-soft);
+            color: var(--accent-blue);
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+        }
+
+        .hero-title {
+            font-size: clamp(50px, 12vw, 100px);
+            font-weight: 900;
+            line-height: 0.82;
+            letter-spacing: -0.07em;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        .hero-title span { display: block; color: var(--text-ghost); opacity: 0.4; }
+
+        .hero-subtext {
+            font-size: clamp(18px, 2.5vw, 24px);
+            color: var(--text-secondary);
+            max-width: 650px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        /**
+         * ============================================================================
+         * 6. CONTENT TILES: FEATURE BLOCKS
+         * ============================================================================
+         */
+        .tiles-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 120px;
+        }
+
+        @media (max-width: 850px) { .tiles-container { grid-template-columns: 1fr; } }
+
+        .tile-card {
+            background: var(--surface-subtle);
+            border: 1px solid var(--surface-deep);
+            border-radius: var(--radius-large);
+            padding: 60px;
+            transition: var(--t-slow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .tile-card:hover {
+            background: var(--base-bg);
+            border-color: var(--accent-blue);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.06);
+            transform: translateY(-10px);
+        }
+
+        .tile-meta {
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            display: block;
+        }
+
+        .tile-content {
+            font-size: 19px;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .tile-content b { font-weight: 850; color: #000; }
+
+        .tile-quote {
+            margin-top: 30px;
+            padding-left: 24px;
+            border-left: 2px solid var(--surface-deep);
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-style: italic;
+            transition: var(--t-normal);
+        }
+
+        .tile-card:hover .tile-quote { border-left-color: var(--accent-blue); }
+
+        /**
+         * ============================================================================
+         * 7. ADMIN BRIDGE (HELP SECTION)
+         * ============================================================================
+         */
+        .admin-bridge {
+            grid-column: span 2;
+            background: var(--text-primary);
+            border-radius: var(--radius-large);
+            padding: 60px;
+            color: var(--base-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (max-width: 850px) { .admin-bridge { grid-column: span 1; flex-direction: column; text-align: center; gap: 40px; } }
+
+        .admin-bridge::after {
+            content: 'DATA';
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            font-size: 120px;
+            font-weight: 900;
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .admin-info h3 { font-size: 32px; font-weight: 900; margin-bottom: 12px; letter-spacing: -0.03em; }
+        .admin-info p { font-size: 16px; opacity: 0.6; max-width: 450px; }
+
+        .admin-action-btn {
+            background: var(--base-bg);
+            color: var(--text-primary);
+            padding: 24px 48px;
+            border-radius: var(--radius-pill);
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: var(--t-normal);
+            border: 2px solid transparent;
+        }
+
+        .admin-action-btn:hover {
+            background: var(--accent-blue);
+            color: var(--base-bg);
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 122, 255, 0.4);
+        }
+
+        /**
+         * ============================================================================
+         * 8. MINI NAVIGATOR: THE QUICK HUB
+         * ============================================================================
+         */
+        .quick-hub { padding: 100px 0; border-top: 1px solid var(--surface-card); }
+
+        .hub-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: var(--text-ghost);
+            margin-bottom: 60px;
+        }
+
+        .mini-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+
+        @media (max-width: 900px) { .mini-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 600px) { .mini-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .mini-item {
+            background: var(--surface-card);
+            border-radius: var(--radius-medium);
+            padding: 30px 20px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: var(--t-slow);
+            border: 1px solid transparent;
+        }
+
+        .mini-item:hover { background: var(--base-bg); transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.04); border-color: var(--surface-deep); }
+
+        .mini-icon-box {
+            width: 54px;
+            height: 54px;
+            background: var(--base-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            transition: var(--t-normal);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .mini-item:hover .mini-icon-box { background: var(--accent-blue); transform: scale(1.1) rotate(10deg); }
+
+        .mini-icon-box svg { width: 22px; height: 22px; stroke: var(--text-primary); stroke-width: 2.5; fill: none; transition: var(--t-normal); }
+        .mini-item:hover .mini-icon-box svg { stroke: var(--base-bg); }
+
+        .mini-name { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-primary); }
+
+        /**
+         * ============================================================================
+         * 9. FOOTER
+         * ============================================================================
+         */
+        .footer-system { padding: 60px 0; text-align: center; border-top: 1px solid var(--surface-card); }
+        .footer-logo { font-size: 14px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; }
+        .footer-logo span { color: var(--accent-blue); }
+        .footer-legal { font-size: 10px; font-weight: 600; color: var(--text-ghost); text-transform: uppercase; letter-spacing: 2px; }
+
+        /**
+         * ============================================================================
+         * 10. SYSTEM NOTIFICATIONS
+         * ============================================================================
+         */
+        #toast-container { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 9999; }
+        .toast-bubble {
+            background: var(--text-primary);
+            color: var(--base-bg);
+            padding: 18px 36px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: toastSlideUp 0.6s var(--ease-out-expo) forwards;
+        }
+        @keyframes toastSlideUp { 0% { transform: translateY(100px) scale(0.8); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+	/* --- MOBILE OPTIMIZATION OVERRIDE --- */
+
+/* 1. Умный контейнер */
+.main-wrapper {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* 2. Адаптация для планшетов и телефонов */
+@media (max-width: 768px) {
+    .main-wrapper {
+        padding: 0 20px; /* Уменьшаем боковые поля всей страницы */
+    }
+
+    .nav-container {
+        padding: 0 20px;
+    }
+
+    .hero-module {
+        padding-top: 130px; /* Уменьшаем пустой отступ сверху */
+        margin-bottom: 40px;
+    }
+
+    .tile-card {
+        padding: 30px 24px; /* Уменьшаем огромные внутренние отступы в карточках */
+    }
+
+    .admin-bridge {
+        padding: 40px 24px; /* Компактный блок связи */
+    }
+
+    .admin-info h3 {
+        font-size: 26px; /* Чуть меньше заголовок, чтобы не переносился криво */
+    }
+
+    .admin-action-btn {
+        width: 100%; /* Кнопка на всю ширину на телефоне */
+        text-align: center;
+        padding: 18px 24px;
+    }
+}
+
+/* 3. Фикс для очень маленьких экранов (iPhone SE и т.д.) */
+@media (max-width: 400px) {
+    .hero-title {
+        font-size: 42px; /* Чтобы "Мои Рекорды" не вылезали за края */
+    }
+    
+    .mini-grid {
+        gap: 12px; /* Плотнее иконки внизу */
+    }
+    
+    .mini-item {
+        padding: 20px 10px;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <nav class="nav-system">
+        <div class="nav-container">
+            <a href="index.html" class="btn-back-hub">
+                <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Вернуться в хаб
+            </a>
+        </div>
+    </nav>
+
+<div class="main-wrapper">
+        
+        <header class="hero-module reveal-node" style="animation-delay: 0.1s;">
+    <div class="badge-system">Module Interface: Coaching Hub</div>
+    <h1 class="hero-title">Для<span>Тренеров</span></h1>
+    <p class="hero-subtext">
+        Профессиональная экосистема для управления командой. Мониторинг результатов, анализ зон ГПС и контроль прогресса каждого спортсмена в едином интерфейсе.
+    </p>
+</header>
+
+        <section class="tiles-container">
+    
+    <article class="tile-card reveal-node" style="animation-delay: 0.2s;">
+        <div>
+            <span class="tile-meta">Command Center</span>
+            <div class="tile-content">
+                Ваша группа — в одном разделе. Получайте <b>мгновенный доступ</b> ко всем привязанным спортсменам прямо из главного меню.
+            </div>
+        </div>
+        <div class="tile-quote">
+            Больше не нужно переключаться между чатами. Полный список учеников всегда под рукой для оперативной работы.
+        </div>
+    </article>
+
+    <article class="tile-card reveal-node" style="animation-delay: 0.3s;">
+        <div>
+            <span class="tile-meta">Elite Analytics</span>
+            <div class="tile-content">
+                Следите за <b>динамикой результатов</b>: личные рекорды, последние заплывы и актуальные баллы FINA доступны в пару кликов.
+            </div>
+        </div>
+        <div class="tile-quote">
+            Анализируйте готовность атлетов на основе их последних достижений и автоматически рассчитанных очков.
+        </div>
+    </article>
+
+    <article class="tile-card reveal-node" style="animation-delay: 0.4s;">
+        <div>
+            <span class="tile-meta">Bio-Metric Control</span>
+            <div class="tile-content">
+                Полный доступ к <b>скоростным и пульсовым зонам</b> каждого атлета. Контролируйте интенсивность подготовки дистанционно.
+            </div>
+        </div>
+        <div class="tile-quote">
+            Синхронизация с таблицами ГПС позволяет наставнику видеть реальные возможности пловца на дистанции 200 метров.
+        </div>
+    </article>
+
+    <article class="tile-card reveal-node" style="animation-delay: 0.5s;">
+        <div>
+            <span class="tile-meta">Privileged Access</span>
+            <div class="tile-content">
+                После активации тренерского аккаунта вам откроются <b>эксклюзивные инструменты</b> управления базой данных спортсменов.
+            </div>
+        </div>
+        <div class="tile-quote">
+            Система RYFT PROTOCOL адаптирует интерфейс под профессиональные нужды специалиста.
+        </div>
+    </article>
+
+    <section class="admin-bridge reveal-node" style="animation-delay: 0.6s;">
+        <div class="admin-info">
+            <h3>Как активировать доступ?</h3>
+            <p>
+                Напишите администратору <b>@knoooox</b>. Укажите ваше ФИО, список спортсменов и ваш персональный идентификатор.
+            </p>
+        </div>
+        <a href="https://t.me/knoooox" class="admin-action-btn">Запросить доступ</a>
+    </section>
+
+</section>
+
+        <section class="quick-hub reveal-node" style="animation-delay: 0.7s;">
+            <div class="hub-label">Быстрый доступ к протоколам</div>
+            <div class="mini-grid">
+                
+                <a href="card.html" class="mini-item">
+    <div class="mini-icon-box">
+           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    </div>
+    <span class="mini-name">Карточка</span>
+</a>
+
+                <a href="feat_calc.html" class="mini-item">
+                    <div class="mini-icon-box">
+                        <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+                    </div>
+                    <span class="mini-name">FINA</span>
+                </a>
+
+                <a href="feat_records.html" class="mini-item">
+                    <div class="mini-icon-box">
+                        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <span class="mini-name">Рекорды</span>
+                </a>
+
+
+                <a href="feat_norms.html" class="mini-item">
+                    <div class="mini-icon-box">
+                        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <span class="mini-name">Нормативы</span>
+                </a>
+
+                <a href="feat_gps.html" class="mini-item">
+                    <div class="mini-icon-box">
+                        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L3.6 18"/></svg>
+                    </div>
+                    <span class="mini-name">ГПС</span>
+                </a>
+
+            </div>
+        </section>
+
+        <footer class="footer-system reveal-node" style="animation-delay: 0.8s;">
+            <div class="footer-logo">RYFT <span>PROTOCOL</span></div>
+            <div class="footer-legal">Unified Access Ecosystem © 2024-2026</div>
+        </footer>
+
+    </div>
+
+    <script>
+        class ProtocolEngine {
+            constructor() {
+                this.initMagneticCards();
+                this.initScrollVisuals();
+// Внутри конструктора класса ProtocolEngine:
+this.showToast("Профиль тренера верифицирован");
+            }
+
+            initMagneticCards() {
+                const tiles = document.querySelectorAll('.tile-card, .mini-item, .admin-bridge');
+                tiles.forEach(tile => {
+                    tile.addEventListener('mousemove', (e) => {
+                        const rect = tile.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = (y - centerY) / 35;
+                        const rotateY = (centerX - x) / 35;
+                        tile.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+                    });
+                    tile.addEventListener('mouseleave', () => {
+                        tile.style.transform = `perspective(1000px) rotateX(0) rotateY(0) translateY(0)`;
+                    });
+                });
+            }
+
+            initScrollVisuals() {
+                window.addEventListener('scroll', () => {
+                    const scrolled = window.pageYOffset;
+                    const hero = document.querySelector('.hero-module');
+                    if (hero) {
+                        hero.style.opacity = 1 - (scrolled / 700);
+                        hero.style.transform = `translateY(${scrolled * 0.15}px)`;
+                    }
+                    const nav = document.querySelector('.nav-system');
+                    if (scrolled > 60) {
+                        nav.style.height = '72px';
+                        nav.style.background = 'rgba(255, 255, 255, 0.95)';
+                    } else {
+                        nav.style.height = '88px';
+                        nav.style.background = 'rgba(255, 255, 255, 0.8)';
+                    }
+                });
+            }
+
+            showToast(msg) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast-bubble';
+                toast.innerHTML = `<span style="color: var(--accent-blue)">●</span> ${msg}`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-20px)';
+                    setTimeout(() => toast.remove(), 600);
+                }, 4000);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => { new ProtocolEngine(); });
+    </script>
+</body>
+</html>
