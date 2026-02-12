@@ -1,1082 +1,605 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RYFT | WOMEN'S GLOBAL RANKING 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* --- RYFT WHITE PROTOCOL v5.2: CORE VARIABLES --- */
+        /* --- RYFT ENGINE v3.0: STABLE CORE --- */
         :root {
             --bg-page: #FFFFFF;
-            --bg-surface: #F5F5F7;
-            --bg-surface-hover: #EBEBF0;
+            --bg-card: #F9F9FB;
             --accent: #007AFF;
-            --accent-dark: #005ECB;
             --gold: #D4AF37;
-            --silver: #C0C0C0;
+            --silver: #C4C4C4;
             --bronze: #CD7F32;
-            --danger: #FF3B30;
-            --success: #34C759;
-            --text-primary: #1D1D1F;
+            --text-primary: #111111;
             --text-secondary: #86868B;
-            --border: #D2D2D7;
-            --radius-s: 8px;
-            --radius-m: 16px;
-            --radius-l: 24px;
-            --radius-pill: 999px;
-            --shadow-card: 0 4px 12px rgba(0,0,0,0.04);
-            --shadow-hover: 0 12px 24px rgba(0,0,0,0.08);
-            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            
+            --card-w: 300px;
+            --card-h: 440px;
+            --gap: 30px;
         }
 
-        /* --- RESET & BASE --- */
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        /* --- RESET --- */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         
         body {
             background-color: var(--bg-page);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Важно: убирает горизонтальный скролл страницы */
             color: var(--text-primary);
-            font-family: var(--font-main);
-            margin: 0; padding: 0;
-            line-height: 1.45;
-            overflow-x: hidden; /* Prevent horizontal scroll on body */
         }
 
-        /* --- TYPOGRAPHY --- */
-        h1, h2, h3, h4 { margin: 0; }
-        
+        /* --- HEADER (FIXED PADDING) --- */
+        header {
+            /* ОГРОМНЫЙ ОТСТУП СВЕРХУ, ЧТОБЫ НЕ ПРИЛИПАЛО */
+            padding-top: 160px;
+            padding-bottom: 60px;
+            padding-left: max(5vw, 24px);
+            padding-right: max(5vw, 24px);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
         .kicker {
             color: var(--accent);
-            text-transform: uppercase;
+            font-size: 12px;
             font-weight: 800;
-            letter-spacing: 3px;
-            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
             display: block;
-            margin-bottom: 12px;
+            margin-bottom: 24px;
         }
 
-        h1.main-title {
-            font-size: clamp(42px, 8vw, 76px);
+        h1 {
+            font-size: clamp(42px, 8vw, 90px);
+            line-height: 0.9;
             font-weight: 900;
             letter-spacing: -0.04em;
-            line-height: 0.95;
             text-transform: uppercase;
-            margin-bottom: 16px;
+            margin: 0 0 32px 0;
         }
 
-        .sub-header {
+        .sub-text {
+            font-size: clamp(16px, 2vw, 20px);
             color: var(--text-secondary);
-            font-size: clamp(16px, 4vw, 18px);
-            max-width: 650px;
+            max-width: 600px;
+            line-height: 1.5;
             font-weight: 400;
-            line-height: 1.6;
         }
 
-        /* --- LAYOUT UTILS --- */
-        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 24px; }
-        .section-spacer { height: 80px; }
-
-        /* --- HEADER --- */
-        header {
-            padding: 80px 0 60px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 60px;
-        }
-        
-        .header-content {
-            border-left: 5px solid var(--accent);
-            padding-left: 32px;
-        }
-
-        /* --- CAROUSEL / DRUM ARCHITECTURE --- */
+        /* --- DRUM SECTIONS --- */
         .tier-section {
             margin-bottom: 100px;
             position: relative;
+            /* Fade effect по краям экрана */
+            mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
         }
 
-        .tier-header {
+        .tier-info {
+            padding-left: max(5vw, 24px);
+            margin-bottom: 30px;
             display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-bottom: 32px;
-            padding: 0 24px;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
+            align-items: center;
+            gap: 16px;
         }
 
-        .tier-title {
+        .tier-badge {
+            background: #000;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .tier-name {
             font-size: 24px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        /* --- DRUM VIEWPORT (WINDOW) --- */
+        .drum-viewport {
+            width: 100%;
+            height: 550px; /* Высота зоны прокрутки */
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            touch-action: pan-y; /* Разрешаем только вертикальный скролл страницы */
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        .tier-range {
-            font-family: monospace;
-            font-size: 14px;
-            color: var(--text-secondary);
-            background: var(--bg-surface);
-            padding: 4px 12px;
-            border-radius: var(--radius-pill);
-            letter-spacing: 0;
-        }
-
-        /* The Scroll Track */
-        .drum-container {
-            width: 100%;
-            overflow-x: auto;
-            padding: 20px 24px 60px 24px; /* Bottom padding for shadow/hover space */
-            /* Hide scrollbar but keep functionality */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE 10+ */
-            cursor: grab;
-            position: relative;
         }
         
-        .drum-container::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
-        .drum-container:active { cursor: grabbing; }
+        .drum-viewport:active { cursor: grabbing; }
 
+        /* --- THE MOVING TRACK --- */
         .drum-track {
             display: flex;
-            gap: 20px;
-            width: max-content; /* Ensure it expands */
+            position: absolute; /* Абсолютное позиционирование для JS */
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            will-change: transform; /* Оптимизация для браузера */
+            height: var(--card-h);
         }
 
-        /* --- PROFILE CARD DESIGN --- */
-        .profile-card {
-            background: var(--bg-surface);
-            width: 300px; /* Fixed width for drum effect */
-            min-height: 420px;
-            border-radius: var(--radius-l);
+        /* --- CARD STYLES --- */
+        .card {
+            width: var(--card-w);
+            height: var(--card-h);
+            background: var(--bg-card);
+            border-radius: 24px;
+            flex-shrink: 0;
+            margin-right: var(--gap);
             padding: 28px;
             position: relative;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid transparent;
-            /* Snap alignment for mobile */
-            scroll-snap-align: start;
-            user-select: none; /* Prevent text selection while dragging */
+            border: 1px solid rgba(0,0,0,0.06);
+            user-select: none;
+            /* 3D Transform Defaults */
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
 
-        /* Hover Effect: Lift & Highlight */
-        .profile-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            background: #FFFFFF;
-            border-color: var(--border);
-            box-shadow: var(--shadow-hover);
-            z-index: 10;
-        }
-
-        /* Top 3 Special Styling */
-        .profile-card.gold-tier { background: linear-gradient(145deg, #FFD700 0%, #F5F5F7 30%); border: 1px solid #FFD700; }
-        .profile-card.silver-tier { background: linear-gradient(145deg, #E0E0E0 0%, #F5F5F7 30%); border: 1px solid #C0C0C0; }
-        .profile-card.bronze-tier { background: linear-gradient(145deg, #CD7F32 0%, #F5F5F7 30%); border: 1px solid #CD7F32; }
-
-        /* Card Internals */
-        .rank-badge {
-            font-size: 42px;
+        /* Rank Number Background */
+        .bg-rank {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 120px;
             font-weight: 900;
             color: var(--text-primary);
-            opacity: 0.08;
-            position: absolute;
-            top: 20px;
-            right: 24px;
-            letter-spacing: -3px;
-            line-height: 1;
-            transition: opacity 0.3s;
+            opacity: 0.03;
+            line-height: 0.8;
+            letter-spacing: -8px;
+            pointer-events: none;
         }
-        .profile-card:hover .rank-badge { opacity: 0.2; color: var(--accent); }
 
-        .swimmer-meta { margin-bottom: 24px; position: relative; z-index: 2; }
-        
-        .country-flag {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flag {
+            font-size: 10px;
+            font-weight: 900;
             background: #000;
-            color: #FFF;
-            padding: 6px 10px;
-            border-radius: 6px;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
             display: inline-block;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            width: fit-content;
         }
 
-        .swimmer-name {
-            font-size: 22px;
+        .name {
+            font-size: 24px;
             font-weight: 800;
             line-height: 1.1;
-            color: var(--text-primary);
             letter-spacing: -0.5px;
+            margin-bottom: 16px;
         }
 
-        .stats-grid {
+        .desc {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: auto; /* Pushes stats to bottom */
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .stats {
+            margin-top: 20px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            padding-top: 16px;
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(0,0,0,0.06);
+            gap: 10px;
         }
 
         .stat-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-        }
-
-        .stat-label { color: var(--text-secondary); font-weight: 500; }
-        .stat-val { font-weight: 700; font-feature-settings: "tnum"; }
-        .stat-val.highlight { color: var(--accent); }
-
-        .ryft-intel {
-            font-size: 13px;
-            color: #424245;
-            line-height: 1.5;
-            font-weight: 500;
-            flex-grow: 1; /* Pushes content to fill height */
-        }
-        
-        .ryft-intel strong { color: var(--text-primary); }
-
-        /* --- INSIGHT BREAKERS --- */
-        .insight-breaker {
-            max-width: 1400px;
-            margin: 0 auto 40px;
-            padding: 0 24px;
-            display: grid;
-            grid-template-columns: 4px 1fr;
-            gap: 20px;
-        }
-
-        .breaker-line { background: var(--text-primary); height: 100%; border-radius: 2px; }
-        
-        .breaker-content h3 {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-        }
-        
-        .breaker-content p {
-            font-size: 18px;
+            font-size: 12px;
             font-weight: 600;
-            max-width: 800px;
-            margin: 0;
         }
+        
+        .stat-val { font-weight: 700; color: var(--text-primary); }
+        .highlight { color: var(--accent); }
+        .stat-label { color: var(--text-secondary); font-weight: 500; }
+
+        /* --- SPECIAL TIERS (ONLY TOP 3) --- */
+        /* Bronze */
+        .card[data-tier="bronze"] {
+            border: 2px solid var(--bronze);
+            background: linear-gradient(135deg, #FFF, #FFF8F0);
+            box-shadow: 0 10px 30px rgba(205, 127, 50, 0.15);
+        }
+        .card[data-tier="bronze"] .flag { background: var(--bronze); }
+        .card[data-tier="bronze"] .bg-rank { color: var(--bronze); opacity: 0.15; }
+
+        /* Silver */
+        .card[data-tier="silver"] {
+            border: 2px solid var(--silver);
+            background: linear-gradient(135deg, #FFF, #F5F5F7);
+            box-shadow: 0 10px 30px rgba(192, 192, 192, 0.2);
+        }
+        .card[data-tier="silver"] .flag { background: var(--silver); color: #000; }
+        .card[data-tier="silver"] .bg-rank { color: var(--silver); opacity: 0.15; }
+
+        /* Gold */
+        .card[data-tier="gold"] {
+            border: 2px solid var(--gold);
+            background: linear-gradient(135deg, #FFFCF2, #FFF);
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.25);
+        }
+        .card[data-tier="gold"] .flag { background: var(--gold); color: #000; }
+        .card[data-tier="gold"] .bg-rank { color: var(--gold); opacity: 0.15; }
 
         /* --- FOOTER --- */
-        .cta-section {
-            background: var(--text-primary);
-            color: #FFF;
+        footer {
+            border-top: 1px solid #eee;
+            padding: 80px 24px;
             text-align: center;
-            padding: 100px 20px;
-            position: relative;
-            overflow: hidden;
+            background: #fff;
+        }
+
+        @media (max-width: 768px) {
+            :root { --card-w: 260px; --card-h: 400px; --gap: 20px; }
+            header { padding-top: 120px; }
+            h1 { font-size: 42px; }
+            .tier-section { mask-image: none; -webkit-mask-image: none; }
+        }
+
+/* --- CTA SECTION --- */
+        .cta-section {
+            padding: 80px 24px;
+            display: flex;
+            justify-content: center;
+            background: linear-gradient(to bottom, #ffffff, #f9f9fb);
         }
 
         .cta-btn {
-            background: #FFF;
-            color: var(--text-primary);
-            padding: 20px 48px;
-            border-radius: var(--radius-pill);
+            background: #000;
+            color: #fff;
             text-decoration: none;
-            font-weight: 800;
+            padding: 22px 44px;
+            border-radius: 100px;
             font-size: 14px;
-            letter-spacing: 1px;
+            font-weight: 800;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            display: inline-block;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .cta-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: translateY(-5px) scale(1.02);
+            background: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 122, 255, 0.3);
         }
 
-        .footer-base {
-            background: #FFFFFF;
-            padding: 40px 0;
+        /* --- UPDATED FOOTER --- */
+        footer {
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 60px 24px 100px 24px;
             text-align: center;
-            border-top: 1px solid var(--border);
+            background: #f9f9fb;
         }
 
-        .footer-logo { font-weight: 900; letter-spacing: 1px; font-size: 16px; }
-        .footer-tag { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-secondary); margin-top: 8px; }
+        .footer-logo {
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
 
-        /* --- ANIMATIONS --- */
+        .footer-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* Простая анимация появления */
+        .animate-load {
+            animation: fadeInUp 1s ease forwards;
+            opacity: 0;
+        }
+
+        .delay-5 { animation-delay: 0.5s; }
+
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-load { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-        .delay-4 { animation-delay: 0.4s; }
-
-        /* --- RESPONSIVE --- */
-        @media (max-width: 768px) {
-            .profile-card { width: 85vw; min-height: 380px; }
-            .drum-container { padding-right: 24px; scroll-snap-type: x mandatory; }
-            h1.main-title { font-size: 42px; }
-            .header-content { border-left-width: 3px; padding-left: 20px; }
         }
 
     </style>
 </head>
 <body>
 
-    <header class="container">
-        <div class="header-content animate-load">
-            <span class="kicker">RYFT Intelligence Unit</span>
-            <h1 class="main-title">Global<br>Power Rankings<br><span style="color: var(--accent);">Women's 2026</span></h1>
-            <div class="sub-header">
-                Архитектура скорости в пост-олимпийский сезон. Анализ таймингов, траекторий и потенциала к Pan Pacs 2026.
-            </div>
-        </div>
+    <header>
+        <span class="kicker">RYFT Intelligence Unit</span>
+        <h1>Global<br>Power Rankings<br><span style="color: var(--accent);">Women's 2026</span></h1>
+        <p class="sub-text">
+            Архитектура скорости в пост-олимпийский сезон. Полный анализ топ-40 пловцов планеты на пути к Pan Pacific Championships.
+        </p>
     </header>
 
-    <section class="tier-section animate-load delay-1">
-        <div class="tier-header">
-            <div class="tier-title">
-                <span style="width: 12px; height: 12px; background: var(--text-secondary); border-radius: 50%;"></span>
-                The Foundation
-            </div>
-            <div class="tier-range">#40 — #31</div>
+    <section class="tier-section">
+        <div class="tier-info">
+            <span class="tier-badge">40 — 31</span>
+            <span class="tier-name">The Foundation</span>
         </div>
-        
-        <div class="drum-container drag-scroll">
-            <div class="drum-track">
-                
-                <div class="profile-card">
-                    <span class="rank-badge">40</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CAN</span>
-                        <div class="swimmer-name">Kylie Masse</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Age</span><span class="stat-val">30</span></div>
-                        <div class="stat-row"><span class="stat-label">Focus</span><span class="stat-val">Backstroke</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        <strong>Veteran Status.</strong> Стабильность уровня элиты. 4-е места на ЧМ в 50/100 спиной (58.42). Главный фаворит Игр Содружества, если Маккеон пропустит турнир.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">39</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CHN</span>
-                        <div class="swimmer-name">Wan Letian</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Trend</span><span class="stat-val highlight">Rising</span></div>
-                        <div class="stat-row"><span class="stat-label">PB</span><span class="stat-val">27.09 (50Bk)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Бронза ЧМ на 50м. В 21 год показывает 5-е время в истории на полтиннике. Потенциал выхода из 59 сек на сотне в 2026 году.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">38</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CHN</span>
-                        <div class="swimmer-name">Liu Yaxin</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Versatility</span><span class="stat-val">Extreme</span></div>
-                        <div class="stat-row"><span class="stat-label">200 Free</span><span class="stat-val">1:54.96</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Скачок на 60 позиций. Топ-20 мира в 5 дисциплинах. 200 кролем — главная угроза (6-е время мира). Универсальный солдат Китая.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">37</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CHN</span>
-                        <div class="swimmer-name">Cheng Yujie</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Event</span><span class="stat-val">Sprint Free</span></div>
-                        <div class="stat-row"><span class="stat-label">Worlds</span><span class="stat-val highlight">Bronze (50m)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Бронза ЧМ на 50 кролем (24.28). Впервые с 15 лет обновила личный рекорд. Цель 2026 — сломать барьер 53.0 на сотне.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">36</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Rylee Erisman</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Age</span><span class="stat-val">16</span></div>
-                        <div class="stat-row"><span class="stat-label">Breakout</span><span class="stat-val highlight">52.79 (100F)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        <strong>US Phenom.</strong> Время с юниорского ЧМ принесло бы бронзу на взрослом мире. Главная надежда американского спринта на Pan Pacs.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">35</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">GBR</span>
-                        <div class="swimmer-name">Angharad Evans</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Rec</span><span class="stat-val">NR Holder</span></div>
-                        <div class="stat-row"><span class="stat-label">100 Br</span><span class="stat-val">1:05.37</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Нестабильный ЧМ (18-е место), но время 1:05.37 с отбора — это элита. Фаворит Евро-2026 в брассе.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">34</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">AUS</span>
-                        <div class="swimmer-name">Jenna Forrester</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Focus</span><span class="stat-val">400 IM</span></div>
-                        <div class="stat-row"><span class="stat-label">Status</span><span class="stat-val highlight">Silver (Tie)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Возвращение формы 2023 года. Серебро ЧМ (4:33.26). Железный претендент на подиум Pan Pacs в комплексе.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">33</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Alex Walsh</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Style</span><span class="stat-val">IM / Breast</span></div>
-                        <div class="stat-row"><span class="stat-label">200 IM</span><span class="stat-val">2:08.49</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Сузила фокус до комплекса и брасса. Серебро ЧМ в 200 IM. С уходом Лилли Кинг открывается шанс на 100 брасс в сборной США.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">32</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CAN</span>
-                        <div class="swimmer-name">M.S. Harvey</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Range</span><span class="stat-val">200m - 400m</span></div>
-                        <div class="stat-row"><span class="stat-label">Result</span><span class="stat-val highlight">Bronze 200IM</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Выступала с травмой плеча, но взяла бронзу ЧМ. Личные рекорды в 400 кролем и комплексе. Потенциальный мульти-медалист Pan Pacs.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">31</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CHN</span>
-                        <div class="swimmer-name">Wu Qingfeng</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">24.26 (50F)</span></div>
-                        <div class="stat-row"><span class="stat-label">Medal</span><span class="stat-val highlight">Silver</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Серебро ЧМ на полтиннике. Фаворит Азиатских игр 2026. Стабильно прогрессирует, улучшая личные рекорды каждый сезон.
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <div class="drum-viewport" id="drum-1"></div>
     </section>
 
-    <div class="insight-breaker animate-load delay-2">
-        <div class="breaker-line"></div>
-        <div class="breaker-content">
-            <h3>RYFT Analysis: Phase I</h3>
-            <p>Зона турбулентности. Смесь ветеранов, ищущих "второе дыхание" (Masse, Walsh), и тинейджеров, ломающих иерархию (Erisman, 16 лет).</p>
+    <section class="tier-section">
+        <div class="tier-info">
+            <span class="tier-badge">30 — 21</span>
+            <span class="tier-name">The Disruptors</span>
         </div>
-    </div>
-
-    <section class="tier-section animate-load delay-2">
-        <div class="tier-header">
-            <div class="tier-title">
-                <span style="width: 12px; height: 12px; background: var(--accent); border-radius: 50%;"></span>
-                The Disruptors
-            </div>
-            <div class="tier-range">#30 — #21</div>
-        </div>
-        
-        <div class="drum-container drag-scroll">
-            <div class="drum-track">
-
-                <div class="profile-card">
-                    <span class="rank-badge">30</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CHN</span>
-                        <div class="swimmer-name">Yang Peiqi</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Domination</span><span class="stat-val">4x WJ Gold</span></div>
-                        <div class="stat-row"><span class="stat-label">400 Free</span><span class="stat-val">4:01.90</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Абсолютный чемпион мира среди юниоров (200-1500м). В 18 лет уже стучится в дверь взрослого подиума с 4:01 на 400м.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">29</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">NZL</span>
-                        <div class="swimmer-name">Erika Fairweather</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Event</span><span class="stat-val">400 Free</span></div>
-                        <div class="stat-row"><span class="stat-label">Issue</span><span class="stat-val highlight">False Start</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Редкий фальстарт на ЧМ скрыл её потенциал. Одна из немногих, кто побеждал Макинтош (2023). 3:59.44 в активе.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">28</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">HKG</span>
-                        <div class="swimmer-name">Siobhan Haughey</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Status</span><span class="stat-val">Injury Return</span></div>
-                        <div class="stat-row"><span class="stat-label">Target</span><span class="stat-val">SC Worlds</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Сезон скомкан травмой спины. Но даже без базы плывет 1:54.85. Королева короткой воды (3-кратная чемпионка мира) вернется в декабре.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">27</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CHN</span>
-                        <div class="swimmer-name">Zhang Yufei</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Form</span><span class="stat-val">Off-Year</span></div>
-                        <div class="stat-row"><span class="stat-label">100 Fly</span><span class="stat-val">56.47</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        "Тихий" год для баттерфляй-королевы. 4-е место на ЧМ. Ждем отскок (bounce-back) в 2026, учитывая её класс (2:03 на 200м в пике).
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">26</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">JPN</span>
-                        <div class="swimmer-name">Mio Narita</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Age</span><span class="stat-val">19</span></div>
-                        <div class="stat-row"><span class="stat-label">Medal</span><span class="stat-val highlight">Silver (400IM)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Прорыв года в комплексе. Сбросила 2 секунды с личного рекорда (4:33.26) прямо в финале ЧМ. Научилась выходить на пик в нужный момент.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">25</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Claire Curzan</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Style</span><span class="stat-val">Backstroke</span></div>
-                        <div class="stat-row"><span class="stat-label">Rank</span><span class="stat-val">#3 Global</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        "Проклятие эры Смит/Маккеон". Бронза ЧМ с 2:06.04. Стабильно входит в топ-3 мира, но золото требует чуда на Pan Pacs.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">24</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">ITA</span>
-                        <div class="swimmer-name">S. Quadarella</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">1500m</span><span class="stat-val highlight">15:31.79 (ER)</span></div>
-                        <div class="stat-row"><span class="stat-label">Ranking</span><span class="stat-val">#2 All-Time</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        <strong>History Maker.</strong> Уничтожила рекорд Европы и стала вторым пловцом в истории после Ледеки. Взрывной прогресс в стайерском плавании.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">23</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">GER</span>
-                        <div class="swimmer-name">Anna Elendt</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Shock</span><span class="stat-val highlight">World Champ</span></div>
-                        <div class="stat-row"><span class="stat-label">100 Br</span><span class="stat-val">1:05.19</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Самая неожиданная чемпионка мира 2025. Восстала после провала в Париже и выдала лучший результат сезона.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">22</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">LTU</span>
-                        <div class="swimmer-name">Ruta Meilutyte</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Streak</span><span class="stat-val">4x World Title</span></div>
-                        <div class="stat-row"><span class="stat-label">50 Br</span><span class="stat-val">29.55</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Владелица спринта. 4-й титул подряд на 50 брасс. Единственная, кто разменял 30 секунд в финале. Легендарная мощность.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">21</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Claire Weinstein</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Range</span><span class="stat-val">100m - 1500m</span></div>
-                        <div class="stat-row"><span class="stat-label">Medal</span><span class="stat-val highlight">Bronze (200F)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Уникальный диапазон. Топ-30 во всех дистанциях кроля. Бронза ЧМ на 200м. Будущее американского миддл-дистанса.
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <div class="drum-viewport" id="drum-2"></div>
     </section>
 
-    <div class="insight-breaker animate-load delay-3">
-        <div class="breaker-line" style="background: var(--accent);"></div>
-        <div class="breaker-content">
-            <h3>RYFT Analysis: Phase II</h3>
-            <p>Европейский Ренессанс. Квадарелла (#24) и Элендт (#23) доказывают, что Старый Свет еще способен переписывать мировые чарты.</p>
+    <section class="tier-section">
+        <div class="tier-info">
+            <span class="tier-badge">20 — 11</span>
+            <span class="tier-name" style="color: var(--accent);">The Elite</span>
         </div>
-    </div>
-
-    <section class="tier-section animate-load delay-3">
-        <div class="tier-header">
-            <div class="tier-title">
-                <span style="width: 12px; height: 12px; background: var(--accent-dark); border-radius: 50%;"></span>
-                The Elite
-            </div>
-            <div class="tier-range">#20 — #11</div>
-        </div>
-        
-        <div class="drum-container drag-scroll">
-            <div class="drum-track">
-
-                <div class="profile-card">
-                    <span class="rank-badge">20</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">BEL</span>
-                        <div class="swimmer-name">R. Vanotterdijk</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Climb</span><span class="stat-val highlight">#99 -> #20</span></div>
-                        <div class="stat-row"><span class="stat-label">100 Fly</span><span class="stat-val">55.84 (Silver)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Самый большой скачок в рейтинге. Из топ-100 в элиту за год. Серебро ЧМ и доминирование на короткой воде.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">19</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">GER</span>
-                        <div class="swimmer-name">Isabel Gose</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Focus</span><span class="stat-val">Distance Free</span></div>
-                        <div class="stat-row"><span class="stat-label">SC Euros</span><span class="stat-val highlight">2x Gold (ER)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Слабый лонг-корс, но монструозный шорт-корс (рекорды Европы на 400/800). Фаворит SC Worlds 2026.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">18</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">RUS</span>
-                        <div class="swimmer-name">E. Chikunova</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Event</span><span class="stat-val">200 Breast</span></div>
-                        <div class="stat-row"><span class="stat-label">Worlds</span><span class="stat-val">Silver</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Рекордсменка мира наконец вышла на ЧМ. Серебро (2:19.96) — далеко от её пика (2:17.55), но потенциал огромен.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">17</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">EST</span>
-                        <div class="swimmer-name">Eneli Jefimova</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Move</span><span class="stat-val">NCAA (NC State)</span></div>
-                        <div class="stat-row"><span class="stat-label">Win</span><span class="stat-val">Beat Meilutyte</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Переезд в США дал плоды: золото SC Euros с победой над Мейлютите. Эстонка становится новой силой в брассе.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">16</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Katharine Berkoff</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Gold</span><span class="stat-val">50 Back (27.08)</span></div>
-                        <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val highlight">Sub-27 Club</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Чемпионка мира на полтиннике. Входит в элитный клуб "Sub-58" на сотне. Держит оборону против Риган Смит.
-                    </div>
-                </div>
-
-                <div class="profile-card" style="border-color: var(--accent);">
-                    <span class="rank-badge" style="color:var(--accent); opacity:0.3;">15</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag" style="background:var(--accent);">CHN</span>
-                        <div class="swimmer-name">Yu Zidi</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Age</span><span class="stat-val highlight">13 Years Old</span></div>
-                        <div class="stat-row"><span class="stat-label">200 IM</span><span class="stat-val">2:07.41 (#2 Global)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        <strong>RYFT PHENOM.</strong> 13 лет. 2-е время в мире. Дебют с NR сразу на 15-е место. Это новая "Саммер Макинтош" из Китая.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">14</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CHN</span>
-                        <div class="swimmer-name">Tang Qianting</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Consistency</span><span class="stat-val">Elite</span></div>
-                        <div class="stat-row"><span class="stat-label">Medals</span><span class="stat-val">Silver/Bronze</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Единственная, кто взял медали и на 50, и на 100 брассом на ЧМ. Стабильность — её главное оружие в хаосе спринта.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">13</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">AUS</span>
-                        <div class="swimmer-name">A. Perkins</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Breakout</span><span class="stat-val">2x Medals</span></div>
-                        <div class="stat-row"><span class="stat-label">100 Fly</span><span class="stat-val">56.33</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Сбросила секунду с личника. Серебро и бронза ЧМ в баттерфляе. Новая надежда Австралии в пост-олимпийском цикле.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">12</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">AUS</span>
-                        <div class="swimmer-name">Meg Harris</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Title</span><span class="stat-val highlight">World Champ</span></div>
-                        <div class="stat-row"><span class="stat-label">50 Free</span><span class="stat-val">24.02</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Золото ЧМ на 50 кролем. Опередила всех китаянок и американок. Если перенесет скорость на 100м, станет мульти-медалистом.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">11</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Torri Huske</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Issue</span><span class="stat-val danger">Illness @ Worlds</span></div>
-                        <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val">52.43 (100F)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Болезнь испортила ЧМ, но её 52.43 на отборе — лучшее время года. Потенциал топ-3, если здоровье позволит на Pan Pacs.
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <div class="drum-viewport" id="drum-3"></div>
     </section>
 
-    <div class="insight-breaker animate-load delay-4">
-        <div class="breaker-line" style="background: var(--gold);"></div>
-        <div class="breaker-content">
-            <h3>RYFT Analysis: The Apex</h3>
-            <p>Зона сингулярности. Здесь падают рекорды эпохи суперкостюмов и переписывается история спорта. Топ-10 недосягаем.</p>
+    <section class="tier-section">
+        <div class="tier-info">
+            <span class="tier-badge" style="background: var(--gold); color: #000;">10 — 01</span>
+            <span class="tier-name" style="color: #B78900;">Apex Predators</span>
         </div>
-    </div>
-
-    <section class="tier-section animate-load delay-4">
-        <div class="tier-header">
-            <div class="tier-title">
-                <span style="width: 12px; height: 12px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold);"></span>
-                The Apex Predators
-            </div>
-            <div class="tier-range" style="background: #FFF8E1; color: #B78900; font-weight: 700;">#10 — #01</div>
-        </div>
-        
-        <div class="drum-container drag-scroll">
-            <div class="drum-track">
-
-                <div class="profile-card">
-                    <span class="rank-badge">10</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">CHN</span>
-                        <div class="swimmer-name">Li Bingjie</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">400 Free</span><span class="stat-val highlight">3:58.21</span></div>
-                        <div class="stat-row"><span class="stat-label">Medals</span><span class="stat-val">2x Silver</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Пробила 4 минуты и победила Ледеки в очной ставке (серебро). Лучший турнир в карьере. Азиатский рекорд обновлен.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">09</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">NED</span>
-                        <div class="swimmer-name">Marrit Steenbergen</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">SC Euros</span><span class="stat-val highlight">4x Gold / 4x ER</span></div>
-                        <div class="stat-row"><span class="stat-label">Relay</span><span class="stat-val">51.64 Split</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        <strong>Europe's MVP.</strong> 4 рекорда Европы за один чемпионат. Самый быстрый эстафетный сплит в истории (не считая австралиек).
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">08</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">AUS</span>
-                        <div class="swimmer-name">Lani Pallister</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">WR Holder</span><span class="stat-val">SCM 800 Free</span></div>
-                        <div class="stat-row"><span class="stat-label">Breakout</span><span class="stat-val">Triple Crown</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Вышла из тени Титмус. Побила рекорд мира Ледеки на короткой воде (7:54.00). Серебро ЧМ на 800м.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">07</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">AUS</span>
-                        <div class="swimmer-name">Mollie O'Callaghan</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">200 Free</span><span class="stat-val highlight">1:53.48 (Gold)</span></div>
-                        <div class="stat-row"><span class="stat-label">WR</span><span class="stat-val">SCM 200 Free</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Абсолютный доминатор 200 кролем (3-й титул подряд). Первая женщина в истории, выплывшая из 1:50 на короткой воде.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">06</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Regan Smith</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Haul</span><span class="stat-val">4x Silver</span></div>
-                        <div class="stat-row"><span class="stat-label">Rank</span><span class="stat-val">#2 in 7 Events</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        <strong>Versatility Queen.</strong> 4 серебра на ЧМ. Топ-2 мира в 7 дисциплинах. "Тройная корона" в баттерфляе на Кубке Мира.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">05</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Katie Ledecky</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">WR</span><span class="stat-val highlight">8:04.12 (800F)</span></div>
-                        <div class="stat-row"><span class="stat-label">Age</span><span class="stat-val">28 (Peaking)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        <strong>The GOAT.</strong> В 28 лет быстрее, чем в Рио-2016. Новый мировой рекорд. Возраст для неё — просто цифра в паспорте.
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <span class="rank-badge">04</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag">USA</span>
-                        <div class="swimmer-name">Kate Douglass</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Change</span><span class="stat-val">Breaststroke Pivot</span></div>
-                        <div class="stat-row"><span class="stat-label">Barrier</span><span class="stat-val highlight">Sub-50 (100F)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Переключилась на брасс и выиграла золото ЧМ (2:18.50). Первая женщина в истории из 50 секунд на 100 кролем (SCM).
-                    </div>
-                </div>
-
-                <div class="profile-card bronze-tier">
-                    <span class="rank-badge" style="color:#CD7F32; opacity:0.4;">03</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag" style="background:#CD7F32;">AUS</span>
-                        <div class="swimmer-name">Kaylee McKeown</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Sweep</span><span class="stat-val">100/200 Back Gold</span></div>
-                        <div class="stat-row"><span class="stat-label">WR</span><span class="stat-val">SCM 200 Back</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Владеет спиной безраздельно. 2 золота ЧМ. Новый мировой рекорд (1:57.33). Выигрывает касание в любой дуэли.
-                    </div>
-                </div>
-
-                <div class="profile-card silver-tier">
-                    <span class="rank-badge" style="color:#C0C0C0; opacity:0.4;">02</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag" style="background:#C0C0C0;">USA</span>
-                        <div class="swimmer-name">Gretchen Walsh</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Speed</span><span class="stat-val highlight">54.60 (100 Fly WR)</span></div>
-                        <div class="stat-row"><span class="stat-label">Domination</span><span class="stat-val">11x WR (SCM)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        Уничтожила мировой рекорд на 100 баттерфляем (54.60). Лучший подводный выход в истории спорта.
-                    </div>
-                </div>
-
-                <div class="profile-card gold-tier">
-                    <span class="rank-badge" style="color:#D4AF37; opacity:0.5;">01</span>
-                    <div class="swimmer-meta">
-                        <span class="country-flag" style="background:#D4AF37;">CAN</span>
-                        <div class="swimmer-name">Summer McIntosh</div>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row"><span class="stat-label">Status</span><span class="stat-val highlight">UNTOUCHABLE</span></div>
-                        <div class="stat-row"><span class="stat-label">Target</span><span class="stat-val">2:01.81 (200 Fly)</span></div>
-                    </div>
-                    <div class="ryft-intel">
-                        <strong>#1 Fourth Year Running.</strong> 4 золота ЧМ. Охотится за "вечным" рекордом 2009 года. 2:01.99 — в шаге от истории.
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <div class="drum-viewport" id="drum-4"></div>
     </section>
 
-    <div class="cta-section animate-load delay-4">
-        <h2 style="margin-bottom: 24px; font-weight: 900; letter-spacing: -1px; font-size: 32px;">JOIN THE ELITE</h2>
+    <div class="cta-section animate-load delay-5">
         <a href="https://t.me/ryft_community" class="cta-btn">
             ОБСУДИТЬ В RYFT | COMMUNITY
         </a>
     </div>
 
-    <footer class="footer-base animate-load delay-4">
-        <div class="container">
-            <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
-            <div class="footer-tag">Swim • Analyze • Conquer</div>
-            <div style="margin-top: 20px; font-size: 10px; color: #BBB;">Source Data: SwimSwam 2026 Projections</div>
-        </div>
+    <footer class="animate-load delay-5">
+        <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
+        <div class="footer-sub">Swim • Analyze • Conquer</div>
     </footer>
 
     <script>
-        const sliders = document.querySelectorAll('.drum-container');
-        let isDown = false;
-        let startX;
-        let scrollLeft;
+        // --- DATA SOURCE (Исправлены тиры для топ-10) ---
+        const rankings = {
+            tier1: [
+                { r: 40, n: "Kylie Masse", c: "CAN", s: "Backstroke", v: "4th Worlds", d: "Стабильность уровня элиты. 4-е места на ЧМ. Главный фаворит Игр Содружества." },
+                { r: 39, n: "Wan Letian", c: "CHN", s: "Rising", v: "27.09 (50Bk)", d: "5-е время в истории на полтиннике. Потенциал выхода из 59 сек на сотне." },
+                { r: 38, n: "Liu Yaxin", c: "CHN", s: "Versatile", v: "1:54.96", d: "Универсальный солдат Китая. Топ-20 мира в 5 дисциплинах." },
+                { r: 37, n: "Cheng Yujie", c: "CHN", s: "Sprint", v: "Bronze (50m)", d: "Впервые с 15 лет обновила личный рекорд. Цель — 53.0 на сотне." },
+                { r: 36, n: "Rylee Erisman", c: "USA", s: "Phenom", v: "52.79 (100F)", d: "US Phenom. Главная надежда американского спринта на Pan Pacs." },
+                { r: 35, n: "Angharad Evans", c: "GBR", s: "NR Holder", v: "1:05.37", d: "Время с отбора — это элита. Фаворит Евро-2026 в брассе." },
+                { r: 34, n: "Jenna Forrester", c: "AUS", s: "400 IM", v: "Silver Tie", d: "Возвращение формы 2023 года. Железный претендент на подиум." },
+                { r: 33, n: "Alex Walsh", c: "USA", s: "IM / Breast", v: "2:08.49", d: "Сузила фокус до комплекса и брасса. Серебро ЧМ в 200 IM." },
+                { r: 32, n: "M.S. Harvey", c: "CAN", s: "Range", v: "Bronze 200IM", d: "Потенциальный мульти-медалист Pan Pacs даже с травмой плеча." },
+                { r: 31, n: "Wu Qingfeng", c: "CHN", s: "Sprint", v: "Silver (50F)", d: "Серебро ЧМ. Стабильно прогрессирует, улучшая личные рекорды." }
+            ],
+            tier2: [
+                { r: 30, n: "Yang Peiqi", c: "CHN", s: "Distance", v: "4:01.90", d: "Абсолютный чемпион мира среди юниоров. Стучится в дверь взрослого подиума." },
+                { r: 29, n: "Erika Fairweather", c: "NZL", s: "400 Free", v: "3:59.44", d: "Редкий фальстарт скрыл потенциал. Одна из немногих, кто побеждал Макинтош." },
+                { r: 28, n: "Siobhan Haughey", c: "HKG", s: "Return", v: "1:54.85", d: "Королева короткой воды. Сезон скомкан травмой, но класс никуда не делся." },
+                { r: 27, n: "Zhang Yufei", c: "CHN", s: "Butterfly", v: "56.47", d: "Тихий год для баттерфляй-королевы. Ждем мощный отскок в 2026." },
+                { r: 26, n: "Mio Narita", c: "JPN", s: "400 IM", v: "Silver", d: "Прорыв года. Сбросила 2 секунды с личного рекорда прямо в финале ЧМ." },
+                { r: 25, n: "Claire Curzan", c: "USA", s: "Backstroke", v: "#3 Global", d: "Стабильно входит в топ-3 мира, но золото требует чуда против Смит." },
+                { r: 24, n: "S. Quadarella", c: "ITA", s: "1500 Free", v: "ER Holder", d: "Уничтожила рекорд Европы. Вторая пловчиха в истории после Ледеки." },
+                { r: 23, n: "Anna Elendt", c: "GER", s: "100 Breast", v: "World Champ", d: "Самая неожиданная чемпионка мира 2025. Восстала после провала в Париже." },
+                { r: 22, n: "Ruta Meilutyte", c: "LTU", s: "50 Breast", v: "29.55", d: "Владелица спринта. 4-й титул подряд. Единственная, кто разменял 30 секунд." },
+                { r: 21, n: "Claire Weinstein", c: "USA", s: "200 Free", v: "Bronze", d: "Уникальный диапазон. Топ-30 во всех дистанциях кроля. Будущее США." }
+            ],
+            tier3: [
+                { r: 20, n: "R. Vanotterdijk", c: "BEL", s: "Climb", v: "#99 -> #20", d: "Самый большой скачок в рейтинге. Серебро ЧМ и доминирование на короткой воде." },
+                { r: 19, n: "Isabel Gose", c: "GER", s: "SC Queen", v: "2x ER", d: "Монструозный шорт-корс (рекорды Европы на 400/800). Фаворит SC Worlds." },
+                { r: 18, n: "E. Chikunova", c: "RUS", s: "WR Holder", v: "Silver", d: "Рекордсменка мира наконец вышла на ЧМ. Потенциал огромен." },
+                { r: 17, n: "Eneli Jefimova", c: "EST", s: "NCAA", v: "Beat Ruta", d: "Переезд в США дал плоды: победа над Мейлютите. Эстонка — новая сила." },
+                { r: 16, n: "Katharine Berkoff", c: "USA", s: "50 Back", v: "Gold (27.08)", d: "Чемпионка мира на полтиннике. Входит в элитный клуб 'Sub-58' на сотне." },
+                { r: 15, n: "Yu Zidi", c: "CHN", s: "RYFT PHENOM", v: "Age: 13", d: "13 лет. 2-е время в мире (2:07.41). Это новая 'Саммер Макинтош' из Китая." },
+                { r: 14, n: "Tang Qianting", c: "CHN", s: "Consistency", v: "Silver/Bronze", d: "Единственная, кто взял медали и на 50, и на 100 брассом на ЧМ." },
+                { r: 13, n: "A. Perkins", c: "AUS", s: "Breakout", v: "56.33 (Fly)", d: "Сбросила секунду с личника. Новая надежда Австралии в пост-олимпийском цикле." },
+                { r: 12, n: "Meg Harris", c: "AUS", s: "50 Free", v: "World Champ", d: "Золото ЧМ. Опередила всех китаянок и американок на полтиннике." },
+                { r: 11, n: "Torri Huske", c: "USA", s: "Speed", v: "52.43", d: "Болезнь испортила ЧМ, но её время на отборе — лучшее в сезоне." }
+            ],
+            tier4: [
+                // БЕЛЫЕ КАРТОЧКИ (ОБЫЧНЫЕ)
+                { r: 10, n: "Li Bingjie", c: "CHN", s: "400 Free", v: "3:58.21", d: "Пробила 4 минуты и победила Ледеки в очной ставке. Азиатский рекорд." },
+                { r: 9, n: "Marrit Steenbergen", c: "NED", s: "MVP", v: "4x ER", d: "4 рекорда Европы за один чемпионат. Самый быстрый эстафетный сплит." },
+                { r: 8, n: "Lani Pallister", c: "AUS", s: "WR Holder", v: "SCM 800", d: "Побила рекорд мира Ледеки на короткой воде. Вышла из тени Титмус." },
+                { r: 7, n: "Mollie O'Callaghan", c: "AUS", s: "200 Free", v: "Gold", d: "Абсолютный доминатор 200 кролем (3-й титул подряд)." },
+                { r: 6, n: "Regan Smith", c: "USA", s: "Versatility", v: "4x Silver", d: "Топ-2 мира в 7 дисциплинах. 'Тройная корона' в баттерфляе на КМ." },
+                { r: 5, n: "Katie Ledecky", c: "USA", s: "GOAT", v: "WR (8:04)", d: "В 28 лет быстрее, чем в Рио-2016. Новый мировой рекорд." },
+                { r: 4, n: "Kate Douglass", c: "USA", s: "Pivot", v: "Sub-50", d: "Золото ЧМ в брассе. Первая женщина в истории из 50 секунд на 100 кролем." },
+                
+                // ТОП-3 (ЦВЕТНЫЕ)
+                { r: 3, n: "Kaylee McKeown", c: "AUS", s: "Backstroke", v: "WR Holder", d: "Владеет спиной безраздельно. 2 золота ЧМ. Новый мировой рекорд.", tier: "bronze" },
+                { r: 2, n: "Gretchen Walsh", c: "USA", s: "WR 100Fly", v: "54.60", d: "Уничтожила мировой рекорд на 100 баттерфляем. Лучший подводный выход.", tier: "silver" },
+                { r: 1, n: "Summer McIntosh", c: "CAN", s: "UNTOUCHABLE", v: "4x Gold", d: "#1 Четвертый год подряд. Охотится за вечным рекордом 2009 года.", tier: "gold" }
+            ]
+        };
 
-        sliders.forEach(slider => {
-            slider.addEventListener('mousedown', (e) => {
-                isDown = true;
-                slider.classList.add('active');
-                startX = e.pageX - slider.offsetLeft;
-                scrollLeft = slider.scrollLeft;
-            });
-            slider.addEventListener('mouseleave', () => {
-                isDown = false;
-                slider.classList.remove('active');
-            });
-            slider.addEventListener('mouseup', () => {
-                isDown = false;
-                slider.classList.remove('active');
-            });
-            slider.addEventListener('mousemove', (e) => {
-                if(!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 2; // Scroll-fast
-                slider.scrollLeft = scrollLeft - walk;
-            });
+        // --- RYFT INFINITY SCROLL ENGINE v3.0 ---
+        class DrumController {
+            constructor(containerId, data, speedFactor = 1) {
+                this.container = document.getElementById(containerId);
+                this.data = data;
+                this.speedFactor = speedFactor; // Индивидуальная скорость для каждого барабана
+                
+                // Создаем трек
+                this.track = document.createElement('div');
+                this.track.className = 'drum-track';
+                this.container.appendChild(this.track);
+
+                // Конфигурация
+                // Клонируем данные 6 раз, чтобы заполнить любой экран + буфер
+                this.displayData = [...data, ...data, ...data, ...data, ...data, ...data];
+                this.render();
+
+                // Параметры карточки и трека (получаем из CSS)
+                const card = this.track.firstElementChild;
+                const style = window.getComputedStyle(card);
+                const marginRight = parseFloat(style.marginRight);
+                this.itemWidth = card.offsetWidth + marginRight;
+                
+                // Длина ОДНОГО оригинального набора данных в пикселях
+                this.singleSetWidth = this.itemWidth * data.length;
+
+                // Physics state
+                this.currentX = 0; // Начинаем с 0
+                this.targetX = 0;
+                this.isDragging = false;
+                this.startX = 0;
+                this.dragStartX = 0;
+                this.velocity = -0.5 * speedFactor; // Авто-скролл
+
+                this.initEvents();
+                this.animate();
+            }
+
+            render() {
+                this.track.innerHTML = this.displayData.map(item => {
+                    const tierAttr = item.tier ? `data-tier="${item.tier}"` : '';
+                    return `
+                        <div class="card" ${tierAttr}>
+                            <div class="bg-rank">${item.r}</div>
+                            <div class="card-content">
+                                <span class="flag">${item.c}</span>
+                                <div class="name">${item.n}</div>
+                                <div class="desc">${item.d}</div>
+                                <div class="stats">
+                                    <div class="stat-row"><span class="stat-label">Focus</span><span class="stat-val">${item.s}</span></div>
+                                    <div class="stat-row"><span class="stat-label">Stat</span><span class="stat-val highlight">${item.v}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            initEvents() {
+                // Mouse
+                this.container.addEventListener('mousedown', e => {
+                    this.isDragging = true;
+                    this.startX = e.pageX;
+                    this.dragStartX = this.currentX;
+                    this.container.style.cursor = 'grabbing';
+                    // Останавливаем автоскролл при захвате
+                    this.velocity = 0;
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!this.isDragging) return;
+                    const diff = e.pageX - this.startX;
+                    this.currentX = this.dragStartX + diff;
+                    // Рассчитываем скорость броска
+                    this.velocity = diff * 0.05; 
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (this.isDragging) {
+                        this.isDragging = false;
+                        this.container.style.cursor = 'grab';
+                    }
+                });
+
+                // Touch
+                this.container.addEventListener('touchstart', e => {
+                    this.isDragging = true;
+                    this.startX = e.touches[0].pageX;
+                    this.dragStartX = this.currentX;
+                    this.velocity = 0;
+                });
+
+                window.addEventListener('touchmove', e => {
+                    if (!this.isDragging) return;
+                    const diff = e.touches[0].pageX - this.startX;
+                    this.currentX = this.dragStartX + diff;
+                    this.velocity = diff * 0.05;
+                });
+
+                window.addEventListener('touchend', () => {
+                    this.isDragging = false;
+                });
+            }
+
+            animate() {
+                if (!this.isDragging) {
+                    this.currentX += this.velocity;
+                    // Затухание инерции
+                    this.velocity *= 0.95;
+                    
+                    // Если скорость упала почти до 0, возвращаем авто-скролл
+                    if (Math.abs(this.velocity) < 0.1) {
+                        this.velocity = -0.5 * this.speedFactor;
+                    }
+                }
+
+                // --- БЕСКОНЕЧНАЯ ЛОГИКА (БЕЗ ИСЧЕЗНОВЕНИЯ) ---
+                // Если мы уехали влево дальше, чем длина одного набора данных
+                if (this.currentX <= -this.singleSetWidth) {
+                    // Телепортируемся назад на длину одного набора
+                    // Это незаметно, так как там такие же карточки
+                    this.currentX += this.singleSetWidth;
+                    this.dragStartX += this.singleSetWidth; // Корректируем точку захвата
+                } 
+                // Если уехали вправо (в начало)
+                else if (this.currentX > 0) {
+                    this.currentX -= this.singleSetWidth;
+                    this.dragStartX -= this.singleSetWidth;
+                }
+
+                // Применяем движение
+                this.track.style.transform = `translate3d(${this.currentX}px, -50%, 0)`;
+                
+                // 3D Эффект поворота (Оптимизированный)
+                const centerScreen = window.innerWidth / 2;
+                Array.from(this.track.children).forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const centerCard = rect.left + rect.width / 2;
+                    const dist = (centerCard - centerScreen) / (window.innerWidth / 1.5); // Нормализация
+                    
+                    // Ограничиваем влияние
+                    const safeDist = Math.max(-1, Math.min(1, dist));
+                    
+                    // Легкий поворот и прозрачность по краям
+                    card.style.transform = `perspective(1000px) rotateY(${safeDist * 25}deg) scale(${1 - Math.abs(safeDist) * 0.1})`;
+                    card.style.opacity = 1 - Math.abs(safeDist) * 0.3;
+                });
+
+                requestAnimationFrame(this.animate.bind(this));
+            }
+        }
+
+        // Запуск (разная скорость для динамики)
+        document.addEventListener('DOMContentLoaded', () => {
+            new DrumController('drum-1', rankings.tier1, 1.2);
+            new DrumController('drum-2', rankings.tier2, 0.9);
+            new DrumController('drum-3', rankings.tier3, 1.1);
+            new DrumController('drum-4', rankings.tier4, 0.7); // Топ-10 едет медленно и величественно
         });
+
     </script>
+
+
 
 </body>
 </html>
