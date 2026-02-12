@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RYFT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- RYFT ENGINE v3.0: STABLE CORE --- */
+        :root {
+            --bg-page: #FFFFFF;
+            --bg-card: #F9F9FB;
+            --accent: #007AFF;
+            --gold: #D4AF37;
+            --silver: #C4C4C4;
+            --bronze: #CD7F32;
+            --text-primary: #111111;
+            --text-secondary: #86868B;
+            
+            --card-w: 300px;
+            --card-h: 440px;
+            --gap: 30px;
+        }
+
+        /* --- RESET --- */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
+        body {
+            background-color: var(--bg-page);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Важно: убирает горизонтальный скролл страницы */
+            color: var(--text-primary);
+        }
+
+        /* --- HEADER (FIXED PADDING) --- */
+        header {
+            /* ОГРОМНЫЙ ОТСТУП СВЕРХУ, ЧТОБЫ НЕ ПРИЛИПАЛО */
+            padding-top: 160px;
+            padding-bottom: 60px;
+            padding-left: max(5vw, 24px);
+            padding-right: max(5vw, 24px);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .kicker {
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: clamp(42px, 8vw, 90px);
+            line-height: 0.9;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            text-transform: uppercase;
+            margin: 0 0 32px 0;
+        }
+
+        .sub-text {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        /* --- DRUM SECTIONS --- */
+        .tier-section {
+            margin-bottom: 100px;
+            position: relative;
+            /* Fade effect по краям экрана */
+            mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        }
+
+        .tier-info {
+            padding-left: max(5vw, 24px);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .tier-badge {
+            background: #000;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .tier-name {
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- DRUM VIEWPORT (WINDOW) --- */
+        .drum-viewport {
+            width: 100%;
+            height: 550px; /* Высота зоны прокрутки */
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            touch-action: pan-y; /* Разрешаем только вертикальный скролл страницы */
+            display: flex;
+            align-items: center;
+        }
+        
+        .drum-viewport:active { cursor: grabbing; }
+
+        /* --- THE MOVING TRACK --- */
+        .drum-track {
+            display: flex;
+            position: absolute; /* Абсолютное позиционирование для JS */
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            will-change: transform; /* Оптимизация для браузера */
+            height: var(--card-h);
+        }
+
+        /* --- CARD STYLES --- */
+        .card {
+            width: var(--card-w);
+            height: var(--card-h);
+            background: var(--bg-card);
+            border-radius: 24px;
+            flex-shrink: 0;
+            margin-right: var(--gap);
+            padding: 28px;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.06);
+            user-select: none;
+            /* 3D Transform Defaults */
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        /* Rank Number Background */
+        .bg-rank {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 120px;
+            font-weight: 900;
+            color: var(--text-primary);
+            opacity: 0.03;
+            line-height: 0.8;
+            letter-spacing: -8px;
+            pointer-events: none;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flag {
+            font-size: 10px;
+            font-weight: 900;
+            background: #000;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 14px;
+            width: fit-content;
+        }
+
+        .name {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
+
+        .desc {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: auto; /* Pushes stats to bottom */
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .stats {
+            margin-top: 20px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            padding-top: 16px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .stat-val { font-weight: 700; color: var(--text-primary); }
+        .highlight { color: var(--accent); }
+        .stat-label { color: var(--text-secondary); font-weight: 500; }
+
+        /* --- SPECIAL TIERS (ONLY TOP 3) --- */
+        /* Bronze */
+        .card[data-tier="bronze"] {
+            border: 2px solid var(--bronze);
+            background: linear-gradient(135deg, #FFF, #FFF8F0);
+            box-shadow: 0 10px 30px rgba(205, 127, 50, 0.15);
+        }
+        .card[data-tier="bronze"] .flag { background: var(--bronze); }
+        .card[data-tier="bronze"] .bg-rank { color: var(--bronze); opacity: 0.15; }
+
+        /* Silver */
+        .card[data-tier="silver"] {
+            border: 2px solid var(--silver);
+            background: linear-gradient(135deg, #FFF, #F5F5F7);
+            box-shadow: 0 10px 30px rgba(192, 192, 192, 0.2);
+        }
+        .card[data-tier="silver"] .flag { background: var(--silver); color: #000; }
+        .card[data-tier="silver"] .bg-rank { color: var(--silver); opacity: 0.15; }
+
+        /* Gold */
+        .card[data-tier="gold"] {
+            border: 2px solid var(--gold);
+            background: linear-gradient(135deg, #FFFCF2, #FFF);
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.25);
+        }
+        .card[data-tier="gold"] .flag { background: var(--gold); color: #000; }
+        .card[data-tier="gold"] .bg-rank { color: var(--gold); opacity: 0.15; }
+
+        /* --- FOOTER --- */
+        footer {
+            border-top: 1px solid #eee;
+            padding: 80px 24px;
+            text-align: center;
+            background: #fff;
+        }
+
+        @media (max-width: 768px) {
+            :root { --card-w: 260px; --card-h: 400px; --gap: 20px; }
+            header { padding-top: 120px; }
+            h1 { font-size: 42px; }
+            .tier-section { mask-image: none; -webkit-mask-image: none; }
+        }
+
+/* --- CTA SECTION --- */
+        .cta-section {
+            padding: 80px 24px;
+            display: flex;
+            justify-content: center;
+            background: linear-gradient(to bottom, #ffffff, #f9f9fb);
+        }
+
+        .cta-btn {
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            padding: 22px 44px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 122, 255, 0.3);
+        }
+
+        /* --- UPDATED FOOTER --- */
+        footer {
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 60px 24px 100px 24px;
+            text-align: center;
+            background: #f9f9fb;
+        }
+
+        .footer-logo {
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .footer-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* Простая анимация появления */
+        .animate-load {
+            animation: fadeInUp 1s ease forwards;
+            opacity: 0;
+        }
+
+        .delay-5 { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+<link rel="icon" type="image/svg+xml" href="https://ryft-official.ru/favicon.svg">
+
+<link rel="apple-touch-icon" href="https://ryft-official.ru/apple-touch-icon.png">
+
+<link rel="manifest" href="https://ryft-official.ru/site.webmanifest">
+<meta name="theme-color" content="#FFFFFF">
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="kicker">RYFT Intelligence Unit</span>
+        <h1>Global<br>Power Rankings<br><span style="color: var(--accent);">Men's 2026</span></h1>
+        <p class="sub-text">
+            Архитектура скорости в пост-олимпийский сезон. Полный анализ топ-40 пловцов планеты на пути к Pan Pacs, Asian Games и European Championships.
+        </p>
+    </header>
+
+    <section class="tier-section">
+        <div class="tier-info">
+            <span class="tier-badge">40 — 31</span>
+            <span class="tier-name">The Foundation</span>
+        </div>
+        <div class="drum-viewport" id="drum-1"></div>
+    </section>
+
+    <section class="tier-section">
+        <div class="tier-info">
+            <span class="tier-badge">30 — 21</span>
+            <span class="tier-name">The Disruptors</span>
+        </div>
+        <div class="drum-viewport" id="drum-2"></div>
+    </section>
+
+    <section class="tier-section">
+        <div class="tier-info">
+            <span class="tier-badge">20 — 11</span>
+            <span class="tier-name" style="color: var(--accent);">The Elite</span>
+        </div>
+        <div class="drum-viewport" id="drum-3"></div>
+    </section>
+
+    <section class="tier-section">
+        <div class="tier-info">
+            <span class="tier-badge" style="background: var(--gold); color: #000;">10 — 01</span>
+            <span class="tier-name" style="color: #B78900;">Apex Predators</span>
+        </div>
+        <div class="drum-viewport" id="drum-4"></div>
+    </section>
+
+    <div class="cta-section animate-load delay-5">
+        <a href="https://t.me/ryft_community" class="cta-btn">
+            ОБСУДИТЬ В COMMUNITY
+        </a>
+    </div>
+
+    <footer class="animate-load delay-5">
+        <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
+        <div class="footer-sub">Swim • Analyze • Conquer</div>
+    </footer>
+
+    <script>
+        // --- DATA SOURCE (Men's Rankings 40-1 based on provided file) ---
+        const rankings = {
+            tier1: [
+                { r: 40, n: "Kim Woomin", c: "KOR", s: "400 Free", v: "3:42.50", d: "Медальный стандарт. Бронза Олимпиады и двух ЧМ. Доминатор Азии в среднем кроле." },
+                { r: 39, n: "Tatsuya Murasa", c: "JPN", s: "200 Free", v: "1:44.54", d: "Прорыв Японии. В 18 лет бронза ЧМ с рекордом страны. Новая угроза на Pan Pacs." },
+                { r: 38, n: "Carson Foster", c: "USA", s: "Versatility", v: "4:07.02 (IM)", d: "Универсальный солдат. Травма на ЧМ, но #2 в мире на 400 IM. Фаворит Pan Pacs." },
+                { r: 37, n: "Zhang Zhanshuo", c: "CHN", s: "400 Free", v: "WJR Holder", d: "Молодая звезда Китая. 4-е место в мире (3:42.82). Быстрейший финиш в эстафетах." },
+                { r: 36, n: "K. Chmielewski", c: "POL", s: "200 Fly", v: "1:52.64", d: "Стабильность уровня элиты. Серебро ЧМ и Евро. Вошел в клуб 'Sub-1:53'." },
+                { r: 35, n: "Duncan Scott", c: "GBR", s: "200 IM", v: "Relay King", d: "Железный финишер. Золото в эстафете 4x200. Фаворит Игр Содружества." },
+                { r: 34, n: "Y. Ndoye-Brouard", c: "FRA", s: "Backstroke", v: "Bronze Worlds", d: "Бронзовый дубль на ЧМ. Рекорд Франции на 100м (51.92). Элита спины." },
+                { r: 33, n: "Kyle Chalmers", c: "AUS", s: "Sprint King", v: "47.17", d: "Мистер Стабильность. Бронза ЧМ. Охотится за 'Sub-47' на Pan Pacs." },
+                { r: 32, n: "Simone Cerasuolo", c: "ITA", s: "50 Breast", v: "World Champ", d: "Золото ЧМ и Европы. Король спринта брассом, но сложный отбор внутри Италии." },
+                { r: 31, n: "Filip Nowacki", c: "GBR", s: "Breaststroke", v: "2:07.32", d: "Британская сенсация. Взлетел из ниоткуда до топ-3 мира. Фаворит Евро." }
+            ],
+            tier2: [
+                { r: 30, n: "N. Martinenghi", c: "ITA", s: "100 Breast", v: "Silver Worlds", d: "Олимпийский чемпион держит марку. Серебро ЧМ (58.58). Стабильные 58-mid." },
+                { r: 29, n: "T. Matsushita", c: "JPN", s: "400 IM", v: "Silver Worlds", d: "Вечно второй за Маршаном. Серебро ОИ и ЧМ. Фаворит Азиатских игр." },
+                { r: 28, n: "Kirill Prigoda", c: "RUS", s: "Breaststroke", v: "58.53 (NR)", d: "Вторая молодость в 30 лет. #2 в мире на сотне. Элитный универсал брасса." },
+                { r: 27, n: "Egor Kornev", c: "RUS", s: "Sprint Free", v: "#1 SCM 100Fr", d: "Спринтерский монстр. Лидер мирового рейтинга на короткой воде (44.99)." },
+                { r: 26, n: "Ilya Kharun", c: "USA", s: "Butterfly", v: "SC Worlds Gold", d: "Переход под флаг США. Золото на короткой воде. Элитный дельфинист." },
+                { r: 25, n: "Caspar Corbeau", c: "NED", s: "Breaststroke", v: "Sub-2:00 SCM", d: "Первый в истории из 2 минут на 200 брассом (25м). Бронза длинного ЧМ." },
+                { r: 24, n: "Josh Liendo", c: "CAN", s: "Fly / Free", v: "WR SCM 100Fly", d: "Мировой рекорд на 100 баттерфляем (КВ). Фаворит Игр Содружества." },
+                { r: 23, n: "Luke Hobson", c: "USA", s: "200 Free", v: "1:43.73", d: "Пробил барьер 1:44. Побил рекорд Фелпса на US Open. Серебро ЧМ." },
+                { r: 22, n: "Daniel Wiffen", c: "IRL", s: "Distance", v: "Grand Slam?", d: "Цель на 2026: собрать золото Европы, Содружества и мира. Элита стайера." },
+                { r: 21, n: "Shaine Casas", c: "USA", s: "IM / Back", v: "1:54.30", d: "Непредсказуемый талант. Серебро ЧМ в комплексе. Рекорд США на короткой воде." }
+            ],
+            tier3: [
+                { r: 20, n: "Luca Urlando", c: "USA", s: "200 Fly", v: "World Champ", d: "Возвращение года. Золото ЧМ (1:51.87) после лет травм. #1 в мире." },
+                { r: 19, n: "Bobby Finke", c: "USA", s: "Distance", v: "Clutch", d: "Лучший стайер десятилетия. Бронза ЧМ, но на Pan Pacs пойдет за тройным золотом." },
+                { r: 18, n: "Sam Short", c: "AUS", s: "Rangy Free", v: "3:41.03", d: "Элита от 200 до 1500. Болезнь помешала на ЧМ, но потенциал на 3 золота Содружества." },
+                { r: 17, n: "Cameron McEvoy", c: "AUS", s: "50 Free", v: "World Champ", d: "Возраст не помеха. Золото ЧМ (21.14). Уникальная методика тренировок." },
+                { r: 16, n: "Shin Ohashi", c: "JPN", s: "200 Breast", v: "WJR (2:06.91)", d: "Японский вундеркинд. В 16 лет показал время, которое выиграло бы ЧМ с запасом." },
+                { r: 15, n: "Sven Schwarz", c: "GER", s: "Distance", v: "Silver Double", d: "Два серебра ЧМ (800/1500). Рекорд Европы на 800м. Новая немецкая машина." },
+                { r: 14, n: "K. Kolesnikov", c: "RUS", s: "Backstroke", v: "World Champ", d: "Король спринта вернулся. Золото 50м на спине. Мировой рекордсмен (SC)." },
+                { r: 13, n: "Jack Alexy", c: "USA", s: "Sprint Free", v: "46.81", d: "Четыре раза выплыл из 47 сек. Серебро ЧМ. Рекорд США на 100 кролем." },
+                { r: 12, n: "Miron Lifintsev", c: "RUS", s: "Backstroke", v: "51.78 Relay", d: "Быстрейший этап года. В 19 лет доминирует на короткой воде (5 золотых)." },
+                { r: 11, n: "Thomas Ceccon", c: "ITA", s: "Versatility", v: "Silver 100Bk", d: "Универсал экстра-класса. Серебро спина, бронза дельфин. Рекордсмен мира." }
+            ],
+            tier4: [
+                // БЕЛЫЕ КАРТОЧКИ (ОБЫЧНЫЕ)
+                { r: 10, n: "Pan Zhanle", c: "CHN", s: "100 Free", v: "WR Holder", d: "Держатель рекорда мира (46.40). Олимпийский чемпион. Тяжелый 2025 год, но класс вечен." },
+                { r: 9, n: "Qin Haiyang", c: "CHN", s: "Breaststroke", v: "Double Gold", d: "Золотой дубль на ЧМ (100/200). Вернул трон короля брасса." },
+                { r: 8, n: "Lukas Märtens", c: "GER", s: "400 Free", v: "WR (3:39.96)", d: "Первый человек из 3:40. Побил легендарный рекорд 2009 года. Золото ЧМ." },
+                { r: 7, n: "Noe Ponti", c: "SUI", s: "Butterfly", v: "SC King", d: "Монстр короткой воды. Серебро длинного ЧМ с рекордами. Самый опасный на 50м." },
+                { r: 6, n: "Maxime Grousset", c: "FRA", s: "Fly / Free", v: "49.62 (100Fly)", d: "Золото ЧМ. Разменял 50 секунд в баттерфляе. 5 медалей на Европе." },
+                { r: 5, n: "Pieter Coetze", c: "RSA", s: "Backstroke", v: "3x African Rec", d: "Африканский феномен. Золото 100м и серебро 200м на ЧМ. Топ-спинист." },
+                { r: 4, n: "Ahmed Jaouadi", c: "TUN", s: "Distance", v: "Double Gold", d: "Новый король стайеров. Золото 800 и 1500 на ЧМ. #3 в истории на 800м." },
+                
+                // ТОП-3 (ЦВЕТНЫЕ)
+                { r: 3, n: "David Popovici", c: "ROU", s: "Freestyle", v: "46.51", d: "Гений кроля. Золото 100 и 200 на ЧМ. Второе время в истории на сотне.", tier: "bronze" },
+                { r: 2, n: "Hubert Kos", c: "HUN", s: "Backstroke", v: "2x WR (SCM)", d: "Золото ЧМ 200 спина. Два мировых рекорда на кубке мира. Обладатель Кубка Мира.", tier: "silver" },
+                { r: 1, n: "Leon Marchand", c: "FRA", s: "The Alien", v: "WR (1:52.69)", d: "Уничтожил рекорд Лохте (IM). 2 золота ЧМ. Абсолютно лучший пловец планеты.", tier: "gold" }
+            ]
+        };
+
+        // --- RYFT INFINITY SCROLL ENGINE v3.0 ---
+        class DrumController {
+            constructor(containerId, data, speedFactor = 1) {
+                this.container = document.getElementById(containerId);
+                this.data = data;
+                this.speedFactor = speedFactor; // Индивидуальная скорость для каждого барабана
+                
+                // Создаем трек
+                this.track = document.createElement('div');
+                this.track.className = 'drum-track';
+                this.container.appendChild(this.track);
+
+                // Конфигурация
+                // Клонируем данные 6 раз, чтобы заполнить любой экран + буфер
+                this.displayData = [...data, ...data, ...data, ...data, ...data, ...data];
+                this.render();
+
+                // Параметры карточки и трека (получаем из CSS)
+                const card = this.track.firstElementChild;
+                const style = window.getComputedStyle(card);
+                const marginRight = parseFloat(style.marginRight);
+                this.itemWidth = card.offsetWidth + marginRight;
+                
+                // Длина ОДНОГО оригинального набора данных в пикселях
+                this.singleSetWidth = this.itemWidth * data.length;
+
+                // Physics state
+                this.currentX = 0; // Начинаем с 0
+                this.targetX = 0;
+                this.isDragging = false;
+                this.startX = 0;
+                this.dragStartX = 0;
+                this.velocity = -0.5 * speedFactor; // Авто-скролл
+
+                this.initEvents();
+                this.animate();
+            }
+
+            render() {
+                this.track.innerHTML = this.displayData.map(item => {
+                    const tierAttr = item.tier ? `data-tier="${item.tier}"` : '';
+                    return `
+                        <div class="card" ${tierAttr}>
+                            <div class="bg-rank">${item.r}</div>
+                            <div class="card-content">
+                                <span class="flag">${item.c}</span>
+                                <div class="name">${item.n}</div>
+                                <div class="desc">${item.d}</div>
+                                <div class="stats">
+                                    <div class="stat-row"><span class="stat-label">Focus</span><span class="stat-val">${item.s}</span></div>
+                                    <div class="stat-row"><span class="stat-label">Stat</span><span class="stat-val highlight">${item.v}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            initEvents() {
+                // Mouse
+                this.container.addEventListener('mousedown', e => {
+                    this.isDragging = true;
+                    this.startX = e.pageX;
+                    this.dragStartX = this.currentX;
+                    this.container.style.cursor = 'grabbing';
+                    // Останавливаем автоскролл при захвате
+                    this.velocity = 0;
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!this.isDragging) return;
+                    const diff = e.pageX - this.startX;
+                    this.currentX = this.dragStartX + diff;
+                    // Рассчитываем скорость броска
+                    this.velocity = diff * 0.05; 
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (this.isDragging) {
+                        this.isDragging = false;
+                        this.container.style.cursor = 'grab';
+                    }
+                });
+
+                // Touch
+                this.container.addEventListener('touchstart', e => {
+                    this.isDragging = true;
+                    this.startX = e.touches[0].pageX;
+                    this.dragStartX = this.currentX;
+                    this.velocity = 0;
+                });
+
+                window.addEventListener('touchmove', e => {
+                    if (!this.isDragging) return;
+                    const diff = e.touches[0].pageX - this.startX;
+                    this.currentX = this.dragStartX + diff;
+                    this.velocity = diff * 0.05;
+                });
+
+                window.addEventListener('touchend', () => {
+                    this.isDragging = false;
+                });
+            }
+
+            animate() {
+                if (!this.isDragging) {
+                    this.currentX += this.velocity;
+                    // Затухание инерции
+                    this.velocity *= 0.95;
+                    
+                    // Если скорость упала почти до 0, возвращаем авто-скролл
+                    if (Math.abs(this.velocity) < 0.1) {
+                        this.velocity = -0.5 * this.speedFactor;
+                    }
+                }
+
+                // --- БЕСКОНЕЧНАЯ ЛОГИКА (БЕЗ ИСЧЕЗНОВЕНИЯ) ---
+                // Если мы уехали влево дальше, чем длина одного набора данных
+                if (this.currentX <= -this.singleSetWidth) {
+                    // Телепортируемся назад на длину одного набора
+                    // Это незаметно, так как там такие же карточки
+                    this.currentX += this.singleSetWidth;
+                    this.dragStartX += this.singleSetWidth; // Корректируем точку захвата
+                } 
+                // Если уехали вправо (в начало)
+                else if (this.currentX > 0) {
+                    this.currentX -= this.singleSetWidth;
+                    this.dragStartX -= this.singleSetWidth;
+                }
+
+                // Применяем движение
+                this.track.style.transform = `translate3d(${this.currentX}px, -50%, 0)`;
+                
+                // 3D Эффект поворота (Оптимизированный)
+                const centerScreen = window.innerWidth / 2;
+                Array.from(this.track.children).forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const centerCard = rect.left + rect.width / 2;
+                    const dist = (centerCard - centerScreen) / (window.innerWidth / 1.5); // Нормализация
+                    
+                    // Ограничиваем влияние
+                    const safeDist = Math.max(-1, Math.min(1, dist));
+                    
+                    // Легкий поворот и прозрачность по краям
+                    card.style.transform = `perspective(1000px) rotateY(${safeDist * 25}deg) scale(${1 - Math.abs(safeDist) * 0.1})`;
+                    card.style.opacity = 1 - Math.abs(safeDist) * 0.3;
+                });
+
+                requestAnimationFrame(this.animate.bind(this));
+            }
+        }
+
+        // Запуск (разная скорость для динамики)
+        document.addEventListener('DOMContentLoaded', () => {
+            new DrumController('drum-1', rankings.tier1, 1.2);
+            new DrumController('drum-2', rankings.tier2, 0.9);
+            new DrumController('drum-3', rankings.tier3, 1.1);
+            new DrumController('drum-4', rankings.tier4, 0.7); // Топ-10 едет медленно и величественно
+        });
+
+    </script>
+
+</body>
+</html>
