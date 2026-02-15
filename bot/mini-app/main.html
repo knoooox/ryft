@@ -133,9 +133,9 @@
         }
 
         .picker-column {
-            background: var(--glass-light);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px; overflow: hidden;
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px; overflow: hidden;
             position: relative;
             /* Маска для эффекта затухания сверху и снизу */
             mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
@@ -146,9 +146,10 @@
         .picker-highlight {
             position: absolute; top: 50%; left: 0; width: 100%; height: 40px;
             margin-top: -20px;
-            background: rgba(255,255,255,0.05);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            border-top: 1px solid rgba(255,255,255,0.14);
+            border-bottom: 1px solid rgba(255,255,255,0.14);
+            border-radius: 12px;
             pointer-events: none; z-index: 10;
         }
 
@@ -163,7 +164,8 @@
         .picker-item {
             height: 40px; display: flex; align-items: center; justify-content: center;
             font-size: 15px; font-weight: 600; color: var(--text-secondary);
-            transition: 0.2s; transform-origin: center center;
+            transition: transform 0.16s linear, opacity 0.16s linear, color 0.2s;
+            transform-origin: center center;
             will-change: transform, opacity;
         }
         .picker-item.selected { 
@@ -215,6 +217,7 @@
         .sheet-backdrop {
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
             opacity: 0; visibility: hidden; transition: 0.4s; z-index: 99;
+            touch-action: none;
         }
         .sheet-backdrop.active { opacity: 1; visibility: visible; }
 
@@ -226,6 +229,7 @@
             transform: translateY(100%); transition: transform 0.5s var(--ease-smooth);
             z-index: 100; display: flex; flex-direction: column;
             box-shadow: 0 -20px 80px rgba(0,0,0,0.8);
+            touch-action: pan-x;
         }
         .sheet.active { transform: translateY(0); }
         .sheet.dragging { transition: none; }
@@ -245,22 +249,24 @@
         .norm-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 18px 15px; margin-bottom: 8px;
-            border-radius: 16px; border: 1px solid transparent;
-            background: rgba(255,255,255,0.02); transition: 0.3s;
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);
+            background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+            transition: background 0.25s, color 0.25s, box-shadow 0.25s;
         }
         .norm-row.achieved {
             background: #fff; color: #000; box-shadow: 0 5px 20px rgba(255,255,255,0.1);
+            border-color: transparent;
         }
         .norm-rank { font-size: 14px; font-weight: 800; text-transform: uppercase; }
         .norm-time { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; }
         
         /* Прогресс бар внутри строки */
         .norm-progress {
-            height: 3px; background: rgba(255,255,255,0.1); margin-top: 5px;
+            height: 4px; background: rgba(255,255,255,0.12); margin-top: 7px;
             border-radius: 2px; overflow: hidden; display: none;
         }
         .norm-row.next-goal .norm-progress { display: block; }
-        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 0.65s var(--ease-smooth); }
+        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 0.45s ease-out; }
 
     </style>
 </head>
@@ -495,6 +501,7 @@
                 this.rafId = null;
                 this.maxOverScroll = this.itemHeight * 0.35;
                 this.targetScrollY = null;
+                this.isProgrammaticScroll = false;
                 this.render();
                 this.attachEvents();
                 this.animate();
@@ -531,6 +538,9 @@
                     this.lastY = y;
                     this.lastTime = Date.now();
                     this.velocity = 0;
+                    this.targetScrollY = null;
+                    this.isProgrammaticScroll = false;
+                    host.classList.add('dragging');
                     cancelAnimationFrame(this.rafId);
                     this.animate();
                 };
@@ -542,9 +552,9 @@
                     const deltaTime = now - this.lastTime;
 
                     this.scrollY -= deltaY;
-                    if (this.scrollY < 0) this.scrollY *= 0.35;
-                    if (this.scrollY > this.maxScroll) this.scrollY = this.maxScroll + (this.scrollY - this.maxScroll) * 0.35;
-                    if (deltaTime > 0) this.velocity = (deltaY / deltaTime) * 8;
+                    if (this.scrollY < 0) this.scrollY *= 0.4;
+                    if (this.scrollY > this.maxScroll) this.scrollY = this.maxScroll + (this.scrollY - this.maxScroll) * 0.4;
+                    if (deltaTime > 0) this.velocity = (deltaY / deltaTime) * 5.4;
 
                     this.lastY = y;
                     this.lastTime = now;
@@ -554,6 +564,7 @@
                 const end = () => {
                     this.isDragging = false;
                     host.classList.remove('dragging');
+                    this.targetScrollY = Math.max(0, Math.min(this.maxScroll, Math.round(this.scrollY / this.itemHeight) * this.itemHeight));
                 };
 
                 host.addEventListener('touchstart', (e) => start(e.touches[0].clientY), { passive: true });
@@ -595,20 +606,22 @@
                 if (!this.isDragging) {
                     if (this.targetScrollY !== null) {
                         const diff = this.targetScrollY - this.scrollY;
-                        this.scrollY += diff * 0.16;
+                        this.scrollY += diff * (this.isProgrammaticScroll ? 0.14 : 0.2);
+                        this.velocity *= 0.62;
                         if (Math.abs(diff) < 0.4) {
                             this.scrollY = this.targetScrollY;
                             this.targetScrollY = null;
+                            this.isProgrammaticScroll = false;
                         }
-                    }
-
-                    this.scrollY -= this.velocity;
-                    this.velocity *= 0.9;
-
-                    if (Math.abs(this.velocity) < 0.35) {
-                        this.snap();
                     } else {
-                        this.constrain();
+                        this.scrollY -= this.velocity;
+                        this.velocity *= 0.88;
+
+                        if (Math.abs(this.velocity) < 0.22) {
+                            this.snap();
+                        } else {
+                            this.constrain();
+                        }
                     }
                 }
 
@@ -644,6 +657,7 @@
                 this.velocity = 0;
                 this.render();
                 this.targetScrollY = this.selectedIndex * this.itemHeight;
+                this.isProgrammaticScroll = true;
                 if (this.items[this.selectedIndex]) this.onChange(this.items[this.selectedIndex].value);
             }
         }
@@ -754,9 +768,18 @@
             setupSheetGesture() {
                 const sheet = document.getElementById('sheet');
                 const handle = sheet.querySelector('.sheet-handle');
+                const scrollContainer = document.getElementById('norms-list');
 
-                const start = (y) => {
+                const canStartDrag = (target) => {
+                    if (!this.isSheetOpen) return false;
+                    if (target.closest('.sheet-handle')) return true;
+                    const insideScroll = target.closest('.sheet-scroll');
+                    return insideScroll && scrollContainer.scrollTop <= 0;
+                };
+
+                const start = (y, target) => {
                     if (!this.isSheetOpen) return;
+                    if (!canStartDrag(target)) return;
                     this.isSheetDragging = true;
                     this.sheetDragStartY = y;
                     this.sheet.classList.add('dragging');
@@ -764,7 +787,8 @@
 
                 const move = (y) => {
                     if (!this.isSheetDragging) return;
-                    const delta = Math.max(0, y - this.sheetDragStartY);
+                    const rawDelta = Math.max(0, y - this.sheetDragStartY);
+                    const delta = rawDelta > 140 ? 140 + (rawDelta - 140) * 0.35 : rawDelta;
                     this.sheetTranslateY = delta;
                     this.sheet.style.transform = `translateY(${delta}px)`;
                 };
@@ -773,7 +797,7 @@
                     if (!this.isSheetDragging) return;
                     this.isSheetDragging = false;
                     this.sheet.classList.remove('dragging');
-                    if (this.sheetTranslateY > 90) {
+                    if (this.sheetTranslateY > 110) {
                         this.closeSheet();
                         return;
                     }
@@ -782,13 +806,17 @@
                     this.sheet.classList.add('active');
                 };
 
-                handle.addEventListener('touchstart', (e) => start(e.touches[0].clientY), { passive: true });
+                sheet.addEventListener('touchstart', (e) => start(e.touches[0].clientY, e.target), { passive: true });
                 document.addEventListener('touchmove', (e) => move(e.touches[0].clientY), { passive: true });
                 document.addEventListener('touchend', end);
 
-                handle.addEventListener('mousedown', (e) => start(e.clientY));
+                handle.addEventListener('mousedown', (e) => start(e.clientY, e.target));
                 document.addEventListener('mousemove', (e) => move(e.clientY));
                 document.addEventListener('mouseup', end);
+
+                this.backdrop.addEventListener('click', () => {
+                    if (this.isSheetOpen) this.closeSheet();
+                });
             },
 
             getNextRank(data, userTime) {
@@ -805,10 +833,10 @@
                 const nextRank = this.getNextRank(data, userTime);
                 if (!nextRank) return 0;
                 const idx = RANKS.indexOf(nextRank);
-                const prevBetterTime = idx > 0 ? data[RANKS[idx - 1]] : data.rec;
-                const range = Math.max(0.01, targetTime - prevBetterTime);
-                const passed = Math.max(0, Math.min(range, userTime - prevBetterTime));
-                return Math.max(3, Math.min(100, (passed / range) * 100));
+                const slowerRank = idx < (RANKS.length - 1) ? data[RANKS[idx + 1]] : targetTime * 1.2;
+                const range = Math.max(0.01, slowerRank - targetTime);
+                const passed = slowerRank - userTime;
+                return Math.max(0, Math.min(100, (passed / range) * 100));
             },
 
             calculate() {
@@ -896,7 +924,7 @@
                     const isNext = r === nextRank;
                     
                     const row = document.createElement('div');
-                    row.className = `norm-row ${isDone ? 'achieved' : ''}`;
+                    row.className = `norm-row ${isDone ? 'achieved' : ''} ${isNext ? 'next-goal' : ''}`;
                     
                     // Format time MM:SS.ms
                     let tM = Math.floor(time / 60);
@@ -911,7 +939,7 @@
                                 <span class="norm-time">${timeStr}</span>
                             </div>
                             ${isNext ? `
-                            <div class="norm-progress" style="display:block">
+                            <div class="norm-progress">
                                 <div class="progress-fill" style="width: ${this.getProgressWidth(userTime, time, data)}%"></div>
                             </div>` : ''}
                         </div>
@@ -920,6 +948,7 @@
                 });
 
                 this.sheet.classList.add('active');
+                this.backdrop.classList.add('active');
                 this.isSheetOpen = true;
                 this.sheetTranslateY = 0;
                 this.sheet.style.transform = '';
@@ -929,6 +958,7 @@
             closeSheet() {
                 this.isSheetOpen = false;
                 this.sheet.classList.remove('active');
+                this.backdrop.classList.remove('active');
                 this.sheet.style.transform = '';
                 this.sheetTranslateY = 0;
             }
