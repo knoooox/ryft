@@ -73,11 +73,13 @@
         .fina-number {
             font-family: 'Inter', sans-serif;
             font-size: 110px; font-weight: 900;
-            letter-spacing: -6px; line-height: 0.9;
+            letter-spacing: -4px; line-height: 0.9;
             background: linear-gradient(180deg, #fff 20%, #666 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 10px 30px rgba(255,255,255,0.05));
             font-variant-numeric: tabular-nums;
+            display: inline-block;
+            padding: 0 10px 0 6px;
         }
 
         .fina-badge {
@@ -154,7 +156,9 @@
             height: 100%; width: 100%;
             cursor: grab; touch-action: none; /* Отключаем нативный скролл */
             transform-style: preserve-3d;
+            overscroll-behavior: contain;
         }
+        .picker-scroll-area.dragging { cursor: grabbing; }
 
         .picker-item {
             height: 40px; display: flex; align-items: center; justify-content: center;
@@ -224,6 +228,9 @@
             box-shadow: 0 -20px 80px rgba(0,0,0,0.8);
         }
         .sheet.active { transform: translateY(0); }
+        .sheet.dragging { transition: none; }
+        .sheet-handle { touch-action: none; cursor: grab; }
+        .sheet-handle:active { cursor: grabbing; }
 
         .sheet-header { padding: 30px 20px 10px; text-align: center; }
         .sheet-handle { 
@@ -253,7 +260,7 @@
             border-radius: 2px; overflow: hidden; display: none;
         }
         .norm-row.next-goal .norm-progress { display: block; }
-        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 1s; }
+        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 0.65s var(--ease-smooth); }
 
     </style>
 </head>
@@ -275,8 +282,8 @@
             <div class="tabs-row">
                 <div class="segment-container" id="gender-switch" data-state="0">
                     <div class="segment-glider"></div>
-                    <div class="segment-btn active" onclick="app.setGender('male')">MALE</div>
-                    <div class="segment-btn" onclick="app.setGender('female')">FEMALE</div>
+                    <div class="segment-btn active" onclick="app.setGender('male')">МУЖ</div>
+                    <div class="segment-btn" onclick="app.setGender('female')">ЖЕН</div>
                 </div>
                 <div class="segment-container" id="pool-switch" data-state="0">
                     <div class="segment-glider"></div>
@@ -306,17 +313,17 @@
                 <input type="tel" class="time-field" id="inp-ms" placeholder="00" maxlength="2">
             </div>
 
-            <button class="btn-norms" onclick="app.openSheet()">View Standards</button>
+            <button class="btn-norms" onclick="app.openSheet()">Нормативы</button>
 
         </section>
     </div>
 
-    <div class="sheet-backdrop" id="backdrop" onclick="app.closeSheet()"></div>
+    <div class="sheet-backdrop" id="backdrop"></div>
     <div class="sheet" id="sheet">
         <div class="sheet-header">
             <div class="sheet-handle"></div>
-            <div class="sheet-title">STANDARDS</div>
-            <div class="sheet-subtitle" id="sheet-sub">MALE • 25M • FREESTYLE • 100M</div>
+            <div class="sheet-title">НОРМАТИВЫ</div>
+            <div class="sheet-subtitle" id="sheet-sub">МУЖЧИНЫ • 25 М • ВОЛЬНЫЙ СТИЛЬ • 100 М</div>
         </div>
         <div class="sheet-scroll" id="norms-list">
             </div>
@@ -458,10 +465,19 @@
         };
 
         const LABELS = {
-            freestyle: "FREESTYLE", backstroke: "BACKSTROKE", breaststroke: "BREASTSTROKE", butterfly: "BUTTERFLY", medley: "MEDLEY",
-            msmk: "MSMK", ms: "MS", kms: "KMS", i: "RANK I", ii: "RANK II", iii: "RANK III", 
-            i_j: "JUNIOR I", ii_j: "JUNIOR II", iii_j: "JUNIOR III"
+            freestyle: "Вольный", backstroke: "На спине", breaststroke: "Брасс", butterfly: "Баттерфляй", medley: "Комплекс",
+            msmk: "МСМК", ms: "МС", kms: "КМС", i: "I Взрослый", ii: "II Взрослый", iii: "III Взрослый", 
+            i_j: "I Юношеский", ii_j: "II Юношеский", iii_j: "III Юношеский"
         };
+
+        const UI_TEXT = {
+            male: "Мужчины",
+            female: "Женщины",
+            noData: "Нет данных",
+            noRank: "Без разряда"
+        };
+
+        const RANKS = ['msmk', 'ms', 'kms', 'i', 'ii', 'iii', 'i_j', 'ii_j', 'iii_j'];
 
         // --- 2. PHYSICS WHEEL ENGINE ---
         class WheelPicker {
@@ -477,20 +493,24 @@
                 this.lastY = 0;
                 this.lastTime = 0;
                 this.rafId = null;
-                
+                this.maxOverScroll = this.itemHeight * 0.35;
+                this.targetScrollY = null;
                 this.render();
                 this.attachEvents();
                 this.animate();
             }
-
+            
+            get maxScroll() {
+                return Math.max(0, (this.items.length - 1) * this.itemHeight);
+            }
+            
             render() {
                 this.container.innerHTML = '';
-                // Padding for visual centering
                 const pad = document.createElement('div');
-                pad.style.height = '60px'; // (160 - 40) / 2
+                pad.style.height = '60px';
                 this.container.appendChild(pad);
 
-                this.items.forEach((item, idx) => {
+                this.items.forEach((item) => {
                     const el = document.createElement('div');
                     el.className = 'picker-item';
                     el.innerText = item.label;
@@ -504,13 +524,15 @@
             }
 
             attachEvents() {
+                const host = this.container.parentElement;
+
                 const start = (y) => {
                     this.isDragging = true;
                     this.lastY = y;
                     this.lastTime = Date.now();
                     this.velocity = 0;
                     cancelAnimationFrame(this.rafId);
-                    this.animate(); // Start loop
+                    this.animate();
                 };
 
                 const move = (y) => {
@@ -518,10 +540,11 @@
                     const now = Date.now();
                     const deltaY = y - this.lastY;
                     const deltaTime = now - this.lastTime;
-                    
+
                     this.scrollY -= deltaY;
-                    // Calculate velocity for inertia
-                    if (deltaTime > 0) this.velocity = deltaY / deltaTime * 15; // Speed multiplier
+                    if (this.scrollY < 0) this.scrollY *= 0.35;
+                    if (this.scrollY > this.maxScroll) this.scrollY = this.maxScroll + (this.scrollY - this.maxScroll) * 0.35;
+                    if (deltaTime > 0) this.velocity = (deltaY / deltaTime) * 8;
 
                     this.lastY = y;
                     this.lastTime = now;
@@ -530,42 +553,38 @@
 
                 const end = () => {
                     this.isDragging = false;
+                    host.classList.remove('dragging');
                 };
 
-                // Touch
-                this.container.parentElement.addEventListener('touchstart', e => start(e.touches[0].clientY));
-                document.addEventListener('touchmove', e => move(e.touches[0].clientY));
+                host.addEventListener('touchstart', (e) => start(e.touches[0].clientY), { passive: true });
+                document.addEventListener('touchmove', (e) => move(e.touches[0].clientY), { passive: true });
                 document.addEventListener('touchend', end);
-                
-                // Mouse (for desktop debugging)
-                this.container.parentElement.addEventListener('mousedown', e => start(e.clientY));
-                document.addEventListener('mousemove', e => move(e.clientY));
+                host.addEventListener('mousedown', (e) => start(e.clientY));
+                document.addEventListener('mousemove', (e) => move(e.clientY));
                 document.addEventListener('mouseup', end);
             }
 
             constrain() {
-                const maxScroll = (this.items.length - 1) * this.itemHeight;
-                if (this.scrollY < -50) this.scrollY = -50; // Rubber band top
-                if (this.scrollY > maxScroll + 50) this.scrollY = maxScroll + 50; // Rubber band bottom
+                if (this.scrollY < -this.maxOverScroll) this.scrollY = -this.maxOverScroll;
+                if (this.scrollY > this.maxScroll + this.maxOverScroll) this.scrollY = this.maxScroll + this.maxOverScroll;
             }
 
             snap() {
                 const targetIndex = Math.round(this.scrollY / this.itemHeight);
-                const targetY = targetIndex * this.itemHeight;
+                const clampedIndex = Math.max(0, Math.min(this.items.length - 1, targetIndex));
+                const targetY = clampedIndex * this.itemHeight;
                 const diff = targetY - this.scrollY;
-                
-                // Spring physics to snap
-                this.scrollY += diff * 0.1; 
-                this.velocity *= 0.8; // Dampen velocity
 
-                // Stop if close enough
-                if (Math.abs(diff) < 0.5 && Math.abs(this.velocity) < 0.1) {
+                this.scrollY += diff * 0.18;
+                this.velocity *= 0.75;
+
+                if (Math.abs(diff) < 0.2 && Math.abs(this.velocity) < 0.08) {
                     this.scrollY = targetY;
                     this.velocity = 0;
                     const prevIndex = this.selectedIndex;
-                    this.selectedIndex = Math.max(0, Math.min(this.items.length - 1, targetIndex));
-                    
-                    if (prevIndex !== this.selectedIndex) {
+                    this.selectedIndex = clampedIndex;
+
+                    if (prevIndex !== this.selectedIndex && this.items[this.selectedIndex]) {
                         this.onChange(this.items[this.selectedIndex].value);
                         window.Telegram.WebApp.HapticFeedback.selectionChanged();
                     }
@@ -574,32 +593,38 @@
 
             animate() {
                 if (!this.isDragging) {
-                    this.scrollY -= this.velocity;
-                    this.velocity *= 0.95; // Friction
+                    if (this.targetScrollY !== null) {
+                        const diff = this.targetScrollY - this.scrollY;
+                        this.scrollY += diff * 0.16;
+                        if (Math.abs(diff) < 0.4) {
+                            this.scrollY = this.targetScrollY;
+                            this.targetScrollY = null;
+                        }
+                    }
 
-                    // If slow, start snapping
-                    if (Math.abs(this.velocity) < 0.5) {
+                    this.scrollY -= this.velocity;
+                    this.velocity *= 0.9;
+
+                    if (Math.abs(this.velocity) < 0.35) {
                         this.snap();
                     } else {
-                         this.constrain();
+                        this.constrain();
                     }
                 }
 
-                // Apply visual transform (3D effect)
                 this.container.style.transform = `translateY(${-this.scrollY}px)`;
                 
-                // 3D Rotation effect for items based on distance from center
                 const items = this.container.querySelectorAll('.picker-item');
                 items.forEach((item, i) => {
                     const itemY = i * this.itemHeight;
                     const dist = this.scrollY - itemY;
-                    const angle = dist * -0.5; // Rotation strength
-                    
-                    let scale = 1 - Math.abs(dist) / 500;
-                    if (scale < 0.8) scale = 0.8;
-                    
-                    let opacity = 1 - Math.abs(dist) / 150;
-                    if (opacity < 0.3) opacity = 0.3;
+                    const angle = dist * -0.42;
+
+                    let scale = 1 - Math.abs(dist) / 420;
+                    if (scale < 0.82) scale = 0.82;
+
+                    let opacity = 1 - Math.abs(dist) / 160;
+                    if (opacity < 0.35) opacity = 0.35;
 
                     item.style.transform = `rotateX(${angle}deg) scale(${scale})`;
                     item.style.opacity = opacity;
@@ -609,13 +634,17 @@
                 this.rafId = requestAnimationFrame(() => this.animate());
             }
 
-            updateItems(newItems) {
+            updateItems(newItems, preferredValue = null) {
+                const fallbackIndex = 0;
+                const preferredIndex = newItems.findIndex((item) => item.value === preferredValue);
+                const nextIndex = preferredIndex >= 0 ? preferredIndex : fallbackIndex;
+
                 this.items = newItems;
-                this.scrollY = 0;
-                this.selectedIndex = 0;
+                this.selectedIndex = nextIndex;
                 this.velocity = 0;
                 this.render();
-                this.onChange(this.items[0].value);
+                this.targetScrollY = this.selectedIndex * this.itemHeight;
+                if (this.items[this.selectedIndex]) this.onChange(this.items[this.selectedIndex].value);
             }
         }
 
@@ -630,20 +659,26 @@
             
             stylePicker: null,
             distPicker: null,
+            isSheetOpen: false,
+            sheetDragStartY: 0,
+            sheetTranslateY: 0,
+            isSheetDragging: false,
 
             init() {
                 const tg = window.Telegram.WebApp;
+                this.sheet = document.getElementById('sheet');
+                this.backdrop = document.getElementById('backdrop');
                 tg.expand();
                 tg.headerColor = '#000000';
                 tg.backgroundColor = '#000000';
 
                 // Initialize Pickers
                 this.stylePicker = new WheelPicker('style-scroll', [
-                    {label: 'FREESTYLE', value: 'freestyle'},
-                    {label: 'BACKSTROKE', value: 'backstroke'},
-                    {label: 'BREASTSTROKE', value: 'breaststroke'},
-                    {label: 'BUTTERFLY', value: 'butterfly'},
-                    {label: 'MEDLEY', value: 'medley'}
+                    {label: LABELS.freestyle, value: 'freestyle'},
+                    {label: LABELS.backstroke, value: 'backstroke'},
+                    {label: LABELS.breaststroke, value: 'breaststroke'},
+                    {label: LABELS.butterfly, value: 'butterfly'},
+                    {label: LABELS.medley, value: 'medley'}
                 ], (val) => {
                     this.state.style = val;
                     this.updateDistances();
@@ -658,11 +693,13 @@
 
                 this.updateDistances();
                 this.setupInputs();
+                this.setupSheetGesture();
             },
 
             setGender(val) {
                 this.state.gender = val;
                 this.animateSwitch('gender-switch', val === 'female');
+                this.updateDistances();
                 this.calculate();
             },
 
@@ -687,8 +724,8 @@
                 const distances = Object.keys(DB[this.state.gender][this.state.pool][this.state.style])
                     .sort((a,b) => parseInt(a) - parseInt(b));
                 
-                const items = distances.map(d => ({label: `${d}m`, value: d}));
-                this.distPicker.updateItems(items);
+                const items = distances.map(d => ({label: `${d} м`, value: d}));
+                this.distPicker.updateItems(items, this.state.dist);
             },
 
             setupInputs() {
@@ -697,7 +734,7 @@
                     const el = document.getElementById(id);
                     el.addEventListener('input', (e) => {
                         let val = e.target.value.replace(/[^0-9]/g, '');
-                        if (id === 'inp-sec' && parseInt(val) > 59) val = '59'; // Cap seconds
+                        if (id === 'inp-sec' && parseInt(val) > 59) val = '59';
                         e.target.value = val;
 
                         if (val.length >= 2) {
@@ -714,6 +751,66 @@
                 });
             },
 
+            setupSheetGesture() {
+                const sheet = document.getElementById('sheet');
+                const handle = sheet.querySelector('.sheet-handle');
+
+                const start = (y) => {
+                    if (!this.isSheetOpen) return;
+                    this.isSheetDragging = true;
+                    this.sheetDragStartY = y;
+                    this.sheet.classList.add('dragging');
+                };
+
+                const move = (y) => {
+                    if (!this.isSheetDragging) return;
+                    const delta = Math.max(0, y - this.sheetDragStartY);
+                    this.sheetTranslateY = delta;
+                    this.sheet.style.transform = `translateY(${delta}px)`;
+                };
+
+                const end = () => {
+                    if (!this.isSheetDragging) return;
+                    this.isSheetDragging = false;
+                    this.sheet.classList.remove('dragging');
+                    if (this.sheetTranslateY > 90) {
+                        this.closeSheet();
+                        return;
+                    }
+                    this.sheetTranslateY = 0;
+                    this.sheet.style.transform = '';
+                    this.sheet.classList.add('active');
+                };
+
+                handle.addEventListener('touchstart', (e) => start(e.touches[0].clientY), { passive: true });
+                document.addEventListener('touchmove', (e) => move(e.touches[0].clientY), { passive: true });
+                document.addEventListener('touchend', end);
+
+                handle.addEventListener('mousedown', (e) => start(e.clientY));
+                document.addEventListener('mousemove', (e) => move(e.clientY));
+                document.addEventListener('mouseup', end);
+            },
+
+            getNextRank(data, userTime) {
+                if (userTime <= 0) return RANKS[RANKS.length - 1];
+                for (let i = RANKS.length - 1; i >= 0; i--) {
+                    const key = RANKS[i];
+                    if (userTime > data[key]) return key;
+                }
+                return null;
+            },
+
+            getProgressWidth(userTime, targetTime, data) {
+                if (userTime <= 0) return 0;
+                const nextRank = this.getNextRank(data, userTime);
+                if (!nextRank) return 0;
+                const idx = RANKS.indexOf(nextRank);
+                const prevBetterTime = idx > 0 ? data[RANKS[idx - 1]] : data.rec;
+                const range = Math.max(0.01, targetTime - prevBetterTime);
+                const passed = Math.max(0, Math.min(range, userTime - prevBetterTime));
+                return Math.max(3, Math.min(100, (passed / range) * 100));
+            },
+
             calculate() {
                 const min = parseInt(document.getElementById('inp-min').value) || 0;
                 const sec = parseInt(document.getElementById('inp-sec').value) || 0;
@@ -722,7 +819,7 @@
                 const totalSeconds = (min * 60) + sec + (ms / 100);
                 
                 if (totalSeconds === 0) {
-                    this.updateDisplay(0, "NO DATA");
+                    this.updateDisplay(0, UI_TEXT.noData);
                     return;
                 }
 
@@ -737,9 +834,8 @@
                 if (points < 0) points = 0;
 
                 // Find Rank
-                let rank = "NO RANK";
-                const ranks = ['msmk', 'ms', 'kms', 'i', 'ii', 'iii', 'i_j', 'ii_j', 'iii_j'];
-                for (let r of ranks) {
+                let rank = UI_TEXT.noRank;
+                for (let r of RANKS) {
                     if (totalSeconds <= data[r]) {
                         rank = LABELS[r];
                         break;
@@ -760,7 +856,7 @@
                 }
                 
                 badge.innerText = rank;
-                badge.classList.toggle('active', rank !== "NO RANK");
+                badge.classList.toggle('active', rank !== UI_TEXT.noRank && rank !== UI_TEXT.noData);
             },
 
             animateValue(obj, start, end, duration) {
@@ -790,14 +886,14 @@
                 const userTime = (min * 60) + sec + (ms / 100);
 
                 // Update subtitle
-                sub.innerText = `${this.state.gender} • ${this.state.pool}M • ${LABELS[this.state.style]} • ${this.state.dist}M`.toUpperCase();
+                sub.innerText = `${UI_TEXT[this.state.gender]} • ${this.state.pool} М • ${LABELS[this.state.style]} • ${this.state.dist} М`;
 
-                const ranks = ['msmk', 'ms', 'kms', 'i', 'ii', 'iii', 'i_j', 'ii_j', 'iii_j'];
-                
-                ranks.forEach(r => {
+                const nextRank = this.getNextRank(data, userTime);
+
+                RANKS.forEach(r => {
                     const time = data[r];
                     const isDone = userTime > 0 && userTime <= time;
-                    const isNext = userTime > time && (!ranks.includes(r-1) || userTime <= data[ranks[ranks.indexOf(r)-1]]); // Simplified next logic
+                    const isNext = r === nextRank;
                     
                     const row = document.createElement('div');
                     row.className = `norm-row ${isDone ? 'achieved' : ''}`;
@@ -814,23 +910,27 @@
                                 <span class="norm-rank">${LABELS[r]}</span>
                                 <span class="norm-time">${timeStr}</span>
                             </div>
-                            ${(!isDone && userTime > 0 && userTime < time + 5) ? `
+                            ${isNext ? `
                             <div class="norm-progress" style="display:block">
-                                <div class="progress-fill" style="width: ${(time/userTime)*80}%"></div>
+                                <div class="progress-fill" style="width: ${this.getProgressWidth(userTime, time, data)}%"></div>
                             </div>` : ''}
                         </div>
                     `;
                     list.appendChild(row);
                 });
 
-                document.getElementById('sheet').classList.add('active');
-                document.getElementById('backdrop').classList.add('active');
+                this.sheet.classList.add('active');
+                this.isSheetOpen = true;
+                this.sheetTranslateY = 0;
+                this.sheet.style.transform = '';
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
             },
 
             closeSheet() {
-                document.getElementById('sheet').classList.remove('active');
-                document.getElementById('backdrop').classList.remove('active');
+                this.isSheetOpen = false;
+                this.sheet.classList.remove('active');
+                this.sheet.style.transform = '';
+                this.sheetTranslateY = 0;
             }
         };
 
