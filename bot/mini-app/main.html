@@ -208,16 +208,17 @@
             justify-content: center;
             width: 100%;
             
-            /* Базовое состояние: средний вес, чтобы при переходе в 800/900 не было сильного разброса */
+            /* Фиксируем параметры, чтобы текст не "прыгал" */
             font-size: 16px; 
-            font-weight: 500; 
-            color: var(--text-secondary); /* Сделаем неактивные чуть тусклее для контраста */
+            font-weight: 600; /* Полужирный сразу для всех, так приятнее глазу */
+            color: var(--text-secondary);
             
-            /* Плавность для всех меняющихся свойств */
+            /* Убираем тяжелые transition для веса и размера. 
+               Оставляем только плавный цвет и тени */
             transition: 
-                color 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                font-weight 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                text-shadow 0.3s ease;
+                color 0.4s var(--ease-smooth),
+                text-shadow 0.4s var(--ease-smooth),
+                opacity 0.4s var(--ease-smooth);
             
             transform-origin: center center;
             will-change: transform, opacity;
@@ -227,12 +228,14 @@
         
         .picker-item.selected { 
             color: #fff; 
-            /* Явный жирный шрифт */
-            font-weight: 800; 
-            font-size: 17px; 
-            /* Мягкое свечение добавляет визуальной толщины без изменения геометрии */
-            text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 0 12px rgba(255,255,255,0.2);
+            /* Вместо изменения веса (800) используем text-shadow. 
+               Это дает визуальный объем, не заставляя браузер перерисовывать буквы */
+            text-shadow: 0 0 1px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.15);
+            
+            /* Размер оставляем прежним или меняем крайне незначительно через JS scale */
+            font-size: 16px; 
         }
+        
         @keyframes pickerSelectionHit {
             0% { transform: translateY(1px) scale(0.98); opacity: 0.74; }
             55% { transform: translateY(-2px) scale(1.05); opacity: 1; }
@@ -719,8 +722,8 @@
                 if (!this.isDragging) {
                     if (this.targetScrollY !== null) {
                         const diff = this.targetScrollY - this.scrollY;
-                        // Увеличили плавность довода
-                        const easing = this.isProgrammaticScroll ? 0.08 : 0.15; 
+                        // Делаем доводку еще мягче (0.06 вместо 0.08)
+                        const easing = this.isProgrammaticScroll ? 0.06 : 0.12; 
                         this.scrollY += diff * easing;
                         this.velocity *= 0.75;
             
@@ -732,7 +735,7 @@
                         }
                     } else {
                         this.scrollY -= this.velocity;
-                        this.velocity *= 0.92; // Вязкое торможение
+                        this.velocity *= 0.95; // Увеличили вязкость (было 0.92)
             
                         if (Math.abs(this.velocity) < 0.01) {
                             this.velocity = 0;
@@ -741,7 +744,6 @@
                     }
                 }
             
-                // Ограничение скролла (резиновый эффект)
                 this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
                 this.container.style.transform = `translateY(${-this.scrollY}px)`;
             
@@ -753,38 +755,31 @@
                     const distance = itemY - centerOffset;
                     const absDistance = Math.abs(distance);
                     
-                    // Зона влияния эффектов (3 высоты элемента)
-                    const radius = this.itemHeight * 3;
+                    // Увеличиваем радиус влияния, чтобы изменения были очень растянуты во времени
+                    const radius = this.itemHeight * 2.5; 
                     const proximity = Math.max(0, 1 - absDistance / radius);
                     
-                    // Математическая кривая для более "острого" фокуса в центре
-                    const curve = Math.pow(proximity, 2.5); 
+                    // Линейное сглаживание вместо агрессивного Power
+                    const curve = Math.sin(proximity * Math.PI / 2); 
             
-                    // 1. Масштаб и прозрачность
-                    const scale = 0.82 + (0.28 * curve);
-                    const opacity = 0.25 + (0.75 * curve);
-                    
-                    // 2. Вращение (эффект цилиндра)
-                    const rotate = (distance / radius) * -42; 
+                    // Очень деликатные изменения (масштаб меняется всего на 15%)
+                    const scale = 0.88 + (0.12 * curve);
+                    const opacity = 0.3 + (0.7 * curve);
+                    const rotate = (distance / radius) * -30; 
             
                     item.style.transform = `translateZ(0) rotateX(${rotate}deg) scale(${scale})`;
                     item.style.opacity = opacity;
             
-                    // 3. Управление состоянием "Выбрано" (Жирный шрифт и цвет)
-                    // Если элемент ближе чем 20px к центру линзы
-                    if (absDistance < 20) {
+                    // Порог выбора делаем "невидимым"
+                    if (absDistance < 15) {
                         if (!item.classList.contains('selected')) {
                             item.classList.add('selected');
-                            
-                            // Тактильный отклик только при ручном скролле
                             if (this.isDragging && window.Telegram?.WebApp?.HapticFeedback) {
                                 window.Telegram.WebApp.HapticFeedback.selectionChanged();
                             }
                         }
                     } else {
                         item.classList.remove('selected');
-                        // Возвращаем базовый полупрозрачный цвет для неактивных
-                        item.style.color = ''; 
                     }
                 });
             
