@@ -142,22 +142,42 @@
         }
 
         .picker-column {
-            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 30px; overflow: hidden;
+            /* Используем чистый черный фон для максимального контраста маски */
+            background: #000000; 
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 30px; 
+            overflow: hidden;
             position: relative;
-
             min-height: 160px; 
             height: 160px;
             
             box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.08),
-                inset 0 -18px 30px rgba(0,0,0,0.2),
-                0 14px 30px rgba(0,0,0,0.28);
-            /* Маска для эффекта затухания сверху и снизу */
-            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-            transition: transform 0.55s var(--ease-smooth), box-shadow 0.55s var(--ease-smooth), filter 0.55s var(--ease-smooth);
+                /* Внутренние тени: зеркально одинаковые значения (25px и -25px) */
+                inset 0 30px 30px rgba(0,0,0,1),  /* Сверху: полная темнота */
+                inset 0 -30px 30px rgba(0,0,0,1), /* Снизу: полная темнота */
+                /* Внешняя тень для объема самого блока */
+                0 14px 30px rgba(0,0,0,0.4);
+        
+            /* Симметричная маска: теперь она идеально растворяет текст в черном фоне */
+            -webkit-mask-image: linear-gradient(
+                to bottom, 
+                transparent 0%, 
+                black 25%, 
+                black 75%, 
+                transparent 100%
+            );
+            mask-image: linear-gradient(
+                to bottom, 
+                transparent 0%, 
+                black 25%, 
+                black 75%, 
+                transparent 100%
+            );
+        
+            transition: 
+                transform 0.55s var(--ease-smooth), 
+                box-shadow 0.55s var(--ease-smooth), 
+                filter 0.55s var(--ease-smooth);
         }
 
         .picker-column.refreshing {
@@ -171,14 +191,29 @@
 
         /* Визуальный центр (линза) */
         .picker-highlight {
-            position: absolute; top: 50%; left: 0; width: 100%; height: 40px;
+            position: absolute; 
+            top: 50%; 
+            left: 0; 
+            width: 100%; 
+            height: 40px;
             margin-top: -20px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-            border-top: 1px solid rgba(255,255,255,0.14);
-            border-bottom: 1px solid rgba(255,255,255,0.14);
-            border-radius: 12px;
-            box-shadow: inset 0 8px 18px rgba(255,255,255,0.03), inset 0 -8px 18px rgba(0,0,0,0.22);
-            pointer-events: none; z-index: 10;
+            
+            /* Оставляем только мягкий горизонтальный блик */
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255,255,255,0.04) 50%, 
+                transparent
+            );
+            
+            /* Линии сверху и снизу теперь одинаковой яркости */
+            border-top: 1px solid rgba(255,255,255,0.12);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+            
+            /* Убрали все внутренние тени, которые создавали асимметрию */
+            box-shadow: none;
+            
+            pointer-events: none; 
+            z-index: 5;
         }
 
         .picker-scroll-area {
@@ -618,10 +653,16 @@
             scrollToIndex(index, smooth = true) {
                 this.selectedIndex = this.clamp(index, 0, Math.max(0, this.items.length - 1));
                 const targetY = this.selectedIndex * this.itemHeight;
-                this.velocity = 0;
+                
                 if (smooth) {
+                    this.velocity = 0;
                     this.targetScrollY = targetY;
                     this.isProgrammaticScroll = true;
+                    
+                    // Даем легкий тактильный отклик при нажатии
+                    if (window.Telegram?.WebApp?.HapticFeedback) {
+                        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                    }
                 } else {
                     this.scrollY = targetY;
                     this.targetScrollY = null;
@@ -639,18 +680,28 @@
             }
 
             render() {
-                // Вместо полной очистки сразу, создаем фрагмент
                 const fragment = document.createDocumentFragment();
                 
+                // Верхний отступ для центрирования
                 const pad = document.createElement('div');
                 pad.style.height = '60px';
                 fragment.appendChild(pad);
             
-                this.items.forEach((item) => {
+                this.items.forEach((item, index) => {
                     const el = document.createElement('div');
                     el.className = 'picker-item';
                     el.innerText = item.label;
                     el.style.height = `${this.itemHeight}px`;
+                    
+                    // Добавляем возможность клика
+                    el.style.cursor = 'pointer';
+                    el.addEventListener('click', () => {
+                        // Если мы не в процессе жесткого свайпа, скроллим к элементу
+                        if (!this.isDragging && Math.abs(this.velocity) < 0.1) {
+                            this.scrollToIndex(index, true);
+                        }
+                    });
+            
                     fragment.appendChild(el);
                 });
             
@@ -658,7 +709,6 @@
                 padBottom.style.height = '60px';
                 fragment.appendChild(padBottom);
             
-                // Очищаем и тут же вставляем фрагмент (минимизирует скачок высоты)
                 this.container.innerHTML = '';
                 this.container.appendChild(fragment);
             }
