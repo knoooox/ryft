@@ -298,7 +298,10 @@
         .sheet-backdrop.active { opacity: 1; visibility: visible; }
 
         .sheet {
-            position: fixed; left: 0; bottom: 0; width: 100%; height: 95vh; /* Увеличили высоту */
+            position: fixed; left: 0; bottom: 0; width: 100%; 
+            height: auto; /* Высота подстраивается под контент */
+            max-height: 90vh; /* Но не более 90% экрана при полном раскрытии */
+            min-height: 58vh; /* Это высота, которая покажет примерно 6 первых строк */
             background: #0f0f0f;
             border-top: 1px solid var(--glass-highlight);
             border-radius: 40px 40px 0 0;
@@ -370,7 +373,10 @@
             <div class="fina-wrapper" id="fina-container">
                 <div class="fina-number" id="fina-value">0</div>
             </div>
+            
             <div class="fina-badge" id="rank-badge">NO DATA</div>
+        
+            <div id="world-record" style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-tertiary); margin-top: 12px; font-weight: 700; letter-spacing: 0.5px;">WR: 00:00.00</div>
         </section>
 
         <section class="controls-section">
@@ -1040,25 +1046,31 @@
                 
                 const totalSeconds = (min * 60) + sec + (ms / 100);
                 
-                if (totalSeconds === 0) {
-                    this.updateDisplay(0, UI_TEXT.noData);
-                    if (this.isSheetOpen) {
-                        this.refreshSheet({ align: false });
-                    }
-                    return;
-                }
-
-                // Retrieve Record
+                // Получаем данные
                 const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
                 if (!data) return;
-
+            
+                // --- ЛОГИКА МИРОВОГО РЕКОРДА ---
                 const record = data.rec;
+                const rM = Math.floor(record / 60);
+                const rS = Math.floor(record % 60);
+                const rMS = Math.round((record - Math.floor(record)) * 100);
+                const recordStr = `${rM > 0 ? rM + ':' : ''}${rS.toString().padStart(2, '0')}.${rMS.toString().padStart(2, '0')}`;
+                document.getElementById('world-record').innerText = `WORLD RECORD: ${recordStr}`;
+                // ------------------------------
+            
+                if (totalSeconds === 0) {
+                    this.updateDisplay(0, UI_TEXT.noData);
+                    if (this.isSheetOpen) this.refreshSheet({ align: false });
+                    return;
+                }
+            
+                // Считаем очки
                 let points = Math.floor(1000 * Math.pow(record / totalSeconds, 3));
-                
-                if (points > 1199) points = 1199; // Cap limit
+                if (points > 1199) points = 1199;
                 if (points < 0) points = 0;
-
-                // Find Rank
+            
+                // Ищем разряд
                 let rank = UI_TEXT.noRank;
                 for (let r of RANKS) {
                     if (totalSeconds <= data[r]) {
@@ -1068,7 +1080,7 @@
                 }
                 
                 this.updateDisplay(points, rank);
-
+            
                 if (this.isSheetOpen) {
                     this.refreshSheet({ align: false });
                 }
@@ -1185,33 +1197,27 @@
                 const { anchorRow } = this.buildNormRows();
                 const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
                 
-                // Считаем текущее время пользователя
                 const min = parseInt(document.getElementById('inp-min').value) || 0;
                 const sec = parseInt(document.getElementById('inp-sec').value) || 0;
                 const ms = parseInt(document.getElementById('inp-ms').value) || 0;
                 const userTime = (min * 60) + sec + (ms / 100);
-
+            
                 this.sheet.classList.add('active');
                 this.backdrop.classList.add('active');
                 this.isSheetOpen = true;
-                this.sheetTranslateY = 0;
-                this.sheet.style.transform = '';
-
+            
                 const list = document.getElementById('norms-list');
                 
                 requestAnimationFrame(() => {
-                    // Порог III взрослого (все что быстрее него — считаем "топом")
-                    const highRankLimit = data['iii'];
-
-                    if (!userTime || userTime <= highRankLimit) {
-                        // Если время не введено или результат быстрый — всегда скроллим в самое начало
+                    // Если время не введено или результат входит в "Топ-6" (лучше III взрослого)
+                    if (!userTime || userTime <= data['iii']) {
                         list.scrollTo({ top: 0, behavior: 'smooth' });
                     } else if (anchorRow) {
-                        // Если результат юношеский — подтягиваем его к верху
+                        // Если юношеский разряд — скроллим к нему
                         anchorRow.scrollIntoView({ block: 'start', behavior: 'smooth' });
                     }
                 });
-
+            
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
             },
 
