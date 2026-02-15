@@ -239,16 +239,6 @@
             100% { transform: translateY(0) scale(1); opacity: 1; }
         }
 
-        .fina-wrapper.value-refresh {
-            animation: valueRefreshPulse 0.58s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        @keyframes valueRefreshPulse {
-            0% { transform: translateY(0) scale(1); filter: brightness(1); }
-            42% { transform: translateY(-5px) scale(1.012); filter: brightness(1.08); }
-            100% { transform: translateY(0) scale(1); filter: brightness(1); }
-        }
-
         /* --- TIME INPUT (SPLIT SYSTEM) --- */
         .time-input-wrapper {
             background: var(--glass-light);
@@ -1089,14 +1079,11 @@
             updateDisplay(points, rank) {
                 const display = document.getElementById('fina-value');
                 const badge = document.getElementById('rank-badge');
-                const wrapper = document.getElementById('fina-container');
-
-                // Odometer Animation
+                
+                // Оставляем только логику одометра (смены цифр)
                 const start = parseInt(display.innerText);
                 if (start !== points) {
-                    wrapper.classList.remove('value-refresh');
-                    void wrapper.offsetWidth;
-                    wrapper.classList.add('value-refresh');
+                    // Мы убрали добавление класса value-refresh, теперь прыжков не будет
                     this.animateValue(display, start, points, 720);
                 }
                 
