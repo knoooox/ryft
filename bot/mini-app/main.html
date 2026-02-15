@@ -131,12 +131,25 @@
             display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px;
             height: 160px; position: relative;
         }
+        .wheels-container::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 34px;
+            background: radial-gradient(80% 120% at 50% 0%, rgba(255,255,255,0.08), rgba(255,255,255,0));
+            pointer-events: none;
+            z-index: -1;
+        }
 
         .picker-column {
             background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 30px; overflow: hidden;
             position: relative;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                inset 0 -18px 30px rgba(0,0,0,0.2),
+                0 14px 30px rgba(0,0,0,0.28);
             /* Маска для эффекта затухания сверху и снизу */
             mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
@@ -150,6 +163,7 @@
             border-top: 1px solid rgba(255,255,255,0.14);
             border-bottom: 1px solid rgba(255,255,255,0.14);
             border-radius: 12px;
+            box-shadow: inset 0 8px 18px rgba(255,255,255,0.03), inset 0 -8px 18px rgba(0,0,0,0.22);
             pointer-events: none; z-index: 10;
         }
 
@@ -164,9 +178,10 @@
         .picker-item {
             height: 40px; display: flex; align-items: center; justify-content: center;
             font-size: 15px; font-weight: 600; color: var(--text-secondary);
-            transition: transform 0.16s linear, opacity 0.16s linear, color 0.2s;
+            transition: transform 0.2s linear, opacity 0.2s linear, color 0.24s ease;
             transform-origin: center center;
             will-change: transform, opacity;
+            letter-spacing: 0.2px;
         }
         .picker-item.selected { 
             color: #fff; font-weight: 800; font-size: 17px; 
@@ -251,11 +266,12 @@
             padding: 18px 15px; margin-bottom: 8px;
             border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);
             background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
-            transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+            transition: background 0.35s var(--ease-smooth), color 0.35s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth), transform 0.35s var(--ease-smooth);
         }
         .norm-row.achieved {
             background: #fff; color: #000; box-shadow: 0 5px 20px rgba(255,255,255,0.1);
             border-color: transparent;
+            transform: translateY(-1px) scale(1.01);
         }
         .norm-rank { font-size: 14px; font-weight: 800; text-transform: uppercase; }
         .norm-time { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; }
@@ -266,7 +282,16 @@
             border-radius: 2px; overflow: hidden; display: none;
         }
         .norm-row.next-goal .norm-progress { display: block; }
-        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 0.45s ease-out; }
+        .progress-fill {
+            height: 100%; background: #fff; width: 0%;
+            transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+            transform-origin: left center;
+            box-shadow: 0 0 10px rgba(255,255,255,0.4);
+        }
+
+        .norm-row-anchor {
+            scroll-margin-top: 16px;
+        }
 
     </style>
 </head>
@@ -499,7 +524,7 @@
                 this.lastY = 0;
                 this.lastTime = 0;
                 this.rafId = null;
-                this.maxOverScroll = this.itemHeight * 0.35;
+                this.maxOverScroll = this.itemHeight * 0.12;
                 this.targetScrollY = null;
                 this.isProgrammaticScroll = false;
                 this.render();
@@ -510,7 +535,29 @@
             get maxScroll() {
                 return Math.max(0, (this.items.length - 1) * this.itemHeight);
             }
-            
+
+            clamp(value, min, max) {
+                return Math.min(max, Math.max(min, value));
+            }
+
+            getClosestIndex() {
+                return this.clamp(Math.round(this.scrollY / this.itemHeight), 0, this.items.length - 1);
+            }
+
+            scrollToIndex(index, smooth = true) {
+                this.selectedIndex = this.clamp(index, 0, Math.max(0, this.items.length - 1));
+                const targetY = this.selectedIndex * this.itemHeight;
+                this.velocity = 0;
+                if (smooth) {
+                    this.targetScrollY = targetY;
+                    this.isProgrammaticScroll = true;
+                } else {
+                    this.scrollY = targetY;
+                    this.targetScrollY = null;
+                    this.isProgrammaticScroll = false;
+                }
+            }
+
             render() {
                 this.container.innerHTML = '';
                 const pad = document.createElement('div');
@@ -541,30 +588,27 @@
                     this.targetScrollY = null;
                     this.isProgrammaticScroll = false;
                     host.classList.add('dragging');
-                    cancelAnimationFrame(this.rafId);
-                    this.animate();
                 };
 
                 const move = (y) => {
                     if (!this.isDragging) return;
                     const now = Date.now();
                     const deltaY = y - this.lastY;
-                    const deltaTime = now - this.lastTime;
+                    const deltaTime = Math.max(1, now - this.lastTime);
 
                     this.scrollY -= deltaY;
-                    if (this.scrollY < 0) this.scrollY *= 0.4;
-                    if (this.scrollY > this.maxScroll) this.scrollY = this.maxScroll + (this.scrollY - this.maxScroll) * 0.4;
-                    if (deltaTime > 0) this.velocity = (deltaY / deltaTime) * 5.4;
+                    this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
+                    this.velocity = this.velocity * 0.75 + (deltaY / deltaTime) * 4.6;
 
                     this.lastY = y;
                     this.lastTime = now;
-                    this.constrain();
                 };
 
                 const end = () => {
+                    if (!this.isDragging) return;
                     this.isDragging = false;
                     host.classList.remove('dragging');
-                    this.targetScrollY = Math.max(0, Math.min(this.maxScroll, Math.round(this.scrollY / this.itemHeight) * this.itemHeight));
+                    this.targetScrollY = this.getClosestIndex() * this.itemHeight;
                 };
 
                 host.addEventListener('touchstart', (e) => start(e.touches[0].clientY), { passive: true });
@@ -573,32 +617,23 @@
                 host.addEventListener('mousedown', (e) => start(e.clientY));
                 document.addEventListener('mousemove', (e) => move(e.clientY));
                 document.addEventListener('mouseup', end);
-            }
 
-            constrain() {
-                if (this.scrollY < -this.maxOverScroll) this.scrollY = -this.maxOverScroll;
-                if (this.scrollY > this.maxScroll + this.maxOverScroll) this.scrollY = this.maxScroll + this.maxOverScroll;
-            }
-
-            snap() {
-                const targetIndex = Math.round(this.scrollY / this.itemHeight);
-                const clampedIndex = Math.max(0, Math.min(this.items.length - 1, targetIndex));
-                const targetY = clampedIndex * this.itemHeight;
-                const diff = targetY - this.scrollY;
-
-                this.scrollY += diff * 0.18;
-                this.velocity *= 0.75;
-
-                if (Math.abs(diff) < 0.2 && Math.abs(this.velocity) < 0.08) {
-                    this.scrollY = targetY;
+                host.addEventListener('wheel', (e) => {
+                    e.preventDefault();
                     this.velocity = 0;
-                    const prevIndex = this.selectedIndex;
-                    this.selectedIndex = clampedIndex;
+                    this.targetScrollY = null;
+                    this.scrollY += e.deltaY * 0.35;
+                    this.scrollY = this.clamp(this.scrollY, 0, this.maxScroll);
+                    this.targetScrollY = this.getClosestIndex() * this.itemHeight;
+                }, { passive: false });
+            }
 
-                    if (prevIndex !== this.selectedIndex && this.items[this.selectedIndex]) {
-                        this.onChange(this.items[this.selectedIndex].value);
-                        window.Telegram.WebApp.HapticFeedback.selectionChanged();
-                    }
+            updateSelectionFromScroll() {
+                const nextIndex = this.getClosestIndex();
+                if (nextIndex !== this.selectedIndex && this.items[nextIndex]) {
+                    this.selectedIndex = nextIndex;
+                    this.onChange(this.items[this.selectedIndex].value);
+                    window.Telegram.WebApp.HapticFeedback.selectionChanged();
                 }
             }
 
@@ -606,59 +641,71 @@
                 if (!this.isDragging) {
                     if (this.targetScrollY !== null) {
                         const diff = this.targetScrollY - this.scrollY;
-                        this.scrollY += diff * (this.isProgrammaticScroll ? 0.14 : 0.2);
-                        this.velocity *= 0.62;
-                        if (Math.abs(diff) < 0.4) {
+                        const easing = this.isProgrammaticScroll ? 0.1 : 0.16;
+                        this.scrollY += diff * easing;
+                        this.velocity *= 0.72;
+
+                        if (Math.abs(diff) < 0.15) {
                             this.scrollY = this.targetScrollY;
                             this.targetScrollY = null;
                             this.isProgrammaticScroll = false;
+                            this.updateSelectionFromScroll();
                         }
                     } else {
                         this.scrollY -= this.velocity;
-                        this.velocity *= 0.88;
+                        this.velocity *= 0.82;
 
-                        if (Math.abs(this.velocity) < 0.22) {
-                            this.snap();
-                        } else {
-                            this.constrain();
+                        if (Math.abs(this.velocity) < 0.08) {
+                            this.velocity = 0;
+                            this.targetScrollY = this.getClosestIndex() * this.itemHeight;
+                        }
+
+                        if (this.scrollY < 0 || this.scrollY > this.maxScroll) {
+                            this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
+                            this.velocity *= 0.62;
                         }
                     }
                 }
 
+                this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
                 this.container.style.transform = `translateY(${-this.scrollY}px)`;
-                
+
+                const selectedIndex = this.getClosestIndex();
                 const items = this.container.querySelectorAll('.picker-item');
                 items.forEach((item, i) => {
                     const itemY = i * this.itemHeight;
                     const dist = this.scrollY - itemY;
-                    const angle = dist * -0.42;
+                    const angle = dist * -0.35;
 
-                    let scale = 1 - Math.abs(dist) / 420;
-                    if (scale < 0.82) scale = 0.82;
+                    let scale = 1 - Math.abs(dist) / 500;
+                    if (scale < 0.86) scale = 0.86;
 
-                    let opacity = 1 - Math.abs(dist) / 160;
-                    if (opacity < 0.35) opacity = 0.35;
+                    let opacity = 1 - Math.abs(dist) / 180;
+                    if (opacity < 0.3) opacity = 0.3;
 
                     item.style.transform = `rotateX(${angle}deg) scale(${scale})`;
                     item.style.opacity = opacity;
-                    item.classList.toggle('selected', Math.round(this.scrollY / this.itemHeight) === i);
+                    item.classList.toggle('selected', selectedIndex === i);
                 });
 
                 this.rafId = requestAnimationFrame(() => this.animate());
             }
 
-            updateItems(newItems, preferredValue = null) {
+            updateItems(newItems, options = {}) {
+                const { preferredValue = null, smooth = true, emitChange = true } = options;
                 const fallbackIndex = 0;
                 const preferredIndex = newItems.findIndex((item) => item.value === preferredValue);
-                const nextIndex = preferredIndex >= 0 ? preferredIndex : fallbackIndex;
+                const previousValue = this.items[this.selectedIndex]?.value;
+                const previousIndex = newItems.findIndex((item) => item.value === previousValue);
+                const nextIndex = preferredIndex >= 0 ? preferredIndex : (previousIndex >= 0 ? previousIndex : fallbackIndex);
 
                 this.items = newItems;
-                this.selectedIndex = nextIndex;
-                this.velocity = 0;
                 this.render();
-                this.targetScrollY = this.selectedIndex * this.itemHeight;
-                this.isProgrammaticScroll = true;
-                if (this.items[this.selectedIndex]) this.onChange(this.items[this.selectedIndex].value);
+                this.scrollToIndex(nextIndex, smooth);
+
+                if (emitChange && this.items[this.selectedIndex]) {
+                    this.onChange(this.items[this.selectedIndex].value);
+                }
             }
         }
 
@@ -695,7 +742,7 @@
                     {label: LABELS.medley, value: 'medley'}
                 ], (val) => {
                     this.state.style = val;
-                    this.updateDistances();
+                    this.updateDistances({ smooth: false, allowScrollAnchor: false });
                     this.calculate();
                 });
 
@@ -705,7 +752,7 @@
                     this.calculate();
                 });
 
-                this.updateDistances();
+                this.updateDistances({ smooth: false, allowScrollAnchor: false });
                 this.setupInputs();
                 this.setupSheetGesture();
             },
@@ -713,14 +760,14 @@
             setGender(val) {
                 this.state.gender = val;
                 this.animateSwitch('gender-switch', val === 'female');
-                this.updateDistances();
+                this.updateDistances({ smooth: true, allowScrollAnchor: false });
                 this.calculate();
             },
 
             setPool(val) {
                 this.state.pool = val;
                 this.animateSwitch('pool-switch', val === '50');
-                this.updateDistances();
+                this.updateDistances({ smooth: true, allowScrollAnchor: false });
                 this.calculate();
             },
 
@@ -733,13 +780,21 @@
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             },
 
-            updateDistances() {
-                // Get available distances from DB
+            updateDistances(options = {}) {
+                const { smooth = true, allowScrollAnchor = true } = options;
                 const distances = Object.keys(DB[this.state.gender][this.state.pool][this.state.style])
                     .sort((a,b) => parseInt(a) - parseInt(b));
                 
                 const items = distances.map(d => ({label: `${d} м`, value: d}));
-                this.distPicker.updateItems(items, this.state.dist);
+                this.distPicker.updateItems(items, {
+                    preferredValue: this.state.dist,
+                    smooth,
+                    emitChange: true
+                });
+
+                if (allowScrollAnchor && this.isSheetOpen) {
+                    this.refreshSheet({ align: true });
+                }
             },
 
             setupInputs() {
@@ -819,24 +874,42 @@
                 });
             },
 
-            getNextRank(data, userTime) {
-                if (userTime <= 0) return RANKS[RANKS.length - 1];
-                for (let i = RANKS.length - 1; i >= 0; i--) {
-                    const key = RANKS[i];
-                    if (userTime > data[key]) return key;
+            getRankState(data, userTime) {
+                const achievedRanks = [];
+                if (userTime > 0) {
+                    RANKS.forEach((rank) => {
+                        if (userTime <= data[rank]) achievedRanks.push(rank);
+                    });
                 }
-                return null;
+
+                const achievedRank = achievedRanks.length ? achievedRanks[0] : null;
+                const achievedIndex = achievedRank ? RANKS.indexOf(achievedRank) : -1;
+
+                let nextRank = null;
+                let nextIndex = -1;
+                if (userTime > 0 && achievedIndex > 0) {
+                    nextIndex = achievedIndex - 1;
+                    nextRank = RANKS[nextIndex];
+                } else if (userTime > 0 && achievedIndex === -1) {
+                    nextIndex = RANKS.length - 1;
+                    nextRank = RANKS[nextIndex];
+                }
+
+                return { achievedRank, achievedIndex, nextRank, nextIndex };
             },
 
-            getProgressWidth(userTime, targetTime, data) {
-                if (userTime <= 0) return 0;
-                const nextRank = this.getNextRank(data, userTime);
-                if (!nextRank) return 0;
-                const idx = RANKS.indexOf(nextRank);
-                const slowerRank = idx < (RANKS.length - 1) ? data[RANKS[idx + 1]] : targetTime * 1.2;
-                const range = Math.max(0.01, slowerRank - targetTime);
-                const passed = slowerRank - userTime;
-                return Math.max(0, Math.min(100, (passed / range) * 100));
+            getProgressWidth(userTime, data, rankState) {
+                if (userTime <= 0 || !rankState.nextRank) return 0;
+
+                const targetIndex = rankState.nextIndex;
+                const targetTime = data[rankState.nextRank];
+                const lowerBound = targetIndex < RANKS.length - 1
+                    ? data[RANKS[targetIndex + 1]]
+                    : targetTime * 1.18;
+
+                const range = Math.max(0.01, lowerBound - targetTime);
+                const progress = ((lowerBound - userTime) / range) * 100;
+                return Math.max(0, Math.min(100, progress));
             },
 
             calculate() {
@@ -848,6 +921,9 @@
                 
                 if (totalSeconds === 0) {
                     this.updateDisplay(0, UI_TEXT.noData);
+                    if (this.isSheetOpen) {
+                        this.refreshSheet({ align: false });
+                    }
                     return;
                 }
 
@@ -871,6 +947,10 @@
                 }
                 
                 this.updateDisplay(points, rank);
+
+                if (this.isSheetOpen) {
+                    this.refreshSheet({ align: false });
+                }
             },
 
             updateDisplay(points, rank) {
@@ -902,7 +982,7 @@
                 window.requestAnimationFrame(step);
             },
 
-            openSheet() {
+            buildNormRows() {
                 const list = document.getElementById('norms-list');
                 const sub = document.getElementById('sheet-sub');
                 list.innerHTML = '';
@@ -912,46 +992,88 @@
                 const sec = parseInt(document.getElementById('inp-sec').value) || 0;
                 const ms = parseInt(document.getElementById('inp-ms').value) || 0;
                 const userTime = (min * 60) + sec + (ms / 100);
+                const rankState = this.getRankState(data, userTime);
 
-                // Update subtitle
                 sub.innerText = `${UI_TEXT[this.state.gender]} • ${this.state.pool} М • ${LABELS[this.state.style]} • ${this.state.dist} М`;
 
-                const nextRank = this.getNextRank(data, userTime);
+                let anchorRow = null;
 
-                RANKS.forEach(r => {
+                RANKS.forEach((r) => {
                     const time = data[r];
-                    const isDone = userTime > 0 && userTime <= time;
-                    const isNext = r === nextRank;
-                    
+                    const isDone = rankState.achievedRank === r;
+                    const isNext = rankState.nextRank === r;
+
                     const row = document.createElement('div');
                     row.className = `norm-row ${isDone ? 'achieved' : ''} ${isNext ? 'next-goal' : ''}`;
-                    
-                    // Format time MM:SS.ms
+
                     let tM = Math.floor(time / 60);
                     let tS = Math.floor(time % 60);
                     let tMS = Math.round((time - Math.floor(time)) * 100);
                     const timeStr = `${tM > 0 ? tM + ':' : ''}${tS.toString().padStart(2, '0')}.${tMS.toString().padStart(2, '0')}`;
+                    const progress = this.getProgressWidth(userTime, data, rankState);
 
                     row.innerHTML = `
                         <div style="width:100%">
-                            <div style="display:flex; justify-content:space-between;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap: 8px;">
                                 <span class="norm-rank">${LABELS[r]}</span>
                                 <span class="norm-time">${timeStr}</span>
                             </div>
                             ${isNext ? `
                             <div class="norm-progress">
-                                <div class="progress-fill" style="width: ${this.getProgressWidth(userTime, time, data)}%"></div>
+                                <div class="progress-fill" style="width: ${progress}%"></div>
                             </div>` : ''}
                         </div>
                     `;
+
+                    if (!userTime && r === 'iii') {
+                        row.classList.add('norm-row-anchor');
+                        anchorRow = row;
+                    }
+
+                    if (userTime > 0 && isDone) {
+                        row.classList.add('norm-row-anchor');
+                        anchorRow = row;
+                    }
+
                     list.appendChild(row);
                 });
+
+                return { anchorRow };
+            },
+
+            refreshSheet(options = {}) {
+                if (!this.isSheetOpen) return;
+                const { align = false } = options;
+                const list = document.getElementById('norms-list');
+                const prevScrollTop = list.scrollTop;
+                const { anchorRow } = this.buildNormRows();
+
+                if (align && anchorRow) {
+                    anchorRow.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                    return;
+                }
+
+                list.scrollTop = prevScrollTop;
+            },
+
+            openSheet() {
+                const { anchorRow } = this.buildNormRows();
 
                 this.sheet.classList.add('active');
                 this.backdrop.classList.add('active');
                 this.isSheetOpen = true;
                 this.sheetTranslateY = 0;
                 this.sheet.style.transform = '';
+
+                const list = document.getElementById('norms-list');
+                requestAnimationFrame(() => {
+                    if (anchorRow) {
+                        anchorRow.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                    } else {
+                        list.scrollTop = 0;
+                    }
+                });
+
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
             },
 
