@@ -206,23 +206,33 @@
             display: flex; 
             align-items: center; 
             justify-content: center;
-            font-size: 16px; /* Чуть увеличим базовый */
+            width: 100%;
+            
+            /* Базовое состояние: средний вес, чтобы при переходе в 800/900 не было сильного разброса */
+            font-size: 16px; 
             font-weight: 500; 
-            color: var(--text-primary);
-            transition: color 0.3s ease; 
+            color: var(--text-secondary); /* Сделаем неактивные чуть тусклее для контраста */
+            
+            /* Плавность для всех меняющихся свойств */
+            transition: 
+                color 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+                font-weight 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+                text-shadow 0.3s ease;
+            
             transform-origin: center center;
             will-change: transform, opacity;
             letter-spacing: -0.2px;
+            white-space: nowrap;
         }
+        
         .picker-item.selected { 
-            color: #fff; font-weight: 800; font-size: 17px; 
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+            color: #fff; 
+            /* Явный жирный шрифт */
+            font-weight: 800; 
+            font-size: 17px; 
+            /* Мягкое свечение добавляет визуальной толщины без изменения геометрии */
+            text-shadow: 0 0 1px rgba(255,255,255,0.5), 0 0 12px rgba(255,255,255,0.2);
         }
-
-        .picker-item.selection-hit {
-            animation: pickerSelectionHit 0.5s var(--ease-smooth);
-        }
-
         @keyframes pickerSelectionHit {
             0% { transform: translateY(1px) scale(0.98); opacity: 0.74; }
             55% { transform: translateY(-2px) scale(1.05); opacity: 1; }
@@ -709,7 +719,8 @@
                 if (!this.isDragging) {
                     if (this.targetScrollY !== null) {
                         const diff = this.targetScrollY - this.scrollY;
-                        const easing = this.isProgrammaticScroll ? 0.1 : 0.2; // Плавный довод
+                        // Увеличили плавность довода
+                        const easing = this.isProgrammaticScroll ? 0.08 : 0.15; 
                         this.scrollY += diff * easing;
                         this.velocity *= 0.75;
             
@@ -721,7 +732,7 @@
                         }
                     } else {
                         this.scrollY -= this.velocity;
-                        this.velocity *= 0.92; // Чуть более вязкое торможение
+                        this.velocity *= 0.92; // Вязкое торможение
             
                         if (Math.abs(this.velocity) < 0.01) {
                             this.velocity = 0;
@@ -730,7 +741,7 @@
                     }
                 }
             
-                // Ограничение скролла
+                // Ограничение скролла (резиновый эффект)
                 this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
                 this.container.style.transform = `translateY(${-this.scrollY}px)`;
             
@@ -739,36 +750,47 @@
             
                 items.forEach((item, i) => {
                     const itemY = i * this.itemHeight;
-                    const distance = itemY - centerOffset; // Дистанция от центра линзы
+                    const distance = itemY - centerOffset;
                     const absDistance = Math.abs(distance);
                     
-                    // Настройка зоны видимости (3 высоты элемента)
+                    // Зона влияния эффектов (3 высоты элемента)
                     const radius = this.itemHeight * 3;
                     const proximity = Math.max(0, 1 - absDistance / radius);
                     
-                    // Плавная кривая для трансформаций (smoothstep)
-                    const curve = Math.pow(proximity, 2); 
+                    // Математическая кривая для более "острого" фокуса в центре
+                    const curve = Math.pow(proximity, 2.5); 
             
-                    // 1. Масштаб: от 0.8 до 1.1
-                    const scale = 0.8 + (0.3 * curve);
+                    // 1. Масштаб и прозрачность
+                    const scale = 0.82 + (0.28 * curve);
+                    const opacity = 0.25 + (0.75 * curve);
                     
-                    // 2. Прозрачность: мягкое затухание к краям
-                    const opacity = 0.2 + (0.8 * curve);
-                    
-                    // 3. Вращение: создает эффект выпуклого барабана
-                    // distance / radius дает значение от -1 до 1
-                    const rotate = (distance / radius) * -45; 
+                    // 2. Вращение (эффект цилиндра)
+                    const rotate = (distance / radius) * -42; 
             
                     item.style.transform = `translateZ(0) rotateX(${rotate}deg) scale(${scale})`;
                     item.style.opacity = opacity;
             
-                    // Вместо прыгающего fontWeight используем подсветку через цвет
-                    item.style.color = proximity > 0.9 ? '#ffffff' : 'rgba(255,255,255,0.5)';
+                    // 3. Управление состоянием "Выбрано" (Жирный шрифт и цвет)
+                    // Если элемент ближе чем 20px к центру линзы
+                    if (absDistance < 20) {
+                        if (!item.classList.contains('selected')) {
+                            item.classList.add('selected');
+                            
+                            // Тактильный отклик только при ручном скролле
+                            if (this.isDragging && window.Telegram?.WebApp?.HapticFeedback) {
+                                window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                            }
+                        }
+                    } else {
+                        item.classList.remove('selected');
+                        // Возвращаем базовый полупрозрачный цвет для неактивных
+                        item.style.color = ''; 
+                    }
                 });
             
                 this.rafId = requestAnimationFrame(() => this.animate());
             }
-
+            
             updateItems(newItems, options = {}) {
                 const { preferredValue = null, smooth = true, emitChange = true, pulse = false } = options;
                 const host = this.container.parentElement;
