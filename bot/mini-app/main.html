@@ -298,7 +298,7 @@
         .sheet-backdrop.active { opacity: 1; visibility: visible; }
 
         .sheet {
-            position: fixed; left: 0; bottom: 0; width: 100%; height: 85vh;
+            position: fixed; left: 0; bottom: 0; width: 100%; height: 95vh; /* Увеличили высоту */
             background: #0f0f0f;
             border-top: 1px solid var(--glass-highlight);
             border-radius: 40px 40px 0 0;
@@ -320,8 +320,12 @@
         .sheet-title { font-size: 24px; font-weight: 800; letter-spacing: -1px; margin-bottom: 5px; }
         .sheet-subtitle { font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
 
-        .sheet-scroll { flex: 1; overflow-y: auto; padding: 20px; }
-        
+        .sheet-scroll { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            scroll-behavior: smooth; /* Плавная прокрутка внутри */
+        }        
         .norm-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 18px 15px; margin-bottom: 8px;
@@ -1179,6 +1183,13 @@
 
             openSheet() {
                 const { anchorRow } = this.buildNormRows();
+                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
+                
+                // Считаем текущее время пользователя
+                const min = parseInt(document.getElementById('inp-min').value) || 0;
+                const sec = parseInt(document.getElementById('inp-sec').value) || 0;
+                const ms = parseInt(document.getElementById('inp-ms').value) || 0;
+                const userTime = (min * 60) + sec + (ms / 100);
 
                 this.sheet.classList.add('active');
                 this.backdrop.classList.add('active');
@@ -1187,11 +1198,17 @@
                 this.sheet.style.transform = '';
 
                 const list = document.getElementById('norms-list');
+                
                 requestAnimationFrame(() => {
-                    if (anchorRow) {
+                    // Порог III взрослого (все что быстрее него — считаем "топом")
+                    const highRankLimit = data['iii'];
+
+                    if (!userTime || userTime <= highRankLimit) {
+                        // Если время не введено или результат быстрый — всегда скроллим в самое начало
+                        list.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else if (anchorRow) {
+                        // Если результат юношеский — подтягиваем его к верху
                         anchorRow.scrollIntoView({ block: 'start', behavior: 'smooth' });
-                    } else {
-                        list.scrollTop = 0;
                     }
                 });
 
