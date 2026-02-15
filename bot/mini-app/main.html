@@ -161,8 +161,7 @@
         }
 
         .picker-column.refreshing {
-            transform: translateY(-4px);
-            filter: brightness(1.08);
+            filter: brightness(1.1);
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.08),
                 inset 0 -18px 30px rgba(0,0,0,0.2),
@@ -183,12 +182,18 @@
         }
 
         .picker-scroll-area {
-            height: 100%; width: 100%;
-            cursor: grab; touch-action: none; /* Отключаем нативный скролл */
-            transform-style: preserve-3d;
-            overscroll-behavior: contain;
-            transition: filter 0.4s var(--ease-smooth), opacity 0.4s var(--ease-smooth);
+                height: 100%; width: 100%;
+                cursor: grab; touch-action: none;
+                transform-style: preserve-3d;
+                overscroll-behavior: contain;
+                /* Анимация прозрачности при обновлении */
+                transition: opacity 0.4s ease-out, filter 0.4s ease;
+            }
+
+        .picker-column.updating-content .picker-scroll-area {
+            opacity: 0;
         }
+        
         .picker-scroll-area.dragging { cursor: grabbing; }
 
         .picker-column.refreshing .picker-scroll-area {
@@ -609,7 +614,7 @@
             pulseRefresh() {
                 const wheel = this.container.parentElement;
                 wheel.classList.remove('refreshing');
-                void wheel.offsetWidth;
+                void wheel.offsetWidth; // хак для перезапуска анимации
                 wheel.classList.add('refreshing');
                 if (this.refreshFxTimer) clearTimeout(this.refreshFxTimer);
                 this.refreshFxTimer = setTimeout(() => wheel.classList.remove('refreshing'), 520);
@@ -770,26 +775,37 @@
 
             updateItems(newItems, options = {}) {
                 const { preferredValue = null, smooth = true, emitChange = true, pulse = false } = options;
-                const fallbackIndex = 0;
-                const preferredIndex = newItems.findIndex((item) => item.value === preferredValue);
-                const previousValue = this.items[this.selectedIndex]?.value;
-                const previousIndex = newItems.findIndex((item) => item.value === previousValue);
-                const nextIndex = preferredIndex >= 0 ? preferredIndex : (previousIndex >= 0 ? previousIndex : fallbackIndex);
-
-                this.items = newItems;
-                this.render();
-                this.lastVisualSelectedIndex = nextIndex;
-                this.scrollToIndex(nextIndex, smooth);
-
-                if (pulse) {
-                    this.pulseRefresh();
-                }
-
-                if (emitChange && this.items[this.selectedIndex]) {
-                    this.onChange(this.items[this.selectedIndex].value);
-                }
+                const host = this.container.parentElement;
+            
+                // 1. Начинаем анимацию "проявления": скрываем контент
+                host.classList.add('updating-content');
+            
+                setTimeout(() => {
+                    const fallbackIndex = 0;
+                    const preferredIndex = newItems.findIndex((item) => item.value === preferredValue);
+                    const previousValue = this.items[this.selectedIndex]?.value;
+                    const previousIndex = newItems.findIndex((item) => item.value === previousValue);
+                    const nextIndex = preferredIndex >= 0 ? preferredIndex : (previousIndex >= 0 ? previousIndex : fallbackIndex);
+            
+                    this.items = newItems;
+                    this.render(); // Перерисовываем список
+                    this.lastVisualSelectedIndex = nextIndex;
+                    this.scrollToIndex(nextIndex, false); // Мгновенно ставим на нужную позицию пока скрыто
+            
+                    if (pulse) {
+                        this.pulseRefresh();
+                    }
+            
+                    // 2. Проявляем контент обратно
+                    requestAnimationFrame(() => {
+                        host.classList.remove('updating-content');
+                    });
+            
+                    if (emitChange && this.items[this.selectedIndex]) {
+                        this.onChange(this.items[this.selectedIndex].value);
+                    }
+                }, 50); // Короткая пауза для красоты перехода
             }
-        }
 
         // --- 3. APP LOGIC CONTROLLER ---
         const app = {
