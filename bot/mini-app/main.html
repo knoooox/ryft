@@ -182,16 +182,21 @@
         }
 
         .picker-scroll-area {
-                height: 100%; width: 100%;
-                cursor: grab; touch-action: none;
-                transform-style: preserve-3d;
-                overscroll-behavior: contain;
-                /* Анимация прозрачности при обновлении */
-                transition: opacity 0.4s ease-out, filter 0.4s ease;
-            }
-
+            height: 100%; 
+            width: 100%;
+            cursor: grab; 
+            touch-action: none;
+            transform-style: preserve-3d;
+            overscroll-behavior: contain;
+            /* Ускоренная и мягкая анимация появления */
+            transition: opacity 0.2s ease-out, filter 0.2s ease-out;
+            will-change: opacity, filter;
+        }
+        
+        /* Состояние в момент обновления данных */
         .picker-column.updating-content .picker-scroll-area {
             opacity: 0;
+            filter: blur(8px); /* Добавляем размытие для бесшовности */
         }
         
         .picker-scroll-area.dragging { cursor: grabbing; }
@@ -790,26 +795,28 @@
                 const { preferredValue = null, smooth = true, emitChange = true, pulse = false } = options;
                 const host = this.container.parentElement;
             
-                // 1. Начинаем анимацию "проявления": скрываем контент
+                // Сбрасываем инерцию, чтобы новый список не "улетел"
+                this.velocity = 0;
+                this.targetScrollY = null;
+            
+                // Включаем блюр и прозрачность
                 host.classList.add('updating-content');
             
+                // Минимальная задержка 10мс, чтобы браузер успел отрисовать состояние opacity: 0
                 setTimeout(() => {
                     const fallbackIndex = 0;
-                    const preferredIndex = newItems.findIndex((item) => item.value === preferredValue);
-                    const previousValue = this.items[this.selectedIndex]?.value;
-                    const previousIndex = newItems.findIndex((item) => item.value === previousValue);
-                    const nextIndex = preferredIndex >= 0 ? preferredIndex : (previousIndex >= 0 ? previousIndex : fallbackIndex);
+                    const previousValue = preferredValue || this.items[this.selectedIndex]?.value;
+                    const nextIndex = Math.max(0, newItems.findIndex(item => item.value === previousValue));
             
                     this.items = newItems;
-                    this.render(); // Перерисовываем список
-                    this.lastVisualSelectedIndex = nextIndex;
-                    this.scrollToIndex(nextIndex, false); // Мгновенно ставим на нужную позицию пока скрыто
+                    this.render(); 
+                    
+                    // Ставим индекс мгновенно (false), пока всё скрыто блюром
+                    this.scrollToIndex(nextIndex, false); 
             
-                    if (pulse) {
-                        this.pulseRefresh();
-                    }
+                    if (pulse) this.pulseRefresh();
             
-                    // 2. Проявляем контент обратно
+                    // Убираем блюр на следующем кадре
                     requestAnimationFrame(() => {
                         host.classList.remove('updating-content');
                     });
@@ -817,7 +824,7 @@
                     if (emitChange && this.items[this.selectedIndex]) {
                         this.onChange(this.items[this.selectedIndex].value);
                     }
-                }, 50); // Короткая пауза для красоты перехода
+                }, 10); 
             }
         }
         // --- 3. APP LOGIC CONTROLLER ---
@@ -869,17 +876,26 @@
             },
 
             setGender(val) {
+                if (this.state.gender === val) return; // Защита от повторного клика
                 this.state.gender = val;
                 this.animateSwitch('gender-switch', val === 'female');
-                this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: true });
+                
+                // Дистанции не меняются от пола, просто пересчитываем очки и рекорды
                 this.calculate();
             },
-
+            
             setPool(val) {
+                if (this.state.pool === val) return;
                 this.state.pool = val;
                 this.animateSwitch('pool-switch', val === '50');
-                this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: true });
-                this.calculate();
+                
+                // Обновляем список дистанций только для комплексного плавания (где есть разница 100/200/400)
+                if (this.state.style === 'medley') {
+                    this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: true });
+                } else {
+                    // Для остальных стилей просто обновляем расчеты
+                    this.calculate();
+                }
             },
 
             animateSwitch(id, isRight) {
