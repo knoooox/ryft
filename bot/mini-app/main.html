@@ -146,6 +146,10 @@
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 30px; overflow: hidden;
             position: relative;
+
+            min-height: 160px; 
+            height: 160px;
+            
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.08),
                 inset 0 -18px 30px rgba(0,0,0,0.2),
@@ -612,22 +616,28 @@
             }
 
             render() {
-                this.container.innerHTML = '';
+                // Вместо полной очистки сразу, создаем фрагмент
+                const fragment = document.createDocumentFragment();
+                
                 const pad = document.createElement('div');
                 pad.style.height = '60px';
-                this.container.appendChild(pad);
-
+                fragment.appendChild(pad);
+            
                 this.items.forEach((item) => {
                     const el = document.createElement('div');
                     el.className = 'picker-item';
                     el.innerText = item.label;
                     el.style.height = `${this.itemHeight}px`;
-                    this.container.appendChild(el);
+                    fragment.appendChild(el);
                 });
-                
+            
                 const padBottom = document.createElement('div');
                 padBottom.style.height = '60px';
-                this.container.appendChild(padBottom);
+                fragment.appendChild(padBottom);
+            
+                // Очищаем и тут же вставляем фрагмент (минимизирует скачок высоты)
+                this.container.innerHTML = '';
+                this.container.appendChild(fragment);
             }
 
             attachEvents() {
@@ -731,22 +741,28 @@
                     const itemY = i * this.itemHeight;
                     const dist = Math.abs(this.scrollY - itemY);
                     
-                    // Вычисляем близость к центру (от 0 до 1)
-                    const proximity = Math.max(0, 1 - dist / (this.itemHeight * 2.5));
+                    // Увеличиваем зону влияния до 3.5 высот, чтобы изменения начинались раньше и шли плавнее
+                    const proximity = Math.max(0, 1 - dist / (this.itemHeight * 3.5));
                     
-                    // Плавный расчет масштаба и прозрачности
-                    let scale = 0.85 + (0.40 * Math.pow(proximity, 2));
-                    let opacity = 0.3 + (0.7 * proximity);
-                    const angle = (this.scrollY - itemY) * -0.4;
-            
-                    // Применяем стили
+                    // Используем синус для более мягкого входа в "пик" (smoothstep-like)
+                    const smoothProximity = Math.sin(proximity * Math.PI / 2);
+                    
+                    let scale = 0.82 + (0.38 * smoothProximity);
+                    let opacity = 0.25 + (0.75 * smoothProximity);
+                    const angle = (this.scrollY - itemY) * -0.3; // Уменьшил угол наклона для чистоты
+                
                     item.style.transform = `translateZ(0) rotateX(${angle}deg) scale(${scale})`;
                     item.style.opacity = opacity;
-                    
-                    // ТО САМОЕ ИЗМЕНЕНИЕ ЖИРНОСТИ:
-                    item.style.fontWeight = selectedIndex === i ? "800" : "400";
-                    
-                    item.classList.toggle('selected', selectedIndex === i);
+                
+                    // Плавная смена жирности без резкого скачка
+                    // Если очень близко к центру — 800, чуть дальше — 600, остальное — 400
+                    if (proximity > 0.8) {
+                        item.style.fontWeight = "800";
+                    } else if (proximity > 0.5) {
+                        item.style.fontWeight = "600";
+                    } else {
+                        item.style.fontWeight = "400";
+                    }
                 });
             
                 this.rafId = requestAnimationFrame(() => this.animate());
