@@ -2,565 +2,841 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RYFT FINA Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>RYFT | LIQUID OS</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* * ==========================================
+         * RYFT DESIGN SYSTEM: LIQUID DARK v2.0
+         * Core Principles: Depth, Glass, Physics
+         * ==========================================
+         */
+
         :root {
-    --bg-color: #0f0f13;
-    --card-bg: #1c1c24;
-    --primary: #007aff;
-    --accent: #00C6FB;
-    --text-main: #ffffff;
-    --text-sec: #8e8e93;
-    --danger: #ff3b30;
-    --success: #34c759;
-    --picker-height: 150px;
-    --item-height: 40px;
-}
+            --bg-deep: #000000;
+            --bg-surface: #0a0a0a;
+            --glass-light: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --text-tertiary: rgba(255, 255, 255, 0.2);
+            --accent-glow: 0 0 20px rgba(255, 255, 255, 0.1);
+            --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
+        /* --- GLOBAL RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            background: var(--bg-deep); color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: flex; flex-direction: column;
+            user-select: none; -webkit-user-select: none;
+        }
 
-body {
-    margin: 0;
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    overflow: hidden; /* Prevent body scroll */
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
+        /* --- BACKGROUND FX --- */
+        .scene-fx {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none;
+            background: radial-gradient(120% 120% at 50% -10%, #1a1a1a 0%, #000 70%);
+        }
+        .noise-layer {
+            position: fixed; inset: 0; opacity: 0.04; z-index: 0;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            pointer-events: none;
+        }
 
-.app-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    overflow-y: auto;
-    padding-bottom: 100px; /* Space for button */
-}
+        /* --- APP LAYOUT --- */
+        .app-container {
+            flex: 1; display: flex; flex-direction: column;
+            padding: 20px 0; max-width: 600px; margin: 0 auto; width: 100%;
+            position: relative; z-index: 1;
+        }
 
-/* HEADER */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+        /* --- 1. FINA DISPLAY (THE ODOMETER) --- */
+        .fina-section {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            min-height: 200px; perspective: 1000px;
+        }
+        
+        .fina-wrapper {
+            position: relative; text-align: center;
+            transform-style: preserve-3d;
+            transition: transform 0.5s var(--ease-elastic);
+        }
 
-.brand {
-    font-weight: 800;
-    font-size: 20px;
-    letter-spacing: 1px;
-}
+        .fina-number {
+            font-family: 'Inter', sans-serif;
+            font-size: 110px; font-weight: 900;
+            letter-spacing: -6px; line-height: 0.9;
+            background: linear-gradient(180deg, #fff 20%, #666 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 10px 30px rgba(255,255,255,0.05));
+            font-variant-numeric: tabular-nums;
+        }
 
-.brand .accent {
-    color: var(--accent);
-}
+        .fina-badge {
+            margin-top: 15px; padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--text-secondary);
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+        }
+        .fina-badge.active { background: #fff; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
 
-/* POINTS DISPLAY */
-.points-display {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
-}
+        /* --- 2. CONTROLS AREA --- */
+        .controls-section {
+            padding: 0 24px 30px; display: flex; flex-direction: column; gap: 24px;
+        }
 
-.points-circle {
-    width: 180px;
-    height: 180px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        /* --- SEGMENTED TABS (Pool / Gender) --- */
+        .tabs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        .segment-container {
+            background: var(--glass-light);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px; padding: 4px; display: flex;
+            position: relative; overflow: hidden;
+        }
+        .segment-btn {
+            flex: 1; padding: 12px 0; text-align: center;
+            font-size: 11px; font-weight: 800; color: var(--text-secondary);
+            position: relative; z-index: 2; transition: color 0.3s;
+            cursor: pointer;
+        }
+        .segment-btn.active { color: #000; }
+        
+        /* Плавающая подложка (Glider) */
+        .segment-glider {
+            position: absolute; top: 4px; left: 4px; bottom: 4px; width: calc(50% - 4px);
+            background: #fff; border-radius: 14px; z-index: 1;
+            transition: transform 0.4s var(--ease-smooth);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .segment-container[data-state="1"] .segment-glider { transform: translateX(100%); } /* Shift right */
 
-.points-circle svg {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-}
+        /* --- 3D WHEEL PICKERS (BARRELS) --- */
+        /* Это сердце интерфейса. Свой CSS-3D движок */
+        .wheels-container {
+            display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px;
+            height: 160px; position: relative;
+        }
 
-.points-circle circle {
-    fill: none;
-    stroke: url(#grad);
-    stroke-width: 4;
-    stroke-dasharray: 283;
-    stroke-dashoffset: 0; /* Can be animated */
-    filter: drop-shadow(0 0 10px rgba(0, 198, 251, 0.3));
-}
+        .picker-column {
+            background: var(--glass-light);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px; overflow: hidden;
+            position: relative;
+            /* Маска для эффекта затухания сверху и снизу */
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        }
 
-.points-content {
-    text-align: center;
-    z-index: 2;
-    width: 80%; /* Limit width to prevent cutoff */
-}
+        /* Визуальный центр (линза) */
+        .picker-highlight {
+            position: absolute; top: 50%; left: 0; width: 100%; height: 40px;
+            margin-top: -20px;
+            background: rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            pointer-events: none; z-index: 10;
+        }
 
-#fina-score {
-    display: block;
-    font-size: 48px;
-    font-weight: 800;
-    line-height: 1;
-    background: linear-gradient(135deg, #fff 0%, #a5f3fc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    white-space: nowrap;
-    overflow: visible;
-}
+        .picker-scroll-area {
+            height: 100%; width: 100%;
+            cursor: grab; touch-action: none; /* Отключаем нативный скролл */
+            transform-style: preserve-3d;
+        }
 
-.points-content small {
-    color: var(--text-sec);
-    font-size: 10px;
-    letter-spacing: 2px;
-    font-weight: 600;
-}
+        .picker-item {
+            height: 40px; display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 600; color: var(--text-secondary);
+            transition: 0.2s; transform-origin: center center;
+            will-change: transform, opacity;
+        }
+        .picker-item.selected { 
+            color: #fff; font-weight: 800; font-size: 17px; 
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
 
-/* INPUT SECTION */
-.input-section {
-    margin-bottom: 25px;
-}
+        /* --- TIME INPUT (SPLIT SYSTEM) --- */
+        .time-input-wrapper {
+            background: var(--glass-light);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 20px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            position: relative;
+            transition: 0.3s;
+        }
+        .time-input-wrapper:focus-within {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 0 30px rgba(255,255,255,0.05);
+        }
 
-.time-input-wrapper {
-    position: relative;
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 15px;
-    text-align: center;
-    border: 1px solid rgba(255,255,255,0.05);
-    transition: border-color 0.3s;
-}
+        .time-field {
+            width: 70px; text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 36px; font-weight: 700; color: #fff;
+            background: transparent; border: none; padding: 0;
+            border-bottom: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .time-field:focus { border-bottom-color: #fff; }
+        .time-field::placeholder { color: var(--text-tertiary); }
+        
+        .time-divider { font-size: 24px; color: var(--text-tertiary); font-weight: 300; margin-top: -5px; }
 
-.time-input-wrapper:focus-within {
-    border-color: var(--accent);
-}
+        /* --- BOTTOM BUTTON --- */
+        .btn-norms {
+            width: 100%; padding: 22px;
+            background: #fff; color: #000;
+            border: none; border-radius: 22px;
+            font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 10px 40px rgba(255,255,255,0.1);
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .btn-norms:active { transform: scale(0.96); }
 
-#time-input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 32px;
-    text-align: center;
-    font-family: 'Courier New', monospace; /* Monospace for numbers */
-    font-weight: bold;
-    outline: none;
-    caret-color: var(--accent);
-}
+        /* --- SHEET (NORMS) --- */
+        .sheet-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            opacity: 0; visibility: hidden; transition: 0.4s; z-index: 99;
+        }
+        .sheet-backdrop.active { opacity: 1; visibility: visible; }
 
-#time-input::placeholder {
-    color: rgba(255,255,255,0.1);
-}
+        .sheet {
+            position: fixed; left: 0; bottom: 0; width: 100%; height: 85vh;
+            background: #0f0f0f;
+            border-top: 1px solid var(--glass-highlight);
+            border-radius: 40px 40px 0 0;
+            transform: translateY(100%); transition: transform 0.5s var(--ease-smooth);
+            z-index: 100; display: flex; flex-direction: column;
+            box-shadow: 0 -20px 80px rgba(0,0,0,0.8);
+        }
+        .sheet.active { transform: translateY(0); }
 
-.time-input-wrapper label {
-    display: block;
-    font-size: 10px;
-    color: var(--text-sec);
-    margin-top: 5px;
-    letter-spacing: 1px;
-}
+        .sheet-header { padding: 30px 20px 10px; text-align: center; }
+        .sheet-handle { 
+            width: 40px; height: 5px; background: #333; border-radius: 10px; 
+            margin: 0 auto 20px; 
+        }
+        .sheet-title { font-size: 24px; font-weight: 800; letter-spacing: -1px; margin-bottom: 5px; }
+        .sheet-subtitle { font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
 
-/* PICKERS CONTAINER */
-.pickers-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+        .sheet-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+        
+        .norm-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 18px 15px; margin-bottom: 8px;
+            border-radius: 16px; border: 1px solid transparent;
+            background: rgba(255,255,255,0.02); transition: 0.3s;
+        }
+        .norm-row.achieved {
+            background: #fff; color: #000; box-shadow: 0 5px 20px rgba(255,255,255,0.1);
+        }
+        .norm-rank { font-size: 14px; font-weight: 800; text-transform: uppercase; }
+        .norm-time { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; }
+        
+        /* Прогресс бар внутри строки */
+        .norm-progress {
+            height: 3px; background: rgba(255,255,255,0.1); margin-top: 5px;
+            border-radius: 2px; overflow: hidden; display: none;
+        }
+        .norm-row.next-goal .norm-progress { display: block; }
+        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 1s; }
 
-/* SWITCHES */
-.gender-switch, .pool-switch {
-    display: flex;
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 4px;
-    position: relative;
-    height: 40px;
-}
-
-.switch-bg {
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    width: calc(50% - 4px);
-    height: 32px;
-    background: var(--accent);
-    border-radius: 8px;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.g-btn, .p-btn {
-    flex: 1;
-    background: none;
-    border: none;
-    color: var(--text-sec);
-    font-weight: 600;
-    z-index: 1;
-    transition: color 0.3s;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.g-btn.active, .p-btn.active {
-    color: #000;
-}
-
-/* Logic to move background */
-.gender-switch[data-state="f"] .switch-bg, 
-.pool-switch[data-state="25"] .switch-bg {
-    transform: translateX(100%);
-}
-
-/* SCROLL PICKERS */
-.scroll-pickers-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 10px;
-}
-
-.picker-column {
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 10px 0;
-    text-align: center;
-    position: relative;
-}
-
-.picker-label {
-    font-size: 10px;
-    color: var(--text-sec);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.ios-picker {
-    height: var(--picker-height);
-    overflow-y: scroll;
-    scroll-snap-type: y mandatory;
-    position: relative;
-    /* Hide scrollbar */
-    scrollbar-width: none; 
-    -ms-overflow-style: none;
-}
-.ios-picker::-webkit-scrollbar { display: none; }
-
-.picker-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    padding-top: calc(var(--picker-height) / 2 - var(--item-height) / 2);
-    padding-bottom: calc(var(--picker-height) / 2 - var(--item-height) / 2);
-    transition: opacity 0.2s ease;
-}
-
-.picker-list.fading {
-    opacity: 0;
-}
-
-.picker-item {
-    height: var(--item-height);
-    line-height: var(--item-height);
-    scroll-snap-align: center;
-    font-size: 16px;
-    color: var(--text-sec);
-    transition: all 0.2s;
-    opacity: 0.5;
-    transform: scale(0.9);
-}
-
-.picker-item.selected {
-    color: white;
-    font-weight: bold;
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-.picker-highlight {
-    position: absolute;
-    top: 50%;
-    left: 10px;
-    right: 10px;
-    height: 40px;
-    margin-top: -5px; /* Adjust for label offset */
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
-    pointer-events: none;
-}
-
-/* BUTTON */
-.main-action-btn {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    padding: 18px;
-    border-radius: 20px;
-    font-size: 18px;
-    font-weight: 800;
-    box-shadow: 0 10px 30px rgba(0, 198, 251, 0.3);
-    transition: transform 0.1s;
-    z-index: 10;
-}
-
-.main-action-btn:active {
-    transform: scale(0.96);
-}
-
-/* BOTTOM SHEET */
-.bottom-sheet-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    z-index: 99;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-}
-
-.bottom-sheet-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.bottom-sheet {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    background: #24242e;
-    border-radius: 30px 30px 0 0;
-    z-index: 100;
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.1, 0.7, 0.1, 1);
-    padding-bottom: 40px;
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-}
-
-.bottom-sheet.active {
-    transform: translateY(0);
-}
-
-.sheet-handle-area {
-    width: 100%;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: grab;
-}
-
-.sheet-handle {
-    width: 40px;
-    height: 5px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 10px;
-}
-
-.sheet-content {
-    padding: 0 25px 25px;
-}
-
-.rank-badge {
-    text-align: center;
-    font-size: 36px;
-    font-weight: 900;
-    margin: 10px 0 20px;
-    color: white;
-    text-shadow: 0 0 20px rgba(255,255,255,0.2);
-}
-
-/* PROGRESS */
-.progress-section {
-    background: rgba(0,0,0,0.2);
-    border-radius: 16px;
-    padding: 15px;
-    margin-bottom: 25px;
-}
-
-.progress-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-sec);
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-.progress-track {
-    height: 8px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent), var(--primary));
-    border-radius: 4px;
-    transition: width 1s ease-out;
-}
-
-.progress-info {
-    text-align: right;
-    font-size: 11px;
-    color: var(--accent);
-}
-
-/* DETAILS GRID */
-.details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.detail-item {
-    background: rgba(255,255,255,0.03);
-    padding: 12px;
-    border-radius: 12px;
-}
-
-.d-label {
-    display: block;
-    font-size: 10px;
-    color: var(--text-sec);
-    margin-bottom: 4px;
-}
-
-.d-value {
-    display: block;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.d-value.highlight {
-    color: var(--accent);
-}
     </style>
 </head>
 <body>
+    <div class="scene-fx"></div>
+    <div class="noise-layer"></div>
 
     <div class="app-container">
-        <header>
-            <div class="brand">RYFT <span class="accent">CALC</span></div>
-            <div class="status-dot"></div>
-        </header>
-
-        <section class="points-display">
-            <div class="points-circle">
-                <svg viewBox="0 0 100 100">
-                    <defs>
-                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#00C6FB;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#005BEA;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="50" cy="50" r="45" stroke-linecap="round" />
-                </svg>
-                <div class="points-content">
-                    <span id="fina-score">0</span>
-                    <small>FINA POINTS</small>
-                </div>
-            </div>
-        </section>
-
-        <section class="input-section">
-            <div class="time-input-wrapper">
-                <input type="tel" id="time-input" placeholder="00:00.00" autocomplete="off">
-                <label for="time-input">ВРЕМЯ ЗАПЛЫВА</label>
-            </div>
-        </section>
-
-        <section class="pickers-container">
-            
-            <div class="gender-switch">
-                <div class="switch-bg"></div>
-                <button class="g-btn active" data-gender="m">М</button>
-                <button class="g-btn" data-gender="f">Ж</button>
-            </div>
-
-            <div class="pool-switch">
-                <div class="switch-bg"></div>
-                <button class="p-btn active" data-pool="50">50м</button>
-                <button class="p-btn" data-pool="25">25м</button>
-            </div>
-
-            <div class="scroll-pickers-row">
-                <div class="picker-column">
-                    <div class="picker-label">СТИЛЬ</div>
-                    <div class="ios-picker" id="picker-style">
-                        <div class="picker-highlight"></div>
-                        <ul class="picker-list">
-                            </ul>
-                    </div>
-                </div>
-
-                <div class="picker-column">
-                    <div class="picker-label">ДИСТАНЦИЯ</div>
-                    <div class="ios-picker" id="picker-dist">
-                        <div class="picker-highlight"></div>
-                        <ul class="picker-list" id="dist-list">
-                            </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <button id="calc-btn" class="main-action-btn">
-            РАССЧИТАТЬ
-        </button>
-    </div>
-
-    <div class="bottom-sheet-overlay" id="overlay"></div>
-    <div class="bottom-sheet" id="result-sheet">
-        <div class="sheet-handle-area">
-            <div class="sheet-handle"></div>
-        </div>
         
-        <div class="sheet-content">
-            <div class="rank-badge" id="rank-badge">КМС</div>
+        <section class="fina-section">
+            <div class="fina-wrapper" id="fina-container">
+                <div class="fina-number" id="fina-value">0</div>
+            </div>
+            <div class="fina-badge" id="rank-badge">NO DATA</div>
+        </section>
+
+        <section class="controls-section">
             
-            <div class="progress-section">
-                <div class="progress-labels">
-                    <span id="current-rank-label">КМС</span>
-                    <span id="next-rank-label">МС</span>
+            <div class="tabs-row">
+                <div class="segment-container" id="gender-switch" data-state="0">
+                    <div class="segment-glider"></div>
+                    <div class="segment-btn active" onclick="app.setGender('male')">MALE</div>
+                    <div class="segment-btn" onclick="app.setGender('female')">FEMALE</div>
                 </div>
-                <div class="progress-track">
-                    <div class="progress-fill" id="progress-fill"></div>
-                </div>
-                <div class="progress-info">
-                    <span id="time-diff">До норматива: -0.45</span>
+                <div class="segment-container" id="pool-switch" data-state="0">
+                    <div class="segment-glider"></div>
+                    <div class="segment-btn active" onclick="app.setPool('25')">25M</div>
+                    <div class="segment-btn" onclick="app.setPool('50')">50M</div>
                 </div>
             </div>
 
-            <div class="details-grid">
-                <div class="detail-item">
-                    <span class="d-label">Дистанция</span>
-                    <span class="d-value" id="res-dist">100м</span>
+            <div class="wheels-container">
+                <div class="picker-column" id="style-wheel">
+                    <div class="picker-highlight"></div>
+                    <div class="picker-scroll-area" id="style-scroll">
+                        </div>
                 </div>
-                <div class="detail-item">
-                    <span class="d-label">Стиль</span>
-                    <span class="d-value" id="res-style">Вольный</span>
-                </div>
-                <div class="detail-item">
-                    <span class="d-label">Бассейн</span>
-                    <span class="d-value" id="res-pool">50м</span>
-                </div>
-                <div class="detail-item">
-                    <span class="d-label">Время</span>
-                    <span class="d-value highlight" id="res-time">54.20</span>
+                <div class="picker-column" id="dist-wheel">
+                    <div class="picker-highlight"></div>
+                    <div class="picker-scroll-area" id="dist-scroll">
+                        </div>
                 </div>
             </div>
-        </div>
+
+            <div class="time-input-wrapper">
+                <input type="tel" class="time-field" id="inp-min" placeholder="00" maxlength="2">
+                <span class="time-divider">:</span>
+                <input type="tel" class="time-field" id="inp-sec" placeholder="00" maxlength="2">
+                <span class="time-divider">.</span>
+                <input type="tel" class="time-field" id="inp-ms" placeholder="00" maxlength="2">
+            </div>
+
+            <button class="btn-norms" onclick="app.openSheet()">View Standards</button>
+
+        </section>
     </div>
 
-    <script src="script.js"></script>
+    <div class="sheet-backdrop" id="backdrop" onclick="app.closeSheet()"></div>
+    <div class="sheet" id="sheet">
+        <div class="sheet-header">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">STANDARDS</div>
+            <div class="sheet-subtitle" id="sheet-sub">MALE • 25M • FREESTYLE • 100M</div>
+        </div>
+        <div class="sheet-scroll" id="norms-list">
+            </div>
+    </div>
+
+    <script>
+        /* * ========================================================
+         * RYFT ENGINE CORE v4.0
+         * Includes: Database, Physics Engine, Logic, Haptics
+         * Character count optimized for functionality
+         * ========================================================
+         */
+
+        // --- 1. THE DATABASE (Converted from your HTML table) ---
+        // Format: DB[gender][pool][style][distance]
+        const DB = {
+            male: {
+                "25": {
+                    freestyle: {
+                        "50": { rec: 19.9, msmk: 21.18, ms: 22.45, kms: 23.2, i: 24.45, ii: 26.85, iii: 29.05, i_j: 35.05, ii_j: 45.05, iii_j: 55.05 },
+                        "100": { rec: 44.84, msmk: 46.72, ms: 50, kms: 53.3, i: 56.7, ii: 63.1, iii: 70.6, i_j: 83.1, ii_j: 103.1, iii_j: 123.1 },
+                        "200": { rec: 98.61, msmk: 103.02, ms: 110.95, kms: 117.45, i: 125.7, ii: 140.2, iii: 158.7, i_j: 184.2, ii_j: 225, iii_j: 264.2 },
+                        "400": { rec: 212.25, msmk: 220.94, ms: 236, kms: 248.5, i: 265, ii: 300, iii: 341, i_j: 397, ii_j: 453, iii_j: 509 },
+                        "800": { rec: 440.46, msmk: 462.7, ms: 497, kms: 530, i: 564, ii: 662, iii: 744, i_j: 866, ii_j: 986, iii_j: 1106 },
+                        "1500": { rec: 846.88, msmk: 884.74, ms: 928.5, kms: 1026.5, i: 1085, ii: 1227.5, iii: 1407.5, i_j: 1650, ii_j: 1890, iii_j: 2130 }
+                    },
+                    backstroke: {
+                        "50": { rec: 22.11, msmk: 23.29, ms: 25.89, kms: 27.35, i: 29.35, ii: 32.05, iii: 35.55, i_j: 41.55, ii_j: 51.55, iii_j: 61.55 },
+                        "100": { rec: 48.33, msmk: 50.54, ms: 57, kms: 60.4, i: 64.4, ii: 72.6, iii: 81.1, i_j: 93.6, ii_j: 116.1, iii_j: 136.1 },
+                        "200": { rec: 105.63, msmk: 112.45, ms: 124.75, kms: 131.45, i: 139.2, ii: 156.2, iii: 176.2, i_j: 204.2, ii_j: 250.2, iii_j: 290.2 }
+                    },
+                    breaststroke: {
+                        "50": { rec: 24.95, msmk: 26.28, ms: 28.25, kms: 30, i: 31.65, ii: 35.05, iii: 38.55, i_j: 45.05, ii_j: 55.05, iii_j: 65.05 },
+                        "100": { rec: 55.28, msmk: 57.34, ms: 63, kms: 66.9, i: 71.4, ii: 80.1, iii: 88.1, i_j: 104.1, ii_j: 123.1, iii_j: 143.1 },
+                        "200": { rec: 120.16, msmk: 125.56, ms: 138.45, kms: 146.45, i: 156.45, ii: 175.7, iii: 198.7, i_j: 231.6, ii_j: 264.6, iii_j: 304.6 }
+                    },
+                    butterfly: {
+                        "50": { rec: 21.32, msmk: 22.52, ms: 23.95, kms: 24.95, i: 26.95, ii: 30.05, iii: 33.05, i_j: 38.05, ii_j: 48.05, iii_j: 58.05 },
+                        "100": { rec: 47.71, msmk: 50.15, ms: 54, kms: 58, i: 61.5, ii: 70.1, iii: 80.1, i_j: 90.1, ii_j: 109.1, iii_j: 121.1 },
+                        "200": { rec: 106.85, msmk: 112.45, ms: 122.95, kms: 129.95, i: 137.95, ii: 156.7, iii: 177.2, i_j: 201.2, ii_j: 236.2, iii_j: 276.2 }
+                    },
+                    medley: {
+                        "100": { rec: 49.28, msmk: 52.57, ms: 56.5, kms: 61.5, i: 65.5, ii: 73.6, iii: 83.6, i_j: 94.6, ii_j: 113.6, iii_j: 133.6 },
+                        "200": { rec: 108.88, msmk: 114.17, ms: 125.95, kms: 134.45, i: 141.95, ii: 158.95, iii: 184.2, i_j: 209.2, ii_j: 244.2, iii_j: 284.2 },
+                        "400": { rec: 234.81, msmk: 246.68, ms: 268, kms: 283, i: 302, ii: 343, iii: 391, i_j: 446, ii_j: 502, iii_j: 558 }
+                    }
+                },
+                "50": {
+                    freestyle: {
+                        "50": { rec: 20.91, msmk: 21.91, ms: 23.2, kms: 23.95, i: 25.2, ii: 27.6, iii: 29.8, i_j: 35.8, ii_j: 45.8, iii_j: 55.8 },
+                        "100": { rec: 46.4, msmk: 48.25, ms: 51.5, kms: 54.9, i: 58.3, ii: 64.6, iii: 72.1, i_j: 84.6, ii_j: 104.6, iii_j: 124.6 },
+                        "200": { rec: 102, msmk: 106.5, ms: 113.95, kms: 120.65, i: 128.95, ii: 143.2, iii: 161.7, i_j: 187.2, ii_j: 227.2, iii_j: 267.2 },
+                        "400": { rec: 219.96, msmk: 227.71, ms: 242, kms: 254.5, i: 271, ii: 306, iii: 347, i_j: 403, ii_j: 459, iii_j: 515 },
+                        "800": { rec: 452.12, msmk: 472.6, ms: 505, kms: 538, i: 577, ii: 674, iii: 756, i_j: 878, ii_j: 998, iii_j: 1118 },
+                        "1500": { rec: 870.67, msmk: 906.19, ms: 951, kms: 1049, i: 1109, ii: 1250, iii: 1430, i_j: 1672.5, ii_j: 1912.5, iii_j: 2152.5 }
+                    },
+                    backstroke: {
+                        "50": { rec: 23.55, msmk: 24.85, ms: 26.65, kms: 28.15, i: 29.95, ii: 32.8, iii: 36.3, i_j: 42.3, ii_j: 52.3, iii_j: 62.3 },
+                        "100": { rec: 51.6, msmk: 53.72, ms: 58.5, kms: 62, i: 66, ii: 74.1, iii: 82.6, i_j: 95.1, ii_j: 117.6, iii_j: 137.6 },
+                        "200": { rec: 111.92, msmk: 117.3, ms: 127.75, kms: 135.45, i: 142.45, ii: 158.2, iii: 179.2, i_j: 207.2, ii_j: 253.2, iii_j: 293.2 }
+                    },
+                    breaststroke: {
+                        "50": { rec: 25.95, msmk: 27.22, ms: 29, kms: 30.5, i: 32.4, ii: 35.8, iii: 39.3, i_j: 45.8, ii_j: 55.8, iii_j: 65.8 },
+                        "100": { rec: 56.88, msmk: 59.91, ms: 64.5, kms: 68.5, i: 73, ii: 81.6, iii: 89.6, i_j: 105.6, ii_j: 124.6, iii_j: 144.6 },
+                        "200": { rec: 125.48, msmk: 129.97, ms: 141.45, kms: 149.45, i: 159.45, ii: 178.7, iii: 201.7, i_j: 234.2, ii_j: 267.2, iii_j: 307.2 }
+                    },
+                    butterfly: {
+                        "50": { rec: 22.27, msmk: 23.27, ms: 24.7, kms: 25.7, i: 27.7, ii: 30.8, iii: 33.8, i_j: 38.8, ii_j: 48.8, iii_j: 58.8 },
+                        "100": { rec: 49.45, msmk: 51.62, ms: 55.5, kms: 59.5, i: 63, ii: 71.6, iii: 81.6, i_j: 91.6, ii_j: 110.6, iii_j: 130.6 },
+                        "200": { rec: 110.34, msmk: 116.23, ms: 125.95, kms: 133.95, i: 140.95, ii: 159.7, iii: 180.2, i_j: 204.2, ii_j: 239.2, iii_j: 279.2 }
+                    },
+                    medley: {
+                        "200": { rec: 112.69, msmk: 118.59, ms: 129.75, kms: 137.25, i: 145.75, ii: 164, iii: 188, i_j: 213, ii_j: 248, iii_j: 288 },
+                        "400": { rec: 242.5, msmk: 253.76, ms: 274, kms: 288, i: 307, ii: 348, iii: 397, i_j: 452, ii_j: 508, iii_j: 564 }
+                    }
+                }
+            },
+            female: {
+                "25": {
+                    freestyle: {
+                        "50": { rec: 22.83, msmk: 24.13, ms: 25.75, kms: 26.55, i: 27.85, ii: 30.55, iii: 32.55, i_j: 39.55, ii_j: 49.55, iii_j: 59.05 },
+                        "100": { rec: 50.25, msmk: 52.68, ms: 56, kms: 60, i: 63.84, ii: 71.4, iii: 79.1, i_j: 93.1, ii_j: 113.1, iii_j: 132.1 },
+                        "200": { rec: 110.31, msmk: 115.02, ms: 123.45, kms: 131.75, i: 140.45, ii: 156.2, iii: 174.2, i_j: 205.2, ii_j: 245.2, iii_j: 283.2 },
+                        "400": { rec: 230.25, msmk: 243.32, ms: 260, kms: 270, i: 292, ii: 334, iii: 378, i_j: 449, ii_j: 520, iii_j: 591 },
+                        "800": { rec: 477.42, msmk: 503.99, ms: 540, kms: 570, i: 611, ii: 702, iii: 795, i_j: 960, ii_j: 1110, iii_j: 1260 },
+                        "1500": { rec: 908.24, msmk: 972.06, ms: 1032.5, kms: 1101.5, i: 1204.5, ii: 1354.5, iii: 1557.5, i_j: 1805, ii_j: 2050, iii_j: 2300 }
+                    },
+                    backstroke: {
+                        "50": { rec: 25.23, msmk: 26.57, ms: 28.65, kms: 29.85, i: 31.55, ii: 36.55, iii: 40.55, i_j: 47.05, ii_j: 57.05, iii_j: 67.05 },
+                        "100": { rec: 54.02, msmk: 57.36, ms: 63.6, kms: 68.5, i: 73, ii: 81.1, iii: 91.1, i_j: 105.1, ii_j: 128.1, iii_j: 148.1 },
+                        "200": { rec: 118.04, msmk: 125.15, ms: 137.95, kms: 145.95, i: 154.95, ii: 174.2, iii: 196.2, i_j: 230.2, ii_j: 275.2, iii_j: 315.2 }
+                    },
+                    breaststroke: {
+                        "50": { rec: 28.37, msmk: 30.04, ms: 32.45, kms: 34.25, i: 35.95, ii: 40.05, iii: 44.05, i_j: 51.55, ii_j: 61.55, iii_j: 71.55 },
+                        "100": { rec: 62.36, msmk: 65.05, ms: 72, kms: 76, i: 81, ii: 89.6, iii: 101.6, i_j: 126.1, ii_j: 136.1, iii_j: 157.1 },
+                        "200": { rec: 132.5, msmk: 141.34, ms: 154.45, kms: 163.45, i: 173.95, ii: 194.2, iii: 219.6, i_j: 256.6, ii_j: 291.6, iii_j: 333.2 }
+                    },
+                    butterfly: {
+                        "50": { rec: 23.94, msmk: 25.62, ms: 27.3, kms: 28.45, i: 30.95, ii: 33.55, iii: 36.55, i_j: 43.55, ii_j: 53.55, iii_j: 63.55 },
+                        "100": { rec: 52.71, msmk: 57.16, ms: 61.5, kms: 65, i: 69.5, ii: 79.1, iii: 90.1, i_j: 102.1, ii_j: 121.1, iii_j: 141.1 },
+                        "200": { rec: 119.32, msmk: 127.15, ms: 136.95, kms: 144.45, i: 154.45, ii: 175.2, iii: 198.2, i_j: 225.2, ii_j: 261.2, iii_j: 301.2 }
+                    },
+                    medley: {
+                        "100": { rec: 55.11, msmk: 59.56, ms: 64.5, kms: 69.5, i: 74.5, ii: 83.6, iii: 94.6, i_j: 106.6, ii_j: 125.6, iii_j: 165.6 },
+                        "200": { rec: 121.63, msmk: 128.11, ms: 140.95, kms: 149.45, i: 158.95, ii: 179.2, iii: 205.2, i_j: 234.2, ii_j: 270.2, iii_j: 310.2 },
+                        "400": { rec: 255.48, msmk: 275.03, ms: 298, kms: 315.5, i: 337, ii: 381, iii: 434, i_j: 495, ii_j: 566, iii_j: 637 }
+                    }
+                },
+                "50": {
+                    freestyle: {
+                        "50": { rec: 23.61, msmk: 24.82, ms: 26.5, kms: 27.3, i: 28.6, ii: 31.3, iii: 33.3, i_j: 40.3, ii_j: 50.3, iii_j: 59.8 },
+                        "100": { rec: 51.71, msmk: 53.99, ms: 57.5, kms: 61.5, i: 65.34, ii: 72.9, iii: 80.6, i_j: 94.6, ii_j: 114.6, iii_j: 133.6 },
+                        "200": { rec: 112.23, msmk: 116.9, ms: 126.45, kms: 134.76, i: 143.45, ii: 158.2, iii: 177.2, i_j: 208.2, ii_j: 248.2, iii_j: 286.2 },
+                        "400": { rec: 234.18, msmk: 248.04, ms: 266, kms: 281, i: 299, ii: 340, iii: 384, i_j: 455, ii_j: 526, iii_j: 597 },
+                        "800": { rec: 484.12, msmk: 511.12, ms: 548, kms: 582, i: 623, ii: 714, iii: 807, i_j: 972, ii_j: 1122, iii_j: 1272 },
+                        "1500": { rec: 920.48, msmk: 980.88, ms: 1055, kms: 1124, i: 1227, ii: 1377, iii: 1580, i_j: 1827.5, ii_j: 2072.5, iii_j: 2322.5 }
+                    },
+                    backstroke: {
+                        "50": { rec: 26.86, msmk: 28.05, ms: 29, kms: 30.7, i: 32.3, ii: 37.3, iii: 41.3, i_j: 47.8, ii_j: 57.8, iii_j: 67.8 },
+                        "100": { rec: 57.13, msmk: 59.8, ms: 66, kms: 70, i: 74.5, ii: 82.6, iii: 92.6, i_j: 106.6, ii_j: 129.6, iii_j: 149.6 },
+                        "200": { rec: 123.14, msmk: 129.77, ms: 140.95, kms: 148.95, i: 157.95, ii: 177.2, iii: 199.2, i_j: 233.2, ii_j: 278.2, iii_j: 318 }
+                    },
+                    breaststroke: {
+                        "50": { rec: 29.16, msmk: 30.77, ms: 33.2, kms: 35, i: 36.7, ii: 40.8, iii: 44.8, i_j: 52.3, ii_j: 62.3, iii_j: 72.3 },
+                        "100": { rec: 64.13, msmk: 66.88, ms: 73.5, kms: 77.5, i: 82.5, ii: 91.1, iii: 103.1, i_j: 127.6, ii_j: 137.6, iii_j: 158.6 },
+                        "200": { rec: 137.55, msmk: 145.24, ms: 157.45, kms: 166.4, i: 176.95, ii: 197.2, iii: 222.2, i_j: 259.2, ii_j: 294.2, iii_j: 336.2 }
+                    },
+                    butterfly: {
+                        "50": { rec: 24.43, msmk: 26.03, ms: 28.05, kms: 29.2, i: 31.7, ii: 34.3, iii: 37.3, i_j: 44.3, ii_j: 54.3, iii_j: 64.3 },
+                        "100": { rec: 54.6, msmk: 58.06, ms: 63, kms: 66.5, i: 71, ii: 80.6, iii: 91.6, i_j: 103.6, ii_j: 122.6, iii_j: 142.6 },
+                        "200": { rec: 121.81, msmk: 128.9, ms: 139.95, kms: 147.45, i: 157.45, ii: 178.2, iii: 201.2, i_j: 228.2, ii_j: 264.2, iii_j: 304.2 }
+                    },
+                    medley: {
+                        "200": { rec: 125.7, msmk: 132.12, ms: 144.75, kms: 153.25, i: 162.75, ii: 183, iii: 209, i_j: 238, ii_j: 274, iii_j: 314 },
+                        "400": { rec: 263.65, msmk: 280.8, ms: 303, kms: 320.5, i: 342, ii: 387, iii: 440, i_j: 501, ii_j: 572, iii_j: 643 }
+                    }
+                }
+            }
+        };
+
+        const LABELS = {
+            freestyle: "FREESTYLE", backstroke: "BACKSTROKE", breaststroke: "BREASTSTROKE", butterfly: "BUTTERFLY", medley: "MEDLEY",
+            msmk: "MSMK", ms: "MS", kms: "KMS", i: "RANK I", ii: "RANK II", iii: "RANK III", 
+            i_j: "JUNIOR I", ii_j: "JUNIOR II", iii_j: "JUNIOR III"
+        };
+
+        // --- 2. PHYSICS WHEEL ENGINE ---
+        class WheelPicker {
+            constructor(elementId, items, onChange) {
+                this.container = document.getElementById(elementId);
+                this.items = items;
+                this.onChange = onChange;
+                this.itemHeight = 40;
+                this.selectedIndex = 0;
+                this.scrollY = 0;
+                this.velocity = 0;
+                this.isDragging = false;
+                this.lastY = 0;
+                this.lastTime = 0;
+                this.rafId = null;
+                
+                this.render();
+                this.attachEvents();
+                this.animate();
+            }
+
+            render() {
+                this.container.innerHTML = '';
+                // Padding for visual centering
+                const pad = document.createElement('div');
+                pad.style.height = '60px'; // (160 - 40) / 2
+                this.container.appendChild(pad);
+
+                this.items.forEach((item, idx) => {
+                    const el = document.createElement('div');
+                    el.className = 'picker-item';
+                    el.innerText = item.label;
+                    el.style.height = `${this.itemHeight}px`;
+                    this.container.appendChild(el);
+                });
+                
+                const padBottom = document.createElement('div');
+                padBottom.style.height = '60px';
+                this.container.appendChild(padBottom);
+            }
+
+            attachEvents() {
+                const start = (y) => {
+                    this.isDragging = true;
+                    this.lastY = y;
+                    this.lastTime = Date.now();
+                    this.velocity = 0;
+                    cancelAnimationFrame(this.rafId);
+                    this.animate(); // Start loop
+                };
+
+                const move = (y) => {
+                    if (!this.isDragging) return;
+                    const now = Date.now();
+                    const deltaY = y - this.lastY;
+                    const deltaTime = now - this.lastTime;
+                    
+                    this.scrollY -= deltaY;
+                    // Calculate velocity for inertia
+                    if (deltaTime > 0) this.velocity = deltaY / deltaTime * 15; // Speed multiplier
+
+                    this.lastY = y;
+                    this.lastTime = now;
+                    this.constrain();
+                };
+
+                const end = () => {
+                    this.isDragging = false;
+                };
+
+                // Touch
+                this.container.parentElement.addEventListener('touchstart', e => start(e.touches[0].clientY));
+                document.addEventListener('touchmove', e => move(e.touches[0].clientY));
+                document.addEventListener('touchend', end);
+                
+                // Mouse (for desktop debugging)
+                this.container.parentElement.addEventListener('mousedown', e => start(e.clientY));
+                document.addEventListener('mousemove', e => move(e.clientY));
+                document.addEventListener('mouseup', end);
+            }
+
+            constrain() {
+                const maxScroll = (this.items.length - 1) * this.itemHeight;
+                if (this.scrollY < -50) this.scrollY = -50; // Rubber band top
+                if (this.scrollY > maxScroll + 50) this.scrollY = maxScroll + 50; // Rubber band bottom
+            }
+
+            snap() {
+                const targetIndex = Math.round(this.scrollY / this.itemHeight);
+                const targetY = targetIndex * this.itemHeight;
+                const diff = targetY - this.scrollY;
+                
+                // Spring physics to snap
+                this.scrollY += diff * 0.1; 
+                this.velocity *= 0.8; // Dampen velocity
+
+                // Stop if close enough
+                if (Math.abs(diff) < 0.5 && Math.abs(this.velocity) < 0.1) {
+                    this.scrollY = targetY;
+                    this.velocity = 0;
+                    const prevIndex = this.selectedIndex;
+                    this.selectedIndex = Math.max(0, Math.min(this.items.length - 1, targetIndex));
+                    
+                    if (prevIndex !== this.selectedIndex) {
+                        this.onChange(this.items[this.selectedIndex].value);
+                        window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                    }
+                }
+            }
+
+            animate() {
+                if (!this.isDragging) {
+                    this.scrollY -= this.velocity;
+                    this.velocity *= 0.95; // Friction
+
+                    // If slow, start snapping
+                    if (Math.abs(this.velocity) < 0.5) {
+                        this.snap();
+                    } else {
+                         this.constrain();
+                    }
+                }
+
+                // Apply visual transform (3D effect)
+                this.container.style.transform = `translateY(${-this.scrollY}px)`;
+                
+                // 3D Rotation effect for items based on distance from center
+                const items = this.container.querySelectorAll('.picker-item');
+                items.forEach((item, i) => {
+                    const itemY = i * this.itemHeight;
+                    const dist = this.scrollY - itemY;
+                    const angle = dist * -0.5; // Rotation strength
+                    
+                    let scale = 1 - Math.abs(dist) / 500;
+                    if (scale < 0.8) scale = 0.8;
+                    
+                    let opacity = 1 - Math.abs(dist) / 150;
+                    if (opacity < 0.3) opacity = 0.3;
+
+                    item.style.transform = `rotateX(${angle}deg) scale(${scale})`;
+                    item.style.opacity = opacity;
+                    item.classList.toggle('selected', Math.round(this.scrollY / this.itemHeight) === i);
+                });
+
+                this.rafId = requestAnimationFrame(() => this.animate());
+            }
+
+            updateItems(newItems) {
+                this.items = newItems;
+                this.scrollY = 0;
+                this.selectedIndex = 0;
+                this.velocity = 0;
+                this.render();
+                this.onChange(this.items[0].value);
+            }
+        }
+
+        // --- 3. APP LOGIC CONTROLLER ---
+        const app = {
+            state: {
+                gender: 'male',
+                pool: '25',
+                style: 'freestyle',
+                dist: '50'
+            },
+            
+            stylePicker: null,
+            distPicker: null,
+
+            init() {
+                const tg = window.Telegram.WebApp;
+                tg.expand();
+                tg.headerColor = '#000000';
+                tg.backgroundColor = '#000000';
+
+                // Initialize Pickers
+                this.stylePicker = new WheelPicker('style-scroll', [
+                    {label: 'FREESTYLE', value: 'freestyle'},
+                    {label: 'BACKSTROKE', value: 'backstroke'},
+                    {label: 'BREASTSTROKE', value: 'breaststroke'},
+                    {label: 'BUTTERFLY', value: 'butterfly'},
+                    {label: 'MEDLEY', value: 'medley'}
+                ], (val) => {
+                    this.state.style = val;
+                    this.updateDistances();
+                    this.calculate();
+                });
+
+                // Init distance (empty first, filled by updateDistances)
+                this.distPicker = new WheelPicker('dist-scroll', [], (val) => {
+                    this.state.dist = val;
+                    this.calculate();
+                });
+
+                this.updateDistances();
+                this.setupInputs();
+            },
+
+            setGender(val) {
+                this.state.gender = val;
+                this.animateSwitch('gender-switch', val === 'female');
+                this.calculate();
+            },
+
+            setPool(val) {
+                this.state.pool = val;
+                this.animateSwitch('pool-switch', val === '50');
+                this.updateDistances();
+                this.calculate();
+            },
+
+            animateSwitch(id, isRight) {
+                const el = document.getElementById(id);
+                el.setAttribute('data-state', isRight ? '1' : '0');
+                const btns = el.querySelectorAll('.segment-btn');
+                btns[0].classList.toggle('active', !isRight);
+                btns[1].classList.toggle('active', isRight);
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            },
+
+            updateDistances() {
+                // Get available distances from DB
+                const distances = Object.keys(DB[this.state.gender][this.state.pool][this.state.style])
+                    .sort((a,b) => parseInt(a) - parseInt(b));
+                
+                const items = distances.map(d => ({label: `${d}m`, value: d}));
+                this.distPicker.updateItems(items);
+            },
+
+            setupInputs() {
+                const inputs = ['inp-min', 'inp-sec', 'inp-ms'];
+                inputs.forEach((id, idx) => {
+                    const el = document.getElementById(id);
+                    el.addEventListener('input', (e) => {
+                        let val = e.target.value.replace(/[^0-9]/g, '');
+                        if (id === 'inp-sec' && parseInt(val) > 59) val = '59'; // Cap seconds
+                        e.target.value = val;
+
+                        if (val.length >= 2) {
+                            if (idx < 2) document.getElementById(inputs[idx+1]).focus();
+                        }
+                        this.calculate();
+                    });
+                    
+                    el.addEventListener('keydown', (e) => {
+                        if (e.key === 'Backspace' && e.target.value === '') {
+                            if (idx > 0) document.getElementById(inputs[idx-1]).focus();
+                        }
+                    });
+                });
+            },
+
+            calculate() {
+                const min = parseInt(document.getElementById('inp-min').value) || 0;
+                const sec = parseInt(document.getElementById('inp-sec').value) || 0;
+                const ms = parseInt(document.getElementById('inp-ms').value) || 0;
+                
+                const totalSeconds = (min * 60) + sec + (ms / 100);
+                
+                if (totalSeconds === 0) {
+                    this.updateDisplay(0, "NO DATA");
+                    return;
+                }
+
+                // Retrieve Record
+                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
+                if (!data) return;
+
+                const record = data.rec;
+                let points = Math.floor(1000 * Math.pow(record / totalSeconds, 3));
+                
+                if (points > 1199) points = 1199; // Cap limit
+                if (points < 0) points = 0;
+
+                // Find Rank
+                let rank = "NO RANK";
+                const ranks = ['msmk', 'ms', 'kms', 'i', 'ii', 'iii', 'i_j', 'ii_j', 'iii_j'];
+                for (let r of ranks) {
+                    if (totalSeconds <= data[r]) {
+                        rank = LABELS[r];
+                        break;
+                    }
+                }
+                
+                this.updateDisplay(points, rank);
+            },
+
+            updateDisplay(points, rank) {
+                const display = document.getElementById('fina-value');
+                const badge = document.getElementById('rank-badge');
+                
+                // Odometer Animation
+                const start = parseInt(display.innerText);
+                if (start !== points) {
+                    this.animateValue(display, start, points, 600);
+                }
+                
+                badge.innerText = rank;
+                badge.classList.toggle('active', rank !== "NO RANK");
+            },
+
+            animateValue(obj, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    // Elastic ease out
+                    const ease = 1 - Math.pow(1 - progress, 3); 
+                    obj.innerHTML = Math.floor(ease * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            },
+
+            openSheet() {
+                const list = document.getElementById('norms-list');
+                const sub = document.getElementById('sheet-sub');
+                list.innerHTML = '';
+                
+                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
+                const min = parseInt(document.getElementById('inp-min').value) || 0;
+                const sec = parseInt(document.getElementById('inp-sec').value) || 0;
+                const ms = parseInt(document.getElementById('inp-ms').value) || 0;
+                const userTime = (min * 60) + sec + (ms / 100);
+
+                // Update subtitle
+                sub.innerText = `${this.state.gender} • ${this.state.pool}M • ${LABELS[this.state.style]} • ${this.state.dist}M`.toUpperCase();
+
+                const ranks = ['msmk', 'ms', 'kms', 'i', 'ii', 'iii', 'i_j', 'ii_j', 'iii_j'];
+                
+                ranks.forEach(r => {
+                    const time = data[r];
+                    const isDone = userTime > 0 && userTime <= time;
+                    const isNext = userTime > time && (!ranks.includes(r-1) || userTime <= data[ranks[ranks.indexOf(r)-1]]); // Simplified next logic
+                    
+                    const row = document.createElement('div');
+                    row.className = `norm-row ${isDone ? 'achieved' : ''}`;
+                    
+                    // Format time MM:SS.ms
+                    let tM = Math.floor(time / 60);
+                    let tS = Math.floor(time % 60);
+                    let tMS = Math.round((time - Math.floor(time)) * 100);
+                    const timeStr = `${tM > 0 ? tM + ':' : ''}${tS.toString().padStart(2, '0')}.${tMS.toString().padStart(2, '0')}`;
+
+                    row.innerHTML = `
+                        <div style="width:100%">
+                            <div style="display:flex; justify-content:space-between;">
+                                <span class="norm-rank">${LABELS[r]}</span>
+                                <span class="norm-time">${timeStr}</span>
+                            </div>
+                            ${(!isDone && userTime > 0 && userTime < time + 5) ? `
+                            <div class="norm-progress" style="display:block">
+                                <div class="progress-fill" style="width: ${(time/userTime)*80}%"></div>
+                            </div>` : ''}
+                        </div>
+                    `;
+                    list.appendChild(row);
+                });
+
+                document.getElementById('sheet').classList.add('active');
+                document.getElementById('backdrop').classList.add('active');
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            },
+
+            closeSheet() {
+                document.getElementById('sheet').classList.remove('active');
+                document.getElementById('backdrop').classList.remove('active');
+            }
+        };
+
+        // Boot
+        window.addEventListener('load', () => app.init());
+
+    </script>
 </body>
 </html>
