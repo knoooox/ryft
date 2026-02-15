@@ -153,6 +153,17 @@
             /* Маска для эффекта затухания сверху и снизу */
             mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            transition: transform 0.55s var(--ease-smooth), box-shadow 0.55s var(--ease-smooth), filter 0.55s var(--ease-smooth);
+        }
+
+        .picker-column.refreshing {
+            transform: translateY(-4px);
+            filter: brightness(1.08);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                inset 0 -18px 30px rgba(0,0,0,0.2),
+                0 18px 34px rgba(0,0,0,0.34),
+                0 0 24px rgba(255,255,255,0.08);
         }
 
         /* Визуальный центр (линза) */
@@ -172,13 +183,19 @@
             cursor: grab; touch-action: none; /* Отключаем нативный скролл */
             transform-style: preserve-3d;
             overscroll-behavior: contain;
+            transition: filter 0.4s var(--ease-smooth), opacity 0.4s var(--ease-smooth);
         }
         .picker-scroll-area.dragging { cursor: grabbing; }
+
+        .picker-column.refreshing .picker-scroll-area {
+            filter: saturate(1.1);
+            opacity: 0.94;
+        }
 
         .picker-item {
             height: 40px; display: flex; align-items: center; justify-content: center;
             font-size: 15px; font-weight: 600; color: var(--text-secondary);
-            transition: transform 0.2s linear, opacity 0.2s linear, color 0.24s ease;
+            transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), color 0.28s ease;
             transform-origin: center center;
             will-change: transform, opacity;
             letter-spacing: 0.2px;
@@ -186,6 +203,26 @@
         .picker-item.selected { 
             color: #fff; font-weight: 800; font-size: 17px; 
             text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .picker-item.selection-hit {
+            animation: pickerSelectionHit 0.5s var(--ease-smooth);
+        }
+
+        @keyframes pickerSelectionHit {
+            0% { transform: translateY(1px) scale(0.98); opacity: 0.74; }
+            55% { transform: translateY(-2px) scale(1.05); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .fina-wrapper.value-refresh {
+            animation: valueRefreshPulse 0.58s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes valueRefreshPulse {
+            0% { transform: translateY(0) scale(1); filter: brightness(1); }
+            42% { transform: translateY(-5px) scale(1.012); filter: brightness(1.08); }
+            100% { transform: translateY(0) scale(1); filter: brightness(1); }
         }
 
         /* --- TIME INPUT (SPLIT SYSTEM) --- */
@@ -527,6 +564,8 @@
                 this.maxOverScroll = this.itemHeight * 0.12;
                 this.targetScrollY = null;
                 this.isProgrammaticScroll = false;
+                this.lastVisualSelectedIndex = 0;
+                this.refreshFxTimer = null;
                 this.render();
                 this.attachEvents();
                 this.animate();
@@ -556,6 +595,15 @@
                     this.targetScrollY = null;
                     this.isProgrammaticScroll = false;
                 }
+            }
+
+            pulseRefresh() {
+                const wheel = this.container.parentElement;
+                wheel.classList.remove('refreshing');
+                void wheel.offsetWidth;
+                wheel.classList.add('refreshing');
+                if (this.refreshFxTimer) clearTimeout(this.refreshFxTimer);
+                this.refreshFxTimer = setTimeout(() => wheel.classList.remove('refreshing'), 520);
             }
 
             render() {
@@ -641,9 +689,9 @@
                 if (!this.isDragging) {
                     if (this.targetScrollY !== null) {
                         const diff = this.targetScrollY - this.scrollY;
-                        const easing = this.isProgrammaticScroll ? 0.1 : 0.16;
+                        const easing = this.isProgrammaticScroll ? 0.085 : 0.18;
                         this.scrollY += diff * easing;
-                        this.velocity *= 0.72;
+                        this.velocity *= 0.76;
 
                         if (Math.abs(diff) < 0.15) {
                             this.scrollY = this.targetScrollY;
@@ -653,7 +701,7 @@
                         }
                     } else {
                         this.scrollY -= this.velocity;
-                        this.velocity *= 0.82;
+                        this.velocity *= 0.86;
 
                         if (Math.abs(this.velocity) < 0.08) {
                             this.velocity = 0;
@@ -662,7 +710,7 @@
 
                         if (this.scrollY < 0 || this.scrollY > this.maxScroll) {
                             this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
-                            this.velocity *= 0.62;
+                            this.velocity *= 0.66;
                         }
                     }
                 }
@@ -672,6 +720,16 @@
 
                 const selectedIndex = this.getClosestIndex();
                 const items = this.container.querySelectorAll('.picker-item');
+
+                if (selectedIndex !== this.lastVisualSelectedIndex) {
+                    const selectedItem = items[selectedIndex];
+                    if (selectedItem) {
+                        selectedItem.classList.remove('selection-hit');
+                        void selectedItem.offsetWidth;
+                        selectedItem.classList.add('selection-hit');
+                    }
+                    this.lastVisualSelectedIndex = selectedIndex;
+                }
                 items.forEach((item, i) => {
                     const itemY = i * this.itemHeight;
                     const dist = this.scrollY - itemY;
@@ -692,7 +750,7 @@
             }
 
             updateItems(newItems, options = {}) {
-                const { preferredValue = null, smooth = true, emitChange = true } = options;
+                const { preferredValue = null, smooth = true, emitChange = true, pulse = false } = options;
                 const fallbackIndex = 0;
                 const preferredIndex = newItems.findIndex((item) => item.value === preferredValue);
                 const previousValue = this.items[this.selectedIndex]?.value;
@@ -701,7 +759,12 @@
 
                 this.items = newItems;
                 this.render();
+                this.lastVisualSelectedIndex = nextIndex;
                 this.scrollToIndex(nextIndex, smooth);
+
+                if (pulse) {
+                    this.pulseRefresh();
+                }
 
                 if (emitChange && this.items[this.selectedIndex]) {
                     this.onChange(this.items[this.selectedIndex].value);
@@ -742,7 +805,7 @@
                     {label: LABELS.medley, value: 'medley'}
                 ], (val) => {
                     this.state.style = val;
-                    this.updateDistances({ smooth: false, allowScrollAnchor: false });
+                    this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: false });
                     this.calculate();
                 });
 
@@ -752,7 +815,7 @@
                     this.calculate();
                 });
 
-                this.updateDistances({ smooth: false, allowScrollAnchor: false });
+                this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: false });
                 this.setupInputs();
                 this.setupSheetGesture();
             },
@@ -760,14 +823,14 @@
             setGender(val) {
                 this.state.gender = val;
                 this.animateSwitch('gender-switch', val === 'female');
-                this.updateDistances({ smooth: true, allowScrollAnchor: false });
+                this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: true });
                 this.calculate();
             },
 
             setPool(val) {
                 this.state.pool = val;
                 this.animateSwitch('pool-switch', val === '50');
-                this.updateDistances({ smooth: true, allowScrollAnchor: false });
+                this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: true });
                 this.calculate();
             },
 
@@ -781,7 +844,7 @@
             },
 
             updateDistances(options = {}) {
-                const { smooth = true, allowScrollAnchor = true } = options;
+                const { smooth = true, allowScrollAnchor = true, pulse = false } = options;
                 const distances = Object.keys(DB[this.state.gender][this.state.pool][this.state.style])
                     .sort((a,b) => parseInt(a) - parseInt(b));
                 
@@ -789,7 +852,8 @@
                 this.distPicker.updateItems(items, {
                     preferredValue: this.state.dist,
                     smooth,
-                    emitChange: true
+                    emitChange: true,
+                    pulse
                 });
 
                 if (allowScrollAnchor && this.isSheetOpen) {
@@ -956,11 +1020,15 @@
             updateDisplay(points, rank) {
                 const display = document.getElementById('fina-value');
                 const badge = document.getElementById('rank-badge');
-                
+                const wrapper = document.getElementById('fina-container');
+
                 // Odometer Animation
                 const start = parseInt(display.innerText);
                 if (start !== points) {
-                    this.animateValue(display, start, points, 600);
+                    wrapper.classList.remove('value-refresh');
+                    void wrapper.offsetWidth;
+                    wrapper.classList.add('value-refresh');
+                    this.animateValue(display, start, points, 720);
                 }
                 
                 badge.innerText = rank;
