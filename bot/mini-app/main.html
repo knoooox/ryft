@@ -142,42 +142,40 @@
         }
 
         .picker-column {
-            /* Используем чистый черный фон для максимального контраста маски */
             background: #000000; 
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.05); /* Еще тоньше, чтобы не бликовало */
             border-radius: 30px; 
             overflow: hidden;
             position: relative;
             min-height: 160px; 
             height: 160px;
             
+            /* Усиливаем тени: 60px создадут глубокое перекрытие сверху и снизу */
             box-shadow:
-                /* Внутренние тени: зеркально одинаковые значения (25px и -25px) */
-                inset 0 30px 30px rgba(0,0,0,1),  /* Сверху: полная темнота */
-                inset 0 -30px 30px rgba(0,0,0,1), /* Снизу: полная темнота */
-                /* Внешняя тень для объема самого блока */
-                0 14px 30px rgba(0,0,0,0.4);
+                inset 0 60px 50px -10px rgba(0,0,0,1), 
+                inset 0 -60px 50px -10px rgba(0,0,0,1);
         
-            /* Симметричная маска: теперь она идеально растворяет текст в черном фоне */
+            /* Маска стала жестче: прозрачность начинается раньше (35-65 вместо 25-75) */
             -webkit-mask-image: linear-gradient(
                 to bottom, 
                 transparent 0%, 
-                black 25%, 
-                black 75%, 
+                rgba(0,0,0,0.2) 15%,
+                black 35%, 
+                black 65%, 
+                rgba(0,0,0,0.2) 85%,
                 transparent 100%
             );
             mask-image: linear-gradient(
                 to bottom, 
                 transparent 0%, 
-                black 25%, 
-                black 75%, 
+                rgba(0,0,0,0.2) 15%,
+                black 35%, 
+                black 65%, 
+                rgba(0,0,0,0.2) 85%,
                 transparent 100%
             );
         
-            transition: 
-                transform 0.55s var(--ease-smooth), 
-                box-shadow 0.55s var(--ease-smooth), 
-                filter 0.55s var(--ease-smooth);
+            transition: transform 0.55s var(--ease-smooth);
         }
 
         .picker-column.refreshing {
@@ -1257,12 +1255,13 @@
                 const list = document.getElementById('norms-list');
                 
                 requestAnimationFrame(() => {
-                    // Если время не введено или результат входит в "Топ-6" (лучше III взрослого)
-                    if (!userTime || userTime <= data['iii']) {
+                    // ИСПРАВЛЕНИЕ: Приоритет всегда отдаем конкретной строке (anchorRow).
+                    // Скроллим в начало (top: 0) только если время не введено вообще.
+                    if (anchorRow) {
+                        // block: 'center' лучше, чем 'start', так как разряд будет по центру экрана
+                        anchorRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                    } else {
                         list.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else if (anchorRow) {
-                        // Если юношеский разряд — скроллим к нему
-                        anchorRow.scrollIntoView({ block: 'start', behavior: 'smooth' });
                     }
                 });
             
