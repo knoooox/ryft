@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>RYFT | Liquid Calc</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --accent: #fff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Эффект шума и свечения */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.03; z-index: 100; pointer-events: none;
+        }
+
+        .container {
+            display: flex; flex-direction: column; height: 100vh;
+            padding: 40px 20px 20px;
+        }
+
+        /* 1. Блок очков FINA */
+        .fina-header {
+            text-align: center; margin-bottom: 40px; position: relative;
+        }
+        .fina-value {
+            font-size: 110px; font-weight: 900; letter-spacing: -5px;
+            background: linear-gradient(180deg, #fff 30%, #444 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 1; filter: drop-shadow(0 10px 20px rgba(255,255,255,0.1));
+        }
+        .fina-label {
+            font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.4);
+            letter-spacing: 5px; text-transform: uppercase; margin-top: 5px;
+        }
+
+        /* 2. Переключатели (Пол и Бассейн) */
+        .controls-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;
+        }
+        .segment-control {
+            background: var(--glass); border-radius: 20px;
+            padding: 4px; display: flex; border: 1px solid var(--glass-border);
+        }
+        .segment-item {
+            flex: 1; padding: 12px; text-align: center; font-size: 11px;
+            font-weight: 800; border-radius: 16px; cursor: pointer; transition: 0.3s;
+            color: rgba(255,255,255,0.3);
+        }
+        .segment-item.active {
+            background: var(--white); color: #000;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+        }
+
+        /* 3. Селекторы Стиля и Дистанции */
+        .select-group {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;
+        }
+        .custom-select {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 22px; padding: 15px; position: relative;
+        }
+        .custom-select select {
+            width: 100%; background: transparent; border: none; color: #fff;
+            font-size: 14px; font-weight: 600; outline: none; appearance: none;
+        }
+        .custom-select::after {
+            content: "↓"; position: absolute; right: 15px; top: 18px; font-size: 12px; opacity: 0.5;
+        }
+
+        /* 4. Ввод времени */
+        .input-box {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 25px; margin-bottom: 20px;
+        }
+        .input-box input {
+            width: 100%; background: transparent; border: none; color: #fff;
+            font-size: 32px; font-weight: 700; text-align: center; outline: none;
+        }
+        .input-box input::placeholder { color: rgba(255,255,255,0.1); }
+
+        /* 5. Кнопка Нормативы */
+        .btn-norms {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            color: #fff; padding: 20px; border-radius: 22px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 12px;
+            cursor: pointer; width: 100%; transition: 0.3s;
+        }
+
+        /* 6. Шторка (BottomSheet) */
+        .bottom-sheet {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 75vh;
+            background: #0a0a0a; border-top: 1px solid var(--glass-border);
+            border-top-left-radius: 40px; border-top-right-radius: 40px;
+            z-index: 1000; transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 20px; box-shadow: 0 -20px 40px rgba(0,0,0,0.8);
+        }
+        .bottom-sheet.open { bottom: 0; }
+        .handle {
+            width: 40px; height: 4px; background: rgba(255,255,255,0.1);
+            border-radius: 2px; margin: 0 auto 20px;
+        }
+        .sheet-content { overflow-y: auto; height: 100%; padding-bottom: 40px; }
+        .norm-row {
+            display: flex; justify-content: space-between; padding: 15px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .norm-row span:last-child { font-weight: 900; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); visibility: hidden; opacity: 0; transition: 0.3s;
+        }
+        .overlay.active { visibility: visible; opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="fina-header">
+        <div class="fina-value" id="points">0</div>
+        <div class="fina-label">FINA Points</div>
+    </div>
+
+    <div class="controls-row">
+        <div class="segment-control">
+            <div class="segment-item active" onclick="setGender('male', this)">МУЖ</div>
+            <div class="segment-item" onclick="setGender('female', this)">ЖЕН</div>
+        </div>
+        <div class="segment-control">
+            <div class="segment-item active" onclick="setPool('25', this)">25М</div>
+            <div class="segment-item" onclick="setPool('50', this)">50М</div>
+        </div>
+    </div>
+
+    <div class="select-group">
+        <div class="custom-select">
+            <select id="style-select" onchange="updateDistances()">
+                <option value="freestyle">Вольный</option>
+                <option value="backstroke">Спина</option>
+                <option value="breaststroke">Брасс</option>
+                <option value="butterfly">Батт</option>
+                <option value="medley">Комплекс</option>
+            </select>
+        </div>
+        <div class="custom-select">
+            <select id="distance-select">
+                </select>
+        </div>
+    </div>
+
+    <div class="input-box">
+        <input type="text" id="time-input" placeholder="00:00.00" oninput="calculate()">
+    </div>
+
+    <button class="btn-norms" onclick="toggleSheet(true)">Посмотреть нормативы</button>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSheet(false)"></div>
+
+<div class="bottom-sheet" id="sheet">
+    <div class="handle"></div>
+    <div class="sheet-content">
+        <h2 style="text-align: center; margin-bottom: 20px;">Нормативы</h2>
+        <div id="norms-data">
+            <div class="norm-row"><span>МСМК</span><span id="n-msmk">-</span></div>
+            <div class="norm-row"><span>МС</span><span id="n-ms">-</span></div>
+            <div class="norm-row"><span>КМС</span><span id="n-kms">-</span></div>
+            <div class="norm-row"><span>I разряд</span><span id="n-i">-</span></div>
+            <div class="norm-row"><span>II разряд</span><span id="n-ii">-</span></div>
+            <div class="norm-row"><span>III разряд</span><span id="n-iii">-</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentGender = 'male';
+    let currentPool = '25';
+
+    const distances = {
+        freestyle: [50, 100, 200, 400, 800, 1500],
+        backstroke: [50, 100, 200],
+        breaststroke: [50, 100, 200],
+        butterfly: [50, 100, 200],
+        medley: { "25": [100, 200, 400], "50": [200, 400] }
+    };
+
+    function updateDistances() {
+        const style = document.getElementById('style-select').value;
+        const distSelect = document.getElementById('distance-select');
+        distSelect.innerHTML = '';
+        
+        let available = distances[style];
+        if (style === 'medley') available = distances.medley[currentPool];
+
+        available.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d; opt.innerText = d + 'м';
+            distSelect.appendChild(opt);
+        });
+    }
+
+    function setGender(val, el) {
+        currentGender = val;
+        toggleActive(el);
+    }
+
+    function setPool(val, el) {
+        currentPool = val;
+        toggleActive(el);
+        updateDistances();
+    }
+
+    function toggleActive(el) {
+        el.parentElement.querySelectorAll('.segment-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.selectionChanged();
+    }
+
+    function toggleSheet(show) {
+        document.getElementById('sheet').classList.toggle('open', show);
+        document.getElementById('overlay').classList.toggle('active', show);
+    }
+
+    function calculate() {
+        // Здесь будет твоя формула из calc.py
+        // Пока просто имитация для дизайна
+        const val = document.getElementById('time-input').value;
+        if(val.length > 2) {
+            document.getElementById('points').innerText = Math.floor(Math.random() * 900);
+        }
+    }
+
+    // Инициализация
+    updateDistances();
+</script>
+
+</body>
+</html>
