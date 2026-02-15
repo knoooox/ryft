@@ -193,12 +193,17 @@
         }
 
         .picker-item {
-            height: 40px; display: flex; align-items: center; justify-content: center;
-            font-size: 15px; font-weight: 600; color: var(--text-secondary);
-            transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), color 0.28s ease;
+            height: 40px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 16px; /* Чуть увеличим базовый */
+            font-weight: 500; 
+            color: var(--text-primary);
+            transition: color 0.3s ease; 
             transform-origin: center center;
             will-change: transform, opacity;
-            letter-spacing: 0.2px;
+            letter-spacing: -0.2px;
         }
         .picker-item.selected { 
             color: #fff; font-weight: 800; font-size: 17px; 
@@ -692,7 +697,7 @@
                         const easing = this.isProgrammaticScroll ? 0.085 : 0.18;
                         this.scrollY += diff * easing;
                         this.velocity *= 0.76;
-
+            
                         if (Math.abs(diff) < 0.15) {
                             this.scrollY = this.targetScrollY;
                             this.targetScrollY = null;
@@ -702,50 +707,48 @@
                     } else {
                         this.scrollY -= this.velocity;
                         this.velocity *= 0.86;
-
+            
                         if (Math.abs(this.velocity) < 0.08) {
                             this.velocity = 0;
                             this.targetScrollY = this.getClosestIndex() * this.itemHeight;
                         }
-
+            
                         if (this.scrollY < 0 || this.scrollY > this.maxScroll) {
                             this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
                             this.velocity *= 0.66;
                         }
                     }
                 }
-
+            
                 this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
                 this.container.style.transform = `translateY(${-this.scrollY}px)`;
-
+            
                 const selectedIndex = this.getClosestIndex();
                 const items = this.container.querySelectorAll('.picker-item');
-
-                if (selectedIndex !== this.lastVisualSelectedIndex) {
-                    const selectedItem = items[selectedIndex];
-                    if (selectedItem) {
-                        selectedItem.classList.remove('selection-hit');
-                        void selectedItem.offsetWidth;
-                        selectedItem.classList.add('selection-hit');
-                    }
-                    this.lastVisualSelectedIndex = selectedIndex;
-                }
+            
+                // --- ОБНОВЛЕННЫЙ ЦИКЛ ОТРИСОВКИ ---
                 items.forEach((item, i) => {
                     const itemY = i * this.itemHeight;
-                    const dist = this.scrollY - itemY;
-                    const angle = dist * -0.35;
-
-                    let scale = 1 - Math.abs(dist) / 500;
-                    if (scale < 0.86) scale = 0.86;
-
-                    let opacity = 1 - Math.abs(dist) / 180;
-                    if (opacity < 0.3) opacity = 0.3;
-
-                    item.style.transform = `rotateX(${angle}deg) scale(${scale})`;
+                    const dist = Math.abs(this.scrollY - itemY);
+                    
+                    // Вычисляем близость к центру (от 0 до 1)
+                    const proximity = Math.max(0, 1 - dist / (this.itemHeight * 2.5));
+                    
+                    // Плавный расчет масштаба и прозрачности
+                    let scale = 0.85 + (0.40 * Math.pow(proximity, 2));
+                    let opacity = 0.3 + (0.7 * proximity);
+                    const angle = (this.scrollY - itemY) * -0.4;
+            
+                    // Применяем стили
+                    item.style.transform = `translateZ(0) rotateX(${angle}deg) scale(${scale})`;
                     item.style.opacity = opacity;
+                    
+                    // ТО САМОЕ ИЗМЕНЕНИЕ ЖИРНОСТИ:
+                    item.style.fontWeight = selectedIndex === i ? "800" : "400";
+                    
                     item.classList.toggle('selected', selectedIndex === i);
                 });
-
+            
                 this.rafId = requestAnimationFrame(() => this.animate());
             }
 
