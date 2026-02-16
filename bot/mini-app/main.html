@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#000000">
-    <title>RYFT | LIQUID OS</title>
+    <title>RYFT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
@@ -332,17 +332,18 @@
 
         .sheet {
             position: fixed; left: 0; bottom: 0; width: 100%; 
-            height: auto; /* Высота подстраивается под контент */
-            max-height: 90vh; /* Но не более 90% экрана при полном раскрытии */
-            min-height: 58vh; /* Это высота, которая покажет примерно 6 первых строк */
+            /* Изменяем эти параметры: */
+            height: 60vh; /* Фиксированная высота "полуоткрытого" состояния */
+            max-height: 85vh; 
             background: #0f0f0f;
             border-top: 1px solid var(--glass-highlight);
             border-radius: 40px 40px 0 0;
             transform: translateY(100%); transition: transform 0.5s var(--ease-smooth);
             z-index: 100; display: flex; flex-direction: column;
             box-shadow: 0 -20px 80px rgba(0,0,0,0.8);
-            touch-action: pan-x;
+            touch-action: pan-y; /* Важно для работы скролла */
         }
+
         .sheet.active { transform: translateY(0); }
         .sheet.dragging { transition: none; }
         .sheet-handle { touch-action: none; cursor: grab; }
@@ -1257,11 +1258,9 @@
                 const list = document.getElementById('norms-list');
 
                 requestAnimationFrame(() => {
-                    // ИСПРАВЛЕНИЕ: Приоритет всегда отдаем конкретной строке (anchorRow).
-                    // Скроллим в начало (top: 0) только если время не введено вообще.
                     if (anchorRow) {
-                        // block: 'center' лучше, чем 'start', так как разряд будет по центру экрана
-                        anchorRow.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                        // Меняем center на end, чтобы список не улетал вверх
+                        anchorRow.scrollIntoView({ block: 'end', behavior: 'smooth' });
                     } else {
                         list.scrollTo({ top: 0, behavior: 'smooth' });
                     }
