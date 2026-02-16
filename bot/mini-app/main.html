@@ -71,16 +71,57 @@
             transition: transform 0.5s var(--ease-elastic);
         }
 
-        .fina-number {
+        /* --- ЕДИНЫЙ СТИЛЬ ДЛЯ ОЧКОВ (ТЕКСТ И ВВОД) --- */
+        .fina-number, 
+        .fina-input-field {
+            /* ШРИФТ И РАЗМЕР: идентичны для бесшовности */
             font-family: 'Inter', sans-serif;
-            font-size: 110px; font-weight: 900;
-            letter-spacing: -4px; line-height: 0.9;
+            font-size: clamp(60px, 25vw, 110px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 0.9;
+            
+            /* ГРАДИЕНТ: применен ко обоим */
             background: linear-gradient(180deg, #fff 20%, #666 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* ВИЗУАЛ: тени и выравнивание */
             filter: drop-shadow(0 10px 30px rgba(255,255,255,0.05));
-            font-variant-numeric: tabular-nums;
+            text-align: center;
             display: inline-block;
-            padding: 0 10px 0 6px;
+            
+            /* ЗАЩИТА ОТ ОБРЕЗКИ: одинаковые отступы */
+            padding-left: 10px;
+            padding-right: 15px; 
+            box-sizing: border-box;
+            overflow: visible;
+            
+            /* СБРОС СТАНДАРТНЫХ СТИЛЕЙ ИНПУТА */
+            border: none;
+            outline: none;
+            background-color: transparent;
+            appearance: none;
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* СПЕЦИФИКА ДЛЯ ТЕКСТА (ОДОМЕТРА) */
+        .fina-number {
+            font-variant-numeric: tabular-nums;
+            transition: transform 0.3s var(--ease-elastic);
+            cursor: pointer;
+        }
+
+        /* СПЕЦИФИКА ДЛЯ ПОЛЯ ВВОДА */
+        .fina-input-field {
+            width: 100%;
+            caret-color: #fff; /* Белый курсор ввода */
+            display: none;     /* По умолчанию скрыт */
+        }
+
+        .fina-input-field::placeholder {
+            -webkit-text-fill-color: rgba(255,255,255,0.1);
         }
 
         .fina-badge {
@@ -97,7 +138,21 @@
 
         /* --- 2. CONTROLS AREA --- */
         .controls-section {
-            padding: 0 24px 30px; display: flex; flex-direction: column; gap: 24px;
+            /* 30px — это твой базовый отступ. 
+               env(safe-area-inset-bottom) добавит место только на безрамочных iPhone */
+            padding: 0 24px calc(30px + env(safe-area-inset-bottom, 0px)); 
+            
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px;
+        }
+
+        /* Микро-фикс для очень низких экранов (меньше 670px в высоту) */
+        @media (max-height: 670px) {
+            .controls-section {
+                gap: 16px; /* Уменьшаем расстояние между кнопками, чтобы всё влезло без скролла */
+                padding-bottom: 20px;
+            }
         }
 
         /* --- SEGMENTED TABS (Pool / Gender) --- */
@@ -426,34 +481,19 @@
             padding: 15px 15px 15px 25px; /* Немного изменили отступы */
         }
 
-        /* --- REVERSE CALC INPUT --- */
-        .fina-input-field {
-            font-family: 'Inter', sans-serif;
-            font-size: 110px; 
-            font-weight: 900;
-            letter-spacing: -4px; 
-            line-height: 0.9;
-            
-            /* Градиент как у основных цифр */
-            background: linear-gradient(180deg, #fff 20%, #666 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            
-            /* Эффекты свечения */
-            filter: drop-shadow(0 10px 30px rgba(255,255,255,0.05));
-            
-            border: none; 
-            outline: none;
-            width: 100%; 
-            text-align: center;
-            padding: 0; 
-            margin: 0;
-            
-            /* Цвет каретки (курсора) делаем белым, чтобы его было видно */
-            caret-color: #fff; 
+        /* Уменьшаем отступы и высоту колес на маленьких экранах (высота меньше 700px) */
+        @media (max-height: 700px) {
+            .fina-section { min-height: 140px; }
+            .wheels-container { height: 130px; }
+            .picker-column { height: 130px; }
+            .app-container { padding: 10px 0; }
+            .controls-section { gap: 15px; }
         }
-        .fina-input-field::placeholder {
-            color: rgba(255,255,255,0.1);
+        
+        /* Убираем лишние зазоры на совсем крошечных экранах */
+        @media (max-height: 600px) {
+            .fina-badge { margin-top: 5px; }
+            #world-record { margin-top: 5px; }
         }
         
     </style>
