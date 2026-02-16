@@ -429,13 +429,28 @@
         /* --- REVERSE CALC INPUT --- */
         .fina-input-field {
             font-family: 'Inter', sans-serif;
-            font-size: 110px; font-weight: 900;
-            letter-spacing: -4px; line-height: 0.9;
-            color: #fff; background: transparent;
-            border: none; outline: none;
-            width: 100%; text-align: center;
-            padding: 0; margin: 0;
-            caret-color: var(--text-secondary); /* Цвет мигающего курсора */
+            font-size: 110px; 
+            font-weight: 900;
+            letter-spacing: -4px; 
+            line-height: 0.9;
+            
+            /* Градиент как у основных цифр */
+            background: linear-gradient(180deg, #fff 20%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* Эффекты свечения */
+            filter: drop-shadow(0 10px 30px rgba(255,255,255,0.05));
+            
+            border: none; 
+            outline: none;
+            width: 100%; 
+            text-align: center;
+            padding: 0; 
+            margin: 0;
+            
+            /* Цвет каретки (курсора) делаем белым, чтобы его было видно */
+            caret-color: #fff; 
         }
         .fina-input-field::placeholder {
             color: rgba(255,255,255,0.1);
@@ -1152,31 +1167,27 @@
 
                 const totalSeconds = (min * 60) + sec + (ms / 100);
 
-                // Получаем данные
                 const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
                 if (!data) return;
 
-                // --- ЛОГИКА МИРОВОГО РЕКОРДА ---
                 const record = data.rec;
                 const rM = Math.floor(record / 60);
                 const rS = Math.floor(record % 60);
                 const rMS = Math.round((record - Math.floor(record)) * 100);
                 const recordStr = `${rM > 0 ? rM + ':' : ''}${rS.toString().padStart(2, '0')}.${rMS.toString().padStart(2, '0')}`;
                 document.getElementById('world-record').innerText = `WORLD RECORD: ${recordStr}`;
-                // ------------------------------
 
                 if (totalSeconds === 0) {
+                    this.lastPoints = 0;
                     this.updateDisplay(0, UI_TEXT.noData);
                     if (this.isSheetOpen) this.refreshSheet({ align: false });
                     return;
                 }
 
-                // Считаем очки
                 let points = Math.floor(1000 * Math.pow(record / totalSeconds, 3));
                 if (points > 1199) points = 1199;
                 if (points < 0) points = 0;
 
-                // Ищем разряд
                 let rank = UI_TEXT.noRank;
                 for (let r of RANKS) {
                     if (totalSeconds <= data[r]) {
@@ -1185,8 +1196,7 @@
                     }
                 }
 
-                let rank = UI_TEXT.noRank;
-
+                this.lastPoints = points; // Теперь это работает
                 this.updateDisplay(points, rank);
 
                 if (this.isSheetOpen) {
@@ -1332,13 +1342,12 @@
                     document.getElementById(id).value = '';
                 });
                 
-                // Сбрасываем фокус на первое поле
-                document.getElementById('inp-min').focus();
+                // Убрали focus(), чтобы не вылетала клавиатура
                 
-                // Запускаем пересчет (обнулит очки)
+                // Запускаем пересчет (обнулит очки и сбросит WR)
                 this.calculate();
 
-                // Добавляем виброотклик
+                // Оставляем только легкую вибрацию об успешной очистке
                 if (window.Telegram?.WebApp?.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                 }
@@ -1350,17 +1359,18 @@
                 const display = document.getElementById('fina-value');
                 const input = document.getElementById('fina-input');
                 
-                // Прячем цифры, показываем инпут
+                // Скрываем старый текст, но сохраняем место
                 display.style.display = 'none';
-                input.style.display = 'block';
                 
-                // Ставим текущее значение и фокус
+                // Показываем инпут как inline-block
+                input.style.display = 'inline-block';
+                
                 let currentVal = display.innerText;
-                if(currentVal === '0') currentVal = '';
-                input.value = currentVal;
-                input.focus();
+                input.value = (currentVal === '0') ? '' : currentVal;
                 
-                // Вибрация
+                // Фокус и подъем клавиатуры
+                setTimeout(() => input.focus(), 50);
+                
                 if (window.Telegram?.WebApp?.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.selectionChanged();
                 }
