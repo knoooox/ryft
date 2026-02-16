@@ -63,29 +63,27 @@
         .app-container {
             display: flex;
             flex-direction: column;
-            padding: 10px 0; /* Уменьшили базовый паддинг, чтобы дать больше места */
+            padding: 20px 0; 
             max-width: 600px;
             margin: 0 auto;
             width: 100%;
             position: relative;
             z-index: 1;
-            
-            /* Вместо flex: 1 используем динамическую высоту */
             min-height: 100dvh; 
             box-sizing: border-box;
+            justify-content: space-between; /* Растягиваем контент */
         }
 
-        /* --- 1. FINA DISPLAY (THE ODOMETER) --- */
+        /* --- 1. FINA DISPLAY (УВЕЛИЧИЛИ ОТСТУПЫ) --- */
         .fina-section {
-            /* Убираем flex: 1, чтобы секция не схлопывалась */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 180px; /* Фиксированный минимум */
-            padding: 20px 0;
+            min-height: 240px; /* Было 180 - теперь очкам просторнее */
+            padding: 40px 0;   /* Больше воздуха сверху и снизу */
             perspective: 1000px;
-            flex-shrink: 0; /* Запрещаем сжиматься при открытии клавиатуры */
+            flex-shrink: 0;
         }
 
         .fina-wrapper {
@@ -161,13 +159,10 @@
 
         /* --- 2. CONTROLS AREA --- */
         .controls-section {
-            /* 30px — это твой базовый отступ. 
-               env(safe-area-inset-bottom) добавит место только на безрамочных iPhone */
-            padding: 0 24px calc(30px + env(safe-area-inset-bottom, 0px)); 
-            
+            padding: 0 24px calc(20px + env(safe-area-inset-bottom, 0px)); 
             display: flex; 
             flex-direction: column; 
-            gap: 24px;
+            gap: 28px; /* Увеличили расстояние между элементами управления */
         }
 
         /* Микро-фикс для очень низких экранов (меньше 670px в высоту) */
@@ -246,10 +241,10 @@
             grid-template-columns: 1.2fr 0.8fr;
             gap: 16px;
             height: 160px;
-            min-height: 160px; /* Защита от сжатия клавиатурой */
+            min-height: 160px;
             position: relative;
             flex-shrink: 0;
-            margin-bottom: 20px;
+            margin-bottom: 30px; /* Было 20 */
         }
         .wheels-container::before {
             content: '';
@@ -425,17 +420,50 @@
 
         .time-divider { font-size: 24px; color: var(--text-tertiary); font-weight: 300; margin-top: -5px; }
 
-        /* --- BOTTOM BUTTON --- */
+        /* ГЛАВНАЯ БЕЛАЯ КНОПКА НОРМАТИВОВ */
         .btn-norms {
-            width: 100%; padding: 22px;
-            background: #fff; color: #000;
-            border: none; border-radius: 22px;
-            font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 10px 40px rgba(255,255,255,0.1);
-            cursor: pointer; position: relative; overflow: hidden;
-            transition: transform 0.2s;
+            width: 100%;
+            padding: 22px;
+            background: #ffffff; /* Чистый белый */
+            color: #000000;    /* Черный текст для контраста */
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            
+            /* Эффект свечения и глубины */
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.15), 
+                        0 4px 10px rgba(255, 255, 255, 0.1);
+            
+            transition: all 0.3s var(--ease-smooth);
         }
-        .btn-norms:active { transform: scale(0.96); }
+
+        .btn-norms:active {
+            transform: scale(0.96);
+            background: #f0f0f0;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Добавляем легкий блик на кнопку */
+        .btn-norms::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .btn-norms:active::after {
+            opacity: 1;
+        }
 
         /* --- SHEET (NORMS) --- */
         .sheet-backdrop {
@@ -541,56 +569,48 @@
             padding: 15px 15px 15px 25px; /* Немного изменили отступы */
         }
 
+        /* НИЖНЯЯ ПАНЕЛЬ (ТАБ-БАР) */
         .bottom-nav {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
             margin-top: 10px;
         }
-        
-        .nav-item {
-            background: var(--glass-light);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 16px;
+
+        .nav-tab {
+            background: none;
+            border: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 6px;
             color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.3s var(--ease-smooth);
-            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            flex: 1;
         }
-        
-        .nav-item.active {
-            background: #ffffff;
-            color: #000000;
-            border-color: #ffffff;
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
-        }
-        
-        .nav-item:active {
-            transform: scale(0.95);
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
+
+        .nav-tab.active { color: #fff; }
+
         .nav-icon {
-            width: 22px;
-            height: 22px;
-            opacity: 0.8;
+            width: 24px;
+            height: 24px;
+            opacity: 0.6;
+            transition: all 0.3s;
         }
-        
-        .nav-item.active .nav-icon {
+
+        .nav-tab.active .nav-icon {
             opacity: 1;
+            transform: translateY(-2px);
         }
-        
-        .nav-item span {
-            font-size: 10px;
-            font-weight: 800;
+
+        .nav-tab span {
+            font-size: 9px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         
     </style>
@@ -655,19 +675,21 @@
                 </button>
             </div>
 
+            <button class="btn-norms" onclick="app.openSheet()">Нормативы</button>
+
             <div class="bottom-nav">
-                <button class="nav-item active" onclick="app.openSheet()">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="8" y1="12" x2="16" y2="12"></line>
-                        <line x1="8" y1="16" x2="16" y2="16"></line>
-                        <line x1="10" y1="8" x2="14" y2="8"></line>
+                <button class="nav-tab active" onclick="app.switchTab('calc')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="9" x2="20" y2="9"></line>
+                        <line x1="4" y1="15" x2="20" y2="15"></line>
+                        <line x1="10" y1="3" x2="8" y2="21"></line>
+                        <line x1="16" y1="3" x2="14" y2="21"></line>
                     </svg>
-                    <span>Нормативы</span>
+                    <span>Расчет</span>
                 </button>
             
-                <button class="nav-item" onclick="app.openProfile()">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <button class="nav-tab" onclick="app.switchTab('profile')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
@@ -1502,7 +1524,27 @@
             openProfile() {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
                 window.Telegram.WebApp.showAlert("Раздел Профиль, Рекорды и GPS находится в разработке v3.0");
-            }, // <-- Теперь это новая функция в объекте
+            },
+
+            switchTab(tab) {
+                window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                const tabs = document.querySelectorAll('.nav-tab');
+                
+                if (tab === 'profile') {
+                    tabs[0].classList.remove('active');
+                    tabs[1].classList.add('active');
+                    this.openProfile();
+                    
+                    // Возвращаем фокус на калькулятор через секунду, так как профиля пока нет
+                    setTimeout(() => {
+                        tabs[1].classList.remove('active');
+                        tabs[0].classList.add('active');
+                    }, 1500);
+                } else {
+                    tabs[1].classList.remove('active');
+                    tabs[0].classList.add('active');
+                }
+            },
 
             clearInputs() {
                 const inputs = ['inp-min', 'inp-sec', 'inp-ms'];
