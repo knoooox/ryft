@@ -31,6 +31,14 @@
 
         /* --- GLOBAL RESET --- */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        html, body {
+            /* Это предотвратит изменение высоты всей страницы на некоторых Android */
+            height: 100%;
+            position: fixed;
+            overflow: hidden;
+        }
+        
         body {
             background: var(--bg-deep); color: var(--text-primary);
             font-family: 'Inter', sans-serif;
@@ -532,6 +540,58 @@
         .time-input-wrapper {
             padding: 15px 15px 15px 25px; /* Немного изменили отступы */
         }
+
+        .bottom-nav {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .nav-item {
+            background: var(--glass-light);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-smooth);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-item.active {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-item:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-icon {
+            width: 22px;
+            height: 22px;
+            opacity: 0.8;
+        }
+        
+        .nav-item.active .nav-icon {
+            opacity: 1;
+        }
+        
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
         
     </style>
 </head>
@@ -595,7 +655,25 @@
                 </button>
             </div>
 
-            <button class="btn-norms" onclick="app.openSheet()">Нормативы</button>
+            <div class="bottom-nav">
+                <button class="nav-item active" onclick="app.openSheet()">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                        <line x1="8" y1="16" x2="16" y2="16"></line>
+                        <line x1="10" y1="8" x2="14" y2="8"></line>
+                    </svg>
+                    <span>Нормативы</span>
+                </button>
+            
+                <button class="nav-item" onclick="app.openProfile()">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Профиль</span>
+                </button>
+            </div>
 
         </section>
     </div>
@@ -800,13 +878,17 @@
             scrollToIndex(index, smooth = true) {
                 this.selectedIndex = this.clamp(index, 0, Math.max(0, this.items.length - 1));
                 const targetY = this.selectedIndex * this.itemHeight;
-
+            
                 if (smooth) {
                     this.velocity = 0;
                     this.targetScrollY = targetY;
                     this.isProgrammaticScroll = true;
-
-                    // Даем легкий тактильный отклик при нажатии
+            
+                    // ВАЖНО: вызываем onChange сразу при клике, не дожидаясь конца анимации
+                    if (this.items[this.selectedIndex]) {
+                        this.onChange(this.items[this.selectedIndex].value);
+                    }
+            
                     if (window.Telegram?.WebApp?.HapticFeedback) {
                         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
                     }
@@ -842,9 +924,12 @@
 
                     // Добавляем возможность клика
                     el.style.cursor = 'pointer';
-                    el.addEventListener('click', () => {
-                        // Если мы не в процессе жесткого свайпа, скроллим к элементу
-                        if (!this.isDragging && Math.abs(this.velocity) < 0.1) {
+                    el.addEventListener('click', (e) => {
+                        // Останавливаем всплытие, чтобы не сработали другие события
+                        e.stopPropagation(); 
+                        
+                        // Если мы не дрифтуем по экрану со всей силы — засчитываем клик
+                        if (!this.isDragging) {
                             this.scrollToIndex(index, true);
                         }
                     });
@@ -1057,7 +1142,8 @@
                     {label: LABELS.medley, value: 'medley'}
                 ], (val) => {
                     this.state.style = val;
-                    this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: false });
+                    // Ставим smooth: true, чтобы при клике на стиль дистанции обновлялись мягко
+                    this.updateDistances({ smooth: true, pulse: true }); 
                     this.calculate();
                 });
 
@@ -1411,7 +1497,12 @@
                 this.backdrop.classList.remove('active');
                 this.sheet.style.transform = '';
                 this.sheetTranslateY = 0;
-            }, // <-- ЗАПЯТАЯ ОБЯЗАТЕЛЬНА
+            }, // <-- Запятая здесь важна!
+
+            openProfile() {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+                window.Telegram.WebApp.showAlert("Раздел Профиль, Рекорды и GPS находится в разработке v3.0");
+            }, // <-- Теперь это новая функция в объекте
 
             clearInputs() {
                 const inputs = ['inp-min', 'inp-sec', 'inp-ms'];
