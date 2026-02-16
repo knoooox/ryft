@@ -63,15 +63,14 @@
         .app-container {
             display: flex;
             flex-direction: column;
-            padding: 20px 0; 
+            padding: 0; /* Убираем лишние падинги, будем центровать внутренним flex */
             max-width: 600px;
             margin: 0 auto;
             width: 100%;
             position: relative;
             z-index: 1;
-            min-height: 100dvh; 
+            height: 100dvh; /* Строго по высоте экрана */
             box-sizing: border-box;
-            justify-content: space-between; /* Растягиваем контент */
         }
 
         /* --- 1. FINA DISPLAY (УВЕЛИЧИЛИ ОТСТУПЫ) --- */
@@ -79,17 +78,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 240px; /* Было 180 - теперь очкам просторнее */
-            padding: 40px 0;   /* Больше воздуха сверху и снизу */
+            justify-content: center; /* Центрирует всё содержимое по вертикали */
+            flex: 1; /* Занимает ВСЁ свободное место от верха до кнопок */
+            padding: 0;
             perspective: 1000px;
-            flex-shrink: 0;
+            width: 100%;
         }
 
         .fina-wrapper {
-            position: relative; text-align: center;
+            position: relative; 
+            text-align: center;
             transform-style: preserve-3d;
-            transition: transform 0.5s var(--ease-elastic);
+            /* Убираем лишние внешние отступы, чтобы центровка была математически точной */
+            margin: 0; 
         }
 
         /* --- ЕДИНЫЙ СТИЛЬ ДЛЯ ОЧКОВ (ТЕКСТ И ВВОД) --- */
@@ -168,44 +169,65 @@
 
         /* Микро-фикс для очень низких экранов (меньше 670px в высоту) */
         /* 1. Средние экраны или начало сжатия (до 750px) */
+        /* 1. Средние экраны или начало сжатия (до 750px) */
         @media (max-height: 750px) {
             .fina-section { 
-                min-height: 140px; 
-                padding: 10px 0; 
+                /* Убираем фиксированную высоту, даем блоку расти */
+                flex: 1; 
+                min-height: auto; 
+                padding: 0; 
+                justify-content: center; /* Центрируем содержимое */
             }
+            
+            /* Сжимаем только элементы управления, чтобы освободить место для очков */
             .wheels-container, 
             .picker-column { 
-                height: 140px; 
-                min-height: 140px; 
+                height: 130px; 
+                min-height: 130px; 
             }
             .controls-section { 
-                gap: 12px; 
-                padding-bottom: 20px;
+                gap: 10px; 
+                padding-bottom: 15px;
             }
         }
         
         /* 2. Совсем маленькие экраны или открытая клавиатура (до 600px) */
         @media (max-height: 600px) {
             .app-container {
-                overflow-y: auto; 
-                justify-content: flex-start;
-                /* Добавляем плавный скролл, если клавиатура всё перекрыла */
-                -webkit-overflow-scrolling: touch; 
+                /* Оставляем flex, чтобы очки все равно пытались быть в центре */
+                overflow-y: hidden; /* Пока клавиатура не открыта, скролл не нужен */
+                justify-content: space-between;
             }
+            
+            /* Если клавиатура открыта, Telegram меняет высоту viewport, 
+               в этом случае разрешаем скролл */
+            body.keyboard-open .app-container {
+                overflow-y: auto;
+            }
+        
             .fina-badge, 
             #world-record { 
                 display: none !important; 
             } 
+        
             .fina-section { 
-                min-height: 100px; 
+                flex: 1.5; /* Даем чуть больше веса верхней части */
+                min-height: 80px; 
             }
+        
             .wheels-container, 
             .picker-column { 
-                height: 120px; 
-                min-height: 120px; 
+                height: 110px; 
+                min-height: 110px; 
             }
+        
             .controls-section {
-                gap: 8px;
+                gap: 6px;
+                padding-bottom: 10px;
+            }
+            
+            .fina-number {
+                font-size: clamp(40px, 18vw, 70px); /* Уменьшаем шрифт, чтобы не вылезал */
             }
         }
 
