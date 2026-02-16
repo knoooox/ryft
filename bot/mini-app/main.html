@@ -7,7 +7,7 @@
     <title>RYFT | LIQUID OS</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+
     <style>
         /* * ==========================================
          * RYFT DESIGN SYSTEM: LIQUID DARK v2.0
@@ -42,7 +42,8 @@
         /* --- BACKGROUND FX --- */
         .scene-fx {
             position: fixed; inset: 0; z-index: -1; pointer-events: none;
-            background: radial-gradient(120% 120% at 50% -10%, #1a1a1a 0%, #000 70%);
+            /* Сделали фон полностью черным по всему экрану */
+            background: #000000;
         }
         .noise-layer {
             position: fixed; inset: 0; opacity: 0.04; z-index: 0;
@@ -63,7 +64,7 @@
             align-items: center; justify-content: center;
             min-height: 200px; perspective: 1000px;
         }
-        
+
         .fina-wrapper {
             position: relative; text-align: center;
             transform-style: preserve-3d;
@@ -101,7 +102,7 @@
 
         /* --- SEGMENTED TABS (Pool / Gender) --- */
         .tabs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        
+
         .segment-container {
             background: var(--glass-light);
             border: 1px solid var(--glass-border);
@@ -115,7 +116,7 @@
             cursor: pointer;
         }
         .segment-btn.active { color: #000; }
-        
+
         /* Плавающая подложка (Glider) */
         .segment-glider {
             position: absolute; top: 4px; left: 4px; bottom: 4px; width: calc(50% - 4px);
@@ -136,7 +137,8 @@
             position: absolute;
             inset: -8px;
             border-radius: 34px;
-            background: radial-gradient(80% 120% at 50% 0%, rgba(255,255,255,0.08), rgba(255,255,255,0));
+            /* Убрали белый отсвет, заменили на черную пустоту */
+            background: radial-gradient(80% 120% at 50% 0%, rgba(0,0,0,0), rgba(0,0,0,0));
             pointer-events: none;
             z-index: -1;
         }
@@ -149,12 +151,12 @@
             position: relative;
             min-height: 160px; 
             height: 160px;
-            
+
             /* Усиливаем тени: 60px создадут глубокое перекрытие сверху и снизу */
             box-shadow:
                 inset 0 60px 50px -10px rgba(0,0,0,1), 
                 inset 0 -60px 50px -10px rgba(0,0,0,1);
-        
+
             /* Маска стала жестче: прозрачность начинается раньше (35-65 вместо 25-75) */
             -webkit-mask-image: linear-gradient(
                 to bottom, 
@@ -174,7 +176,7 @@
                 rgba(0,0,0,0.2) 85%,
                 transparent 100%
             );
-        
+
             transition: transform 0.55s var(--ease-smooth);
         }
 
@@ -195,21 +197,21 @@
             width: 100%; 
             height: 40px;
             margin-top: -20px;
-            
+
             /* Оставляем только мягкий горизонтальный блик */
             background: linear-gradient(90deg, 
                 transparent, 
                 rgba(255,255,255,0.04) 50%, 
                 transparent
             );
-            
+
             /* Линии сверху и снизу теперь одинаковой яркости */
             border-top: 1px solid rgba(255,255,255,0.12);
             border-bottom: 1px solid rgba(255,255,255,0.12);
-            
+
             /* Убрали все внутренние тени, которые создавали асимметрию */
             box-shadow: none;
-            
+
             pointer-events: none; 
             z-index: 5;
         }
@@ -225,13 +227,13 @@
             transition: opacity 0.2s ease-out, filter 0.2s ease-out;
             will-change: opacity, filter;
         }
-        
+
         /* Состояние в момент обновления данных */
         .picker-column.updating-content .picker-scroll-area {
             opacity: 0;
             filter: blur(8px); /* Добавляем размытие для бесшовности */
         }
-        
+
         .picker-scroll-area.dragging { cursor: grabbing; }
 
         .picker-column.refreshing .picker-scroll-area {
@@ -245,35 +247,35 @@
             align-items: center; 
             justify-content: center;
             width: 100%;
-            
+
             /* Фиксируем параметры, чтобы текст не "прыгал" */
             font-size: 16px; 
             font-weight: 600; /* Полужирный сразу для всех, так приятнее глазу */
             color: var(--text-secondary);
-            
+
             /* Убираем тяжелые transition для веса и размера. 
                Оставляем только плавный цвет и тени */
             transition: 
                 color 0.4s var(--ease-smooth),
                 text-shadow 0.4s var(--ease-smooth),
                 opacity 0.4s var(--ease-smooth);
-            
+
             transform-origin: center center;
             will-change: transform, opacity;
             letter-spacing: -0.2px;
             white-space: nowrap;
         }
-        
+
         .picker-item.selected { 
             color: #fff; 
             /* Вместо изменения веса (800) используем text-shadow. 
                Это дает визуальный объем, не заставляя браузер перерисовывать буквы */
             text-shadow: 0 0 1px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.15);
-            
+
             /* Размер оставляем прежним или меняем крайне незначительно через JS scale */
             font-size: 16px; 
         }
-        
+
         @keyframes pickerSelectionHit {
             0% { transform: translateY(1px) scale(0.98); opacity: 0.74; }
             55% { transform: translateY(-2px) scale(1.05); opacity: 1; }
@@ -305,7 +307,7 @@
         }
         .time-field:focus { border-bottom-color: #fff; }
         .time-field::placeholder { color: var(--text-tertiary); }
-        
+
         .time-divider { font-size: 24px; color: var(--text-tertiary); font-weight: 300; margin-top: -5px; }
 
         /* --- BOTTOM BUTTON --- */
@@ -374,7 +376,7 @@
         }
         .norm-rank { font-size: 14px; font-weight: 800; text-transform: uppercase; }
         .norm-time { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; }
-        
+
         /* Прогресс бар внутри строки */
         .norm-progress {
             height: 4px; background: rgba(255,255,255,0.12); margin-top: 7px;
@@ -399,19 +401,19 @@
     <div class="noise-layer"></div>
 
     <div class="app-container">
-        
+
         <section class="fina-section">
             <div class="fina-wrapper" id="fina-container">
                 <div class="fina-number" id="fina-value">0</div>
             </div>
-            
+
             <div class="fina-badge" id="rank-badge">NO DATA</div>
-        
+
             <div id="world-record" style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-tertiary); margin-top: 12px; font-weight: 700; letter-spacing: 0.5px;">WR: 00:00.00</div>
         </section>
 
         <section class="controls-section">
-            
+
             <div class="tabs-row">
                 <div class="segment-container" id="gender-switch" data-state="0">
                     <div class="segment-glider"></div>
@@ -635,7 +637,7 @@
                 this.attachEvents();
                 this.animate();
             }
-            
+
             get maxScroll() {
                 return Math.max(0, (this.items.length - 1) * this.itemHeight);
             }
@@ -651,12 +653,12 @@
             scrollToIndex(index, smooth = true) {
                 this.selectedIndex = this.clamp(index, 0, Math.max(0, this.items.length - 1));
                 const targetY = this.selectedIndex * this.itemHeight;
-                
+
                 if (smooth) {
                     this.velocity = 0;
                     this.targetScrollY = targetY;
                     this.isProgrammaticScroll = true;
-                    
+
                     // Даем легкий тактильный отклик при нажатии
                     if (window.Telegram?.WebApp?.HapticFeedback) {
                         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
@@ -679,18 +681,18 @@
 
             render() {
                 const fragment = document.createDocumentFragment();
-                
+
                 // Верхний отступ для центрирования
                 const pad = document.createElement('div');
                 pad.style.height = '60px';
                 fragment.appendChild(pad);
-            
+
                 this.items.forEach((item, index) => {
                     const el = document.createElement('div');
                     el.className = 'picker-item';
                     el.innerText = item.label;
                     el.style.height = `${this.itemHeight}px`;
-                    
+
                     // Добавляем возможность клика
                     el.style.cursor = 'pointer';
                     el.addEventListener('click', () => {
@@ -699,14 +701,14 @@
                             this.scrollToIndex(index, true);
                         }
                     });
-            
+
                     fragment.appendChild(el);
                 });
-            
+
                 const padBottom = document.createElement('div');
                 padBottom.style.height = '60px';
                 fragment.appendChild(padBottom);
-            
+
                 this.container.innerHTML = '';
                 this.container.appendChild(fragment);
             }
@@ -779,7 +781,7 @@
                         const easing = this.isProgrammaticScroll ? 0.06 : 0.12; 
                         this.scrollY += diff * easing;
                         this.velocity *= 0.75;
-            
+
                         if (Math.abs(diff) < 0.1) {
                             this.scrollY = this.targetScrollY;
                             this.targetScrollY = null;
@@ -789,40 +791,40 @@
                     } else {
                         this.scrollY -= this.velocity;
                         this.velocity *= 0.95; // Увеличили вязкость (было 0.92)
-            
+
                         if (Math.abs(this.velocity) < 0.01) {
                             this.velocity = 0;
                             this.targetScrollY = this.getClosestIndex() * this.itemHeight;
                         }
                     }
                 }
-            
+
                 this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
                 this.container.style.transform = `translateY(${-this.scrollY}px)`;
-            
+
                 const items = this.container.querySelectorAll('.picker-item');
                 const centerOffset = this.scrollY;
-            
+
                 items.forEach((item, i) => {
                     const itemY = i * this.itemHeight;
                     const distance = itemY - centerOffset;
                     const absDistance = Math.abs(distance);
-                    
+
                     // Увеличиваем радиус влияния, чтобы изменения были очень растянуты во времени
                     const radius = this.itemHeight * 2.5; 
                     const proximity = Math.max(0, 1 - absDistance / radius);
-                    
+
                     // Линейное сглаживание вместо агрессивного Power
                     const curve = Math.sin(proximity * Math.PI / 2); 
-            
+
                     // Очень деликатные изменения (масштаб меняется всего на 15%)
                     const scale = 0.88 + (0.12 * curve);
                     const opacity = 0.3 + (0.7 * curve);
                     const rotate = (distance / radius) * -30; 
-            
+
                     item.style.transform = `translateZ(0) rotateX(${rotate}deg) scale(${scale})`;
                     item.style.opacity = opacity;
-            
+
                     // Порог выбора делаем "невидимым"
                     if (absDistance < 15) {
                         if (!item.classList.contains('selected')) {
@@ -835,40 +837,40 @@
                         item.classList.remove('selected');
                     }
                 });
-            
+
                 this.rafId = requestAnimationFrame(() => this.animate());
             }
-            
+
             updateItems(newItems, options = {}) {
                 const { preferredValue = null, smooth = true, emitChange = true, pulse = false } = options;
                 const host = this.container.parentElement;
-            
+
                 // Сбрасываем инерцию, чтобы новый список не "улетел"
                 this.velocity = 0;
                 this.targetScrollY = null;
-            
+
                 // Включаем блюр и прозрачность
                 host.classList.add('updating-content');
-            
+
                 // Минимальная задержка 10мс, чтобы браузер успел отрисовать состояние opacity: 0
                 setTimeout(() => {
                     const fallbackIndex = 0;
                     const previousValue = preferredValue || this.items[this.selectedIndex]?.value;
                     const nextIndex = Math.max(0, newItems.findIndex(item => item.value === previousValue));
-            
+
                     this.items = newItems;
                     this.render(); 
-                    
+
                     // Ставим индекс мгновенно (false), пока всё скрыто блюром
                     this.scrollToIndex(nextIndex, false); 
-            
+
                     if (pulse) this.pulseRefresh();
-            
+
                     // Убираем блюр на следующем кадре
                     requestAnimationFrame(() => {
                         host.classList.remove('updating-content');
                     });
-            
+
                     if (emitChange && this.items[this.selectedIndex]) {
                         this.onChange(this.items[this.selectedIndex].value);
                     }
@@ -883,7 +885,7 @@
                 style: 'freestyle',
                 dist: '50'
             },
-            
+
             stylePicker: null,
             distPicker: null,
             isSheetOpen: false,
@@ -927,16 +929,16 @@
                 if (this.state.gender === val) return; // Защита от повторного клика
                 this.state.gender = val;
                 this.animateSwitch('gender-switch', val === 'female');
-                
+
                 // Дистанции не меняются от пола, просто пересчитываем очки и рекорды
                 this.calculate();
             },
-            
+
             setPool(val) {
                 if (this.state.pool === val) return;
                 this.state.pool = val;
                 this.animateSwitch('pool-switch', val === '50');
-                
+
                 // Обновляем список дистанций только для комплексного плавания (где есть разница 100/200/400)
                 if (this.state.style === 'medley') {
                     this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: true });
@@ -959,7 +961,7 @@
                 const { smooth = true, allowScrollAnchor = true, pulse = false } = options;
                 const distances = Object.keys(DB[this.state.gender][this.state.pool][this.state.style])
                     .sort((a,b) => parseInt(a) - parseInt(b));
-                
+
                 const items = distances.map(d => ({label: `${d} м`, value: d}));
                 this.distPicker.updateItems(items, {
                     preferredValue: this.state.dist,
@@ -987,7 +989,7 @@
                         }
                         this.calculate();
                     });
-                    
+
                     el.addEventListener('keydown', (e) => {
                         if (e.key === 'Backspace' && e.target.value === '') {
                             if (idx > 0) document.getElementById(inputs[idx-1]).focus();
@@ -1092,13 +1094,13 @@
                 const min = parseInt(document.getElementById('inp-min').value) || 0;
                 const sec = parseInt(document.getElementById('inp-sec').value) || 0;
                 const ms = parseInt(document.getElementById('inp-ms').value) || 0;
-                
+
                 const totalSeconds = (min * 60) + sec + (ms / 100);
-                
+
                 // Получаем данные
                 const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
                 if (!data) return;
-            
+
                 // --- ЛОГИКА МИРОВОГО РЕКОРДА ---
                 const record = data.rec;
                 const rM = Math.floor(record / 60);
@@ -1107,18 +1109,18 @@
                 const recordStr = `${rM > 0 ? rM + ':' : ''}${rS.toString().padStart(2, '0')}.${rMS.toString().padStart(2, '0')}`;
                 document.getElementById('world-record').innerText = `WORLD RECORD: ${recordStr}`;
                 // ------------------------------
-            
+
                 if (totalSeconds === 0) {
                     this.updateDisplay(0, UI_TEXT.noData);
                     if (this.isSheetOpen) this.refreshSheet({ align: false });
                     return;
                 }
-            
+
                 // Считаем очки
                 let points = Math.floor(1000 * Math.pow(record / totalSeconds, 3));
                 if (points > 1199) points = 1199;
                 if (points < 0) points = 0;
-            
+
                 // Ищем разряд
                 let rank = UI_TEXT.noRank;
                 for (let r of RANKS) {
@@ -1127,9 +1129,9 @@
                         break;
                     }
                 }
-                
+
                 this.updateDisplay(points, rank);
-            
+
                 if (this.isSheetOpen) {
                     this.refreshSheet({ align: false });
                 }
@@ -1138,14 +1140,14 @@
             updateDisplay(points, rank) {
                 const display = document.getElementById('fina-value');
                 const badge = document.getElementById('rank-badge');
-                
+
                 // Оставляем только логику одометра (смены цифр)
                 const start = parseInt(display.innerText);
                 if (start !== points) {
                     // Мы убрали добавление класса value-refresh, теперь прыжков не будет
                     this.animateValue(display, start, points, 720);
                 }
-                
+
                 badge.innerText = rank;
                 badge.classList.toggle('active', rank !== UI_TEXT.noRank && rank !== UI_TEXT.noData);
             },
@@ -1169,7 +1171,7 @@
                 const list = document.getElementById('norms-list');
                 const sub = document.getElementById('sheet-sub');
                 list.innerHTML = '';
-                
+
                 const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
                 const min = parseInt(document.getElementById('inp-min').value) || 0;
                 const sec = parseInt(document.getElementById('inp-sec').value) || 0;
@@ -1242,18 +1244,18 @@
             openSheet() {
                 const { anchorRow } = this.buildNormRows();
                 const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
-                
+
                 const min = parseInt(document.getElementById('inp-min').value) || 0;
                 const sec = parseInt(document.getElementById('inp-sec').value) || 0;
                 const ms = parseInt(document.getElementById('inp-ms').value) || 0;
                 const userTime = (min * 60) + sec + (ms / 100);
-            
+
                 this.sheet.classList.add('active');
                 this.backdrop.classList.add('active');
                 this.isSheetOpen = true;
-            
+
                 const list = document.getElementById('norms-list');
-                
+
                 requestAnimationFrame(() => {
                     // ИСПРАВЛЕНИЕ: Приоритет всегда отдаем конкретной строке (anchorRow).
                     // Скроллим в начало (top: 0) только если время не введено вообще.
@@ -1264,7 +1266,7 @@
                         list.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 });
-            
+
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
             },
 
