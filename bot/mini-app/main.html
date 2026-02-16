@@ -53,16 +53,31 @@
 
         /* --- APP LAYOUT --- */
         .app-container {
-            flex: 1; display: flex; flex-direction: column;
-            padding: 20px 0; max-width: 600px; margin: 0 auto; width: 100%;
-            position: relative; z-index: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0; /* Уменьшили базовый паддинг, чтобы дать больше места */
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            
+            /* Вместо flex: 1 используем динамическую высоту */
+            min-height: 100dvh; 
+            box-sizing: border-box;
         }
 
         /* --- 1. FINA DISPLAY (THE ODOMETER) --- */
         .fina-section {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            min-height: 200px; perspective: 1000px;
+            /* Убираем flex: 1, чтобы секция не схлопывалась */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px; /* Фиксированный минимум */
+            padding: 20px 0;
+            perspective: 1000px;
+            flex-shrink: 0; /* Запрещаем сжиматься при открытии клавиатуры */
         }
 
         .fina-wrapper {
@@ -148,10 +163,45 @@
         }
 
         /* Микро-фикс для очень низких экранов (меньше 670px в высоту) */
-        @media (max-height: 670px) {
-            .controls-section {
-                gap: 16px; /* Уменьшаем расстояние между кнопками, чтобы всё влезло без скролла */
+        /* 1. Средние экраны или начало сжатия (до 750px) */
+        @media (max-height: 750px) {
+            .fina-section { 
+                min-height: 140px; 
+                padding: 10px 0; 
+            }
+            .wheels-container, 
+            .picker-column { 
+                height: 140px; 
+                min-height: 140px; 
+            }
+            .controls-section { 
+                gap: 12px; 
                 padding-bottom: 20px;
+            }
+        }
+        
+        /* 2. Совсем маленькие экраны или открытая клавиатура (до 600px) */
+        @media (max-height: 600px) {
+            .app-container {
+                overflow-y: auto; 
+                justify-content: flex-start;
+                /* Добавляем плавный скролл, если клавиатура всё перекрыла */
+                -webkit-overflow-scrolling: touch; 
+            }
+            .fina-badge, 
+            #world-record { 
+                display: none !important; 
+            } 
+            .fina-section { 
+                min-height: 100px; 
+            }
+            .wheels-container, 
+            .picker-column { 
+                height: 120px; 
+                min-height: 120px; 
+            }
+            .controls-section {
+                gap: 8px;
             }
         }
 
@@ -184,8 +234,14 @@
         /* --- 3D WHEEL PICKERS (BARRELS) --- */
         /* Это сердце интерфейса. Свой CSS-3D движок */
         .wheels-container {
-            display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px;
-            height: 160px; position: relative;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 16px;
+            height: 160px;
+            min-height: 160px; /* Защита от сжатия клавиатурой */
+            position: relative;
+            flex-shrink: 0;
+            margin-bottom: 20px;
         }
         .wheels-container::before {
             content: '';
@@ -199,20 +255,17 @@
         }
 
         .picker-column {
-            background: #000000; 
-            border: 1px solid rgba(255,255,255,0.05); /* Еще тоньше, чтобы не бликовало */
-            border-radius: 30px; 
+            background: #000000;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 30px;
             overflow: hidden;
             position: relative;
-            min-height: 160px; 
-            height: 160px;
-
-            /* Усиливаем тени: 60px создадут глубокое перекрытие сверху и снизу */
+            height: 160px; /* Фиксируем высоту */
+        
             box-shadow:
                 inset 0 60px 50px -10px rgba(0,0,0,1), 
                 inset 0 -60px 50px -10px rgba(0,0,0,1);
-
-            /* Маска стала жестче: прозрачность начинается раньше (35-65 вместо 25-75) */
+        
             -webkit-mask-image: linear-gradient(
                 to bottom, 
                 transparent 0%, 
@@ -231,7 +284,6 @@
                 rgba(0,0,0,0.2) 85%,
                 transparent 100%
             );
-
             transition: transform 0.55s var(--ease-smooth);
         }
 
@@ -479,21 +531,6 @@
         /* Улучшаем wrapper, чтобы кнопка влезла */
         .time-input-wrapper {
             padding: 15px 15px 15px 25px; /* Немного изменили отступы */
-        }
-
-        /* Уменьшаем отступы и высоту колес на маленьких экранах (высота меньше 700px) */
-        @media (max-height: 700px) {
-            .fina-section { min-height: 140px; }
-            .wheels-container { height: 130px; }
-            .picker-column { height: 130px; }
-            .app-container { padding: 10px 0; }
-            .controls-section { gap: 15px; }
-        }
-        
-        /* Убираем лишние зазоры на совсем крошечных экранах */
-        @media (max-height: 600px) {
-            .fina-badge { margin-top: 5px; }
-            #world-record { margin-top: 5px; }
         }
         
     </style>
