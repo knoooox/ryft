@@ -159,10 +159,11 @@
 
         /* --- 2. CONTROLS AREA --- */
         .controls-section {
-            padding: 0 24px calc(20px + env(safe-area-inset-bottom, 0px)); 
+            /* Минимальный паддинг снизу, чтобы только не касаться края экрана */
+            padding: 0 24px calc(10px + env(safe-area-inset-bottom, 0px)); 
             display: flex; 
             flex-direction: column; 
-            gap: 28px; /* Увеличили расстояние между элементами управления */
+            gap: 14px; /* Ужали в два раза (с 28px), чтобы всё поднялось вверх */
         }
 
         /* Микро-фикс для очень низких экранов (меньше 670px в высоту) */
@@ -240,11 +241,11 @@
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
             gap: 16px;
-            height: 160px;
-            min-height: 160px;
+            height: 130px; /* Ужали со 160px */
+            min-height: 130px;
             position: relative;
             flex-shrink: 0;
-            margin-bottom: 30px; /* Было 20 */
+            margin-bottom: 12px; /* Ужали с 30px */
         }
         .wheels-container::before {
             content: '';
@@ -396,8 +397,12 @@
         .time-input-wrapper {
             background: var(--glass-light);
             border: 1px solid var(--glass-border);
-            border-radius: 24px; padding: 20px;
-            display: flex; justify-content: center; align-items: center; gap: 10px;
+            border-radius: 20px; /* Чуть меньше радиус для компактности */
+            padding: 12px 20px;  /* Ужали с 20px */
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 8px;
             position: relative;
             transition: 0.3s;
         }
@@ -408,10 +413,15 @@
         }
 
         .time-field {
-            width: 70px; text-align: center;
+            width: 60px; /* Чуть уже */
+            text-align: center;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 36px; font-weight: 700; color: #fff;
-            background: transparent; border: none; padding: 0;
+            font-size: 28px; /* Ужали с 36px */
+            font-weight: 700; 
+            color: #fff;
+            background: transparent; 
+            border: none; 
+            padding: 0;
             border-bottom: 2px solid transparent;
             transition: 0.3s;
         }
