@@ -425,6 +425,21 @@
         .time-input-wrapper {
             padding: 15px 15px 15px 25px; /* Немного изменили отступы */
         }
+
+        /* --- REVERSE CALC INPUT --- */
+        .fina-input-field {
+            font-family: 'Inter', sans-serif;
+            font-size: 110px; font-weight: 900;
+            letter-spacing: -4px; line-height: 0.9;
+            color: #fff; background: transparent;
+            border: none; outline: none;
+            width: 100%; text-align: center;
+            padding: 0; margin: 0;
+            caret-color: var(--text-secondary); /* Цвет мигающего курсора */
+        }
+        .fina-input-field::placeholder {
+            color: rgba(255,255,255,0.1);
+        }
         
     </style>
 </head>
@@ -436,11 +451,15 @@
 
         <section class="fina-section">
             <div class="fina-wrapper" id="fina-container">
-                <div class="fina-number" id="fina-value">0</div>
+                <div class="fina-number" id="fina-value" onclick="app.enableReverseMode()">0</div>
+                
+                <input type="tel" class="fina-input-field" id="fina-input" 
+                       maxlength="4" style="display: none;" 
+                       onblur="app.confirmReverseCalc()" 
+                       onkeydown="if(event.key === 'Enter') app.confirmReverseCalc()">
             </div>
 
             <div class="fina-badge" id="rank-badge">NO DATA</div>
-
             <div id="world-record" style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-tertiary); margin-top: 12px; font-weight: 700; letter-spacing: 0.5px;">WR: 00:00.00</div>
         </section>
 
@@ -1166,6 +1185,8 @@
                     }
                 }
 
+                let rank = UI_TEXT.noRank;
+
                 this.updateDisplay(points, rank);
 
                 if (this.isSheetOpen) {
@@ -1321,7 +1342,108 @@
                 if (window.Telegram?.WebApp?.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                 }
-            }
+            },
+            
+            // --- REVERSE CALCULATOR (POINTS -> TIME) ---
+            
+            enableReverseMode() {
+                const display = document.getElementById('fina-value');
+                const input = document.getElementById('fina-input');
+                
+                // Прячем цифры, показываем инпут
+                display.style.display = 'none';
+                input.style.display = 'block';
+                
+                // Ставим текущее значение и фокус
+                let currentVal = display.innerText;
+                if(currentVal === '0') currentVal = '';
+                input.value = currentVal;
+                input.focus();
+                
+                // Вибрация
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                }
+            },
+
+            confirmReverseCalc() {
+                const display = document.getElementById('fina-value');
+                const input = document.getElementById('fina-input');
+                const valStr = input.value.replace(/[^0-9]/g, '');
+                const targetPoints = parseInt(valStr);
+
+                // Возвращаем вид обратно
+                input.style.display = 'none';
+                display.style.display = 'inline-block';
+
+                if (!valStr || isNaN(targetPoints) || targetPoints <= 0) {
+                    // Если пусто или 0 - просто возвращаем как было
+                    display.innerText = this.lastPoints || 0;
+                    return;
+                }
+
+                // --- САМАЯ ВАЖНАЯ ЧАСТЬ: МАТЕМАТИКА ---
+                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
+                if (!data || !data.rec) return;
+
+                const record = data.rec;
+
+                // 1. Алгебраический расчет времени: Time = Record / (Points/1000)^(1/3)
+                // Это дает "сырое" время
+                let rawTime = record / Math.pow(targetPoints / 1000, 1/3);
+
+                // 2. Округляем до сотых (как в реальном секундомере)
+                // Используем Math.round, чтобы получить ближайшую точку старта
+                let timeInSeconds = Math.round(rawTime * 100) / 100;
+
+                // 3. ПРОВЕРКА И ПОДГОНКА (LOOP)
+                // Прямая формула: Points = floor(1000 * (Rec/Time)^3)
+                // Нам нужно найти время T, которое дает результат >= targetPoints,
+                // но при этом оно должно быть максимально близким (желательно медленным), 
+                // чтобы при обратном вводе мы попали в те же очки.
+
+                const getP = (t) => Math.floor(1000 * Math.pow(record / t, 3));
+
+                let safetyCounter = 0;
+                let calculatedPoints = getP(timeInSeconds);
+
+                // Если текущее время дает МЕНЬШЕ очков, чем надо -> надо плыть быстрее (уменьшать время)
+                while (calculatedPoints < targetPoints && safetyCounter < 50) {
+                    timeInSeconds -= 0.01;
+                    // Округляем, чтобы избежать ошибок плавающей точки (56.0099999)
+                    timeInSeconds = Math.round(timeInSeconds * 100) / 100;
+                    calculatedPoints = getP(timeInSeconds);
+                    safetyCounter++;
+                }
+
+                // Если текущее время дает БОЛЬШЕ или РАВНО очков -> попробуем замедлиться (прибавить время),
+                // вдруг мы можем проплыть медленнее, но все еще получить эти очки?
+                // Это нужно, чтобы найти ГРАНИЦУ.
+                safetyCounter = 0;
+                while (getP(timeInSeconds + 0.01) >= targetPoints && safetyCounter < 50) {
+                    timeInSeconds += 0.01;
+                    timeInSeconds = Math.round(timeInSeconds * 100) / 100;
+                    safetyCounter++;
+                }
+                
+                // 4. Заполняем инпуты времени
+                const m = Math.floor(timeInSeconds / 60);
+                const s = Math.floor(timeInSeconds % 60);
+                const ms = Math.round((timeInSeconds - Math.floor(timeInSeconds)) * 100);
+
+                document.getElementById('inp-min').value = m > 0 ? m.toString().padStart(2, '0') : '';
+                document.getElementById('inp-sec').value = s.toString().padStart(2, '0');
+                document.getElementById('inp-ms').value = ms.toString().padStart(2, '0');
+
+                // 5. Запускаем обычный расчет, чтобы обновить UI (ранги, прогресс бар)
+                // Это также проверит нашу теорию: цифра на экране должна стать ровно targetPoints
+                this.calculate();
+                
+                // Виброотклик успеха
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+            },
         }; // Конец объекта app
 
         // Boot
