@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>RYFT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL VARIABLES (WHITE PROTOCOL v5.2) --- */
+        :root {
+            --bg-page: #ffffff;
+            --bg-surface: #F5F5F7;
+            --bg-surface-hover: #EBEBF0;
+            --accent: #007AFF;
+            --accent-dark: #005ecb;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border: #d2d2d7;
+            --success: #34c759;
+            --danger: #ff3b30;
+            --warning: #ff9500;
+            --radius-s: 8px;
+            --radius-m: 16px;
+            --radius-l: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* --- RESET & BASE --- */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0; padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Анимация загрузки */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-load {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; 
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 60px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .kicker {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 4px;
+            font-size: 11px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: clamp(42px, 8vw, 82px);
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: -0.04em;
+            line-height: 0.9;
+            text-transform: uppercase;
+            color: var(--text-primary);
+        }
+        
+        .sub-h1 {
+            font-size: clamp(16px, 4vw, 24px);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        h2 { font-size: 28px; font-weight: 800; margin: 40px 0 20px 0; letter-spacing: -0.02em; }
+        h3 { font-size: 18px; font-weight: 700; margin: 0 0 15px 0; color: var(--text-primary); }
+        p { color: var(--text-secondary); font-size: 15px; margin-bottom: 20px; font-weight: 400; text-align: justify; }
+
+        /* --- MODULE 1: STATS GRID --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 60px;
+        }
+        @media (min-width: 700px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .stat-card {
+            background: var(--bg-surface);
+            padding: 25px 15px;
+            border-radius: var(--radius-m);
+            text-align: center;
+            transition: transform 0.3s ease, background 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .stat-card:hover { 
+            transform: translateY(-3px); 
+            background: var(--bg-surface-hover); 
+            border-color: var(--border);
+        }
+
+        .stat-val { display: block; font-size: 32px; font-weight: 800; letter-spacing: -1px; color: var(--text-primary); line-height: 1; margin-bottom: 8px; font-family: 'Inter', monospace; }
+        .stat-lbl { display: block; font-size: 10px; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; letter-spacing: 1px; }
+
+        /* --- MODULE 2: INSIGHT BOX --- */
+        .insight-box {
+            background: #fff;
+            border-left: 4px solid var(--accent);
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+            border-radius: 0 var(--radius-m) var(--radius-m) 0;
+            position: relative;
+        }
+        .insight-text { font-size: 18px; font-weight: 600; color: var(--text-primary); font-style: italic; line-height: 1.5; }
+        .insight-author { margin-top: 15px; font-size: 11px; text-transform: uppercase; color: var(--text-secondary); font-weight: 800; letter-spacing: 1px; }
+
+        /* --- MODULE 3: METRICS --- */
+        .metrics-container {
+            background: var(--bg-surface);
+            border-radius: var(--radius-l);
+            padding: 40px 30px;
+            margin-bottom: 50px;
+        }
+        .metric-item { margin-bottom: 25px; }
+        .metric-item:last-child { margin-bottom: 0; }
+        .metric-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-track { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+        .metric-fill { height: 100%; background: var(--text-primary); border-radius: 4px; transition: width 1s cubic-bezier(0.22, 1, 0.36, 1); }
+        .fill-blue { background: var(--accent); }
+        .fill-green { background: var(--success); }
+        .fill-red { background: var(--danger); }
+        .fill-orange { background: var(--warning); }
+
+        /* --- MODULE 4: VERSUS BAR --- */
+        .versus-wrapper { margin-bottom: 50px; }
+        .vs-header { text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); margin-bottom: 15px; font-weight: 800; }
+        .vs-bar-container { display: flex; height: 40px; border-radius: 12px; overflow: hidden; }
+        .vs-segment { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff; transition: width 0.5s ease; }
+        .vs-left { background: var(--text-primary); }
+        .vs-right { background: var(--accent); }
+
+        /* --- MODULE 5: TABLE --- */
+        .table-wrap {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-m);
+            overflow-x: auto;
+            margin-bottom: 60px;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 18px 25px; font-size: 10px; text-transform: uppercase; color: var(--text-secondary); border-bottom: 1px solid var(--border); background: #fafafa; font-weight: 700; letter-spacing: 1px; }
+        td { padding: 18px 25px; font-size: 14px; color: var(--text-primary); border-bottom: 1px solid var(--border); font-weight: 500; }
+        tr:last-child td { border-bottom: none; }
+        .td-highlight { font-weight: 700; color: var(--accent); }
+        .td-status { 
+            display: inline-block; 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            font-size: 10px; 
+            font-weight: 700; 
+            text-transform: uppercase;
+        }
+        .status-active { background: rgba(52, 199, 89, 0.1); color: var(--success); }
+        .status-danger { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
+        .status-warn { background: rgba(255, 149, 0, 0.1); color: var(--warning); }
+
+        /* --- MODULE 6: TIMELINE (PIXEL PERFECT) --- */
+        .timeline-section { margin-bottom: 60px; }
+        
+        .timeline-stream {
+            position: relative;
+            padding-left: 0;
+            margin-top: 20px;
+        }
+
+        /* Линия */
+        .timeline-stream::before {
+            content: '';
+            position: absolute;
+            top: 8px; 
+            bottom: 0;
+            left: 7px; /* (16px / 2) - (2px / 2) = 7px */
+            width: 2px;
+            background: var(--border);
+            z-index: 0;
+        }
+
+        .timeline-event {
+            position: relative;
+            padding-left: 45px; 
+            margin-bottom: 40px;
+        }
+        
+        .timeline-event:last-child { margin-bottom: 0; }
+
+        /* Точка */
+        .timeline-dot {
+            position: absolute;
+            left: 0; 
+            top: 2px;
+            width: 16px;
+            height: 16px;
+            background: var(--bg-page);
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            z-index: 2;
+            box-sizing: border-box;
+        }
+
+        .time-label { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
+        .event-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+        .event-desc { font-size: 14px; color: var(--text-secondary); margin: 0; line-height: 1.5; }
+
+        /* --- MODULE 7: IMPACT GRID --- */
+        .impact-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 60px; }
+        @media (min-width: 600px) { .impact-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .impact-card { 
+            background: var(--bg-surface); 
+            padding: 30px; 
+            border-radius: var(--radius-l); 
+            transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            border: 1px solid transparent;
+        }
+        .impact-card:hover { 
+            background: #fff; 
+            border-color: var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transform: translateY(-5px);
+        }
+        
+        .tag { 
+            display: inline-block; 
+            background: #fff; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            font-size: 9px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            margin-bottom: 15px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            letter-spacing: 0.5px;
+        }
+        .tag-blue { color: var(--accent); border: 1px solid rgba(0, 122, 255, 0.1); }
+        .tag-red { color: var(--danger); border: 1px solid rgba(255, 59, 48, 0.1); }
+        .tag-black { color: var(--text-primary); border: 1px solid rgba(0, 0, 0, 0.1); }
+
+        /* --- LONG READ TEXT BLOCK --- */
+        .long-read {
+            margin: 60px 0;
+            padding: 0 10px;
+        }
+        .lr-section { margin-bottom: 40px; }
+        .lr-title { font-size: 18px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; color: var(--text-primary); border-bottom: 2px solid var(--border); padding-bottom: 10px; display: inline-block; }
+        .lr-text { font-size: 16px; line-height: 1.7; color: #333; margin-bottom: 20px; }
+        .lr-highlight { background: rgba(0, 122, 255, 0.08); padding: 2px 6px; border-radius: 4px; color: var(--accent-dark); font-weight: 600; }
+
+        /* --- CTA & FOOTER --- */
+        .cta-section { text-align: center; margin: 100px 0 60px; }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--text-primary);
+            color: white;
+            padding: 24px 60px;
+            border-radius: var(--radius-pill);
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .cta-btn:hover {
+            transform: scale(1.03);
+            background: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 122, 255, 0.3);
+        }
+
+        footer { text-align: center; padding: 60px 0 30px; border-top: 1px solid var(--border); background: var(--bg-page); }
+        .footer-logo { font-size: 14px; font-weight: 900; color: var(--text-primary); letter-spacing: -0.5px; }
+        .footer-sub { margin-top: 8px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 4px; font-weight: 600; }
+        
+        /* Mobile Adapt */
+        @media (max-width: 600px) {
+            h1 { font-size: 48px; }
+            .container { padding: 40px 15px; }
+            .cta-btn { width: 100%; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <header class="animate-load">
+        <span class="kicker">RYFT Intelligence Unit</span>
+        <h1>The Silent<br><span style="color: var(--accent);">Anomaly</span></h1>
+        <div class="sub-h1">Анализ стагнации рекордов в женском брассе (2017-2026)</div>
+    </header>
+
+    <div class="stats-grid animate-load delay-1">
+        <div class="stat-card">
+            <span class="stat-val">3,124</span>
+            <span class="stat-lbl">Дней рекорду 100м</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val" style="color: var(--danger);">+1.06s</span>
+            <span class="stat-lbl">Gap to WR (100m)</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val">0%</span>
+            <span class="stat-lbl">Прогресс за 4 года</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val" style="color: var(--accent);">2017</span>
+            <span class="stat-lbl">Год рекорда King</span>
+        </div>
+    </div>
+
+    <div class="insight-box animate-load delay-2">
+        <div class="insight-text">"Пока Кэти Ледеки и Саммер Макинтош выводят плавание в стратосферу, женский брасс остается единственным стилем, где время остановилось. Разрыв в секунду на стометровке — это не просто отставание, это биомеханический кризис."</div>
+        <div class="insight-author">— RYFT Analytics Core</div>
+    </div>
+
+    <div class="versus-wrapper animate-load delay-3">
+        <div class="vs-header">GLOBAL RECORD PROGRESSION (2020-2025)</div>
+        <div class="vs-bar-container">
+            <div class="vs-segment vs-left" style="width: 85%; background: var(--text-primary);">OTHER STROKES (ACTIVE)</div>
+            <div class="vs-segment vs-right" style="width: 15%; background: var(--danger);">BREAST (STAGNANT)</div>
+        </div>
+        <p style="text-align: center; font-size: 12px; margin-top: 10px; color: var(--text-secondary);">Сравнение частоты обновления мировых рекордов по стилям</p>
+    </div>
+
+    <div class="metrics-container animate-load delay-3">
+        <h2 style="font-size: 20px; margin-top: 0;">Дефицит Скорости (Gap Analysis)</h2>
+        <p style="font-size: 13px; margin-bottom: 30px;">Разница между WR и лучшими результатами сезона 2025.</p>
+        
+        <div class="metric-item">
+            <div class="metric-header"><span>50m Breast (Gap: +0.39s)</span><span>98.6%</span></div>
+            <div class="metric-track"><div class="metric-fill fill-blue" style="width: 98.6%;"></div></div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-header"><span>100m Breast (Gap: +1.06s) - CRITICAL</span><span>94.5%</span></div>
+            <div class="metric-track"><div class="metric-fill fill-red" style="width: 94.5%;"></div></div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-header"><span>200m Breast (Gap: +0.95s)</span><span>96.2%</span></div>
+            <div class="metric-track"><div class="metric-fill fill-orange" style="width: 96.2%;"></div></div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-header"><span>Comparison: 400m Free (Gap: -0.00s) - WR BROKEN</span><span>100%</span></div>
+            <div class="metric-track"><div class="metric-fill fill-green" style="width: 100%;"></div></div>
+        </div>
+    </div>
+
+    <div class="long-read animate-load delay-4">
+        <h2>RYFT DEEP DIVE: ANALYSIS</h2>
+        
+        <div class="lr-section">
+            <span class="lr-title">01. Призрак Лилли Кинг (100м)</span>
+            <p class="lr-text">
+                Ситуация на дистанции 100 метров брассом беспрецедентна для современного спорта. Мировой рекорд 1:04.13 был установлен Лилли Кинг на Чемпионате мира в Будапеште в <span class="lr-highlight">2017 году</span>. С тех пор прошло почти десятилетие, сменилось два олимпийских цикла, появились новые технологии тренировок и восстановления, но никто не приблизился к этому результату ближе чем на полсекунды.
+            </p>
+            <p class="lr-text">
+                Текущее поколение лидеров — Тан Цяньтин (Китай), Татьяна Смит (ЮАР) и Мона МакШарри (Ирландия) — стабильно показывает результаты в диапазоне 1:05.20 – 1:05.50. Это "плато 65-ти секунд". Единственным исключением стала Рута Мейлутите в 2023 году (1:04.62), но даже этот всплеск остался на полсекунды хуже графика Кинг. Это указывает на то, что заплыв 2017 года был статистической аномалией, вызванной идеальным штормом: пиковой формой, агрессивной "мужской" техникой Кинг и эмоциональным топливом дуэли с Ефимовой.
+            </p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">02. Фантом Чикуновой (200м)</span>
+            <p class="lr-text">
+                На дистанции 200 метров ситуация еще более сложная для интерпретации. Официально рекорд мира (2:17.55) принадлежит Евгении Чикуновой и установлен в 2023 году. Однако этот результат был показан на внутреннем чемпионате России, в условиях отсутствия международного давления и акклиматизации, которые влияют на атлетов во время Олимпиад.
+            </p>
+            <p class="lr-text">
+                Кейт Дуглас, нынешняя королева дистанции и Олимпийская чемпионка Парижа, доминирует над остальным миром, но ее лучшие секунды (2:19.24 в Париже) проигрывают графику Чикуновой почти 1.7 секунды. В 2025 году Дуглас показала 2:18.50+, сократив разрыв до секунды, но "виртуальная" дуэль с Чикуновой остается проигранной. Это создает уникальную ситуацию, где де-факто сильнейший пловец мира (Дуглас) и обладатель быстрейших секунд (Чикунова) существуют в параллельных вселенных, не пересекаясь на одной дорожке.
+            </p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">03. Биомеханический Тупик</span>
+            <p class="lr-text">
+                Почему стагнация коснулась только брасса? Ответ кроется в гидродинамике. Брасс — единственный стиль, где фаза подтягивания ног создает колоссальное фронтальное сопротивление. В то время как в баттерфляе и кроле атлеты научились использовать упругую энергию костюмов и волнообразную работу корпуса для минимизации торможения, брасс остается "дискретным" стилем с фазами полного замедления.
+            </p>
+            <p class="lr-text">
+                Современные <span class="lr-highlight">Tech Suits</span> (высокотехнологичные костюмы) дают меньший прирост эффективности в брассе по сравнению с другими стилями. Жесткая компрессия, помогающая в дельфине, может ограничивать подвижность тазобедренного сустава, критически важную для мощного брассового толчка. Мы достигли точки, где физиология человека уперлась в законы физики воды, и без революционного изменения техники (подобного переходу на "волновой" брасс в 2000-х) прорыва ждать не стоит.
+            </p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">04. Долголетие как Симптом</span>
+            <p class="lr-text">
+                Тот факт, что Рута Мейлутите, выигравшая золото Лондона в 2012 году в возрасте 15 лет, продолжает доминировать на 50м в 2025 году, говорит о многом. С одной стороны, это свидетельство гениальности Руты. С другой — приговор молодому поколению. Если за 13 лет не появилось юниоров, способных сместить ветерана с трона на чистой скорости, значит, система подготовки спринтеров-брассистов дает сбой. Рута планирует выступать в Лос-Анджелесе-2028, что может сделать её карьеру одной из самых длительных в истории спринта, охватывающей 16 лет элитного доминирования.
+            </p>
+        </div>
+    </div>
+
+    <div class="timeline-section animate-load delay-5">
+        <h3>Хронология Рекордов (Timeline of Stasis)</h3>
+        <div class="timeline-stream">
+            <div class="timeline-event">
+                <div class="timeline-dot"></div>
+                <span class="time-label">Июль 2017</span>
+                <div class="event-title">Будапешт: The King Spike</div>
+                <p class="event-desc">Лилли Кинг устанавливает WR 1:04.13 на 100м. Этот результат остается недосягаемым по сей день.</p>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-dot"></div>
+                <span class="time-label">Июль 2023</span>
+                <div class="event-title">Фукуока: Вспышка Мейлутите</div>
+                <p class="event-desc">Рута устанавливает WR на 50м (29.16). Единственный прогресс в брассовом спринте за десятилетие.</p>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-dot"></div>
+                <span class="time-label">Апрель 2023</span>
+                <div class="event-title">Казань: Аномалия Чикуновой</div>
+                <p class="event-desc">Евгения Чикунова показывает 2:17.55 на 200м. Результат феноменальный, но изолированный от международной конкуренции.</p>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-dot"></div>
+                <span class="time-label">2024-2025</span>
+                <div class="event-title">Эпоха Застоя</div>
+                <p class="event-desc">Олимпийские игры в Париже и последующие старты не приносят рекордов. Лидеры (Дуглас, Смит) выигрывают с результатами, далекими от WR.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-wrap animate-load delay-5">
+        <h3 style="padding: 20px 25px 0; font-size: 16px;">Сравнительная Таблица Отставаний (2025)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Дисциплина</th>
+                    <th>Current WR</th>
+                    <th>2025 Best</th>
+                    <th>Дефицит (Gap)</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>50 Breast</td>
+                    <td>29.16 (Ruta)</td>
+                    <td>29.54</td>
+                    <td>+0.39s</td>
+                    <td class="td-status status-warn">Warning</td>
+                </tr>
+                <tr>
+                    <td>100 Breast</td>
+                    <td>1:04.13 (King)</td>
+                    <td>1:05.19</td>
+                    <td class="td-highlight">+1.06s</td>
+                    <td class="td-status status-danger">Critical</td>
+                </tr>
+                <tr>
+                    <td>200 Breast</td>
+                    <td>2:17.55 (Chikunova)</td>
+                    <td>2:18.50+</td>
+                    <td>+0.95s</td>
+                    <td class="td-status status-danger">Critical</td>
+                </tr>
+                <tr>
+                    <td>100 Fly</td>
+                    <td>55.18 (Walsh)</td>
+                    <td>55.18</td>
+                    <td>0.00s</td>
+                    <td class="td-status status-active">Progress</td>
+                </tr>
+                 <tr>
+                    <td>400 Free</td>
+                    <td>3:55.38 (Titmus)</td>
+                    <td>3:54.xx (Summer)</td>
+                    <td>-0.xx</td>
+                    <td class="td-status status-active">Broken</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="impact-grid animate-load delay-5">
+        <div class="impact-card">
+            <span class="tag tag-red">Anomaly</span>
+            <h3>Кризис 100 метров</h3>
+            <p>Дистанция 100м стала "мертвой зоной". Отсутствие конкуренции на уровне 1:04.5 убивает интригу. Мир ждет, когда кто-то (Тан Цяньтин или Дуглас) взломает барьер 1:05.</p>
+        </div>
+        <div class="impact-card">
+            <span class="tag tag-blue">Future</span>
+            <h3>Фактор LA28</h3>
+            <p>Если стагнация продолжится, Олимпиада в Лос-Анджелесе может стать ареной ветеранов. Рута Мейлутите и Лилли Кинг (если вернется) могут оставаться конкурентными даже в 30+ лет.</p>
+        </div>
+    </div>
+
+    <div class="cta-section animate-load delay-5">
+        <a href="https://t.me/ryft_community" class="cta-btn">
+            ОБСУДИТЬ В RYFT | COMMUNITY
+        </a>
+    </div>
+
+    <footer class="animate-load delay-5">
+        <div class="footer-logo">RYFT | CHANNEL <span style="color: var(--accent);">© 2026</span></div>
+        <div class="footer-sub">Swim • Analyze • Conquer</div>
+    </footer>
+
+</div>
+
+</body>
+</html>
