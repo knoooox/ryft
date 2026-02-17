@@ -320,10 +320,10 @@
         .picker-scroll-area {
             display: flex;       /* Горизонтальный список */
             align-items: center; /* Центровка по вертикали */
-            height: 100%; 
+            height: 100%;
             width: max-content;  /* Ширина по контенту */
-            cursor: grab; 
-            touch-action: none;  /* Отключаем стандартный скролл */
+            cursor: grab;
+            touch-action: pan-y; /* Разрешаем вертикальный скролл страницы */
             will-change: transform;
         }
 
@@ -332,26 +332,27 @@
         .picker-item {
             width: 110px; /* Фиксированная ширина элемента */
             height: 100%;
-            display: flex; 
-            align-items: center; 
+            display: flex;
+            align-items: center;
             justify-content: center;
             
             /* Типографика */
-            font-size: 15px; 
-            font-weight: 600; 
-            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.35);
             white-space: nowrap;
             letter-spacing: -0.2px;
             
             /* Анимация */
-            transition: color 0.3s ease, opacity 0.3s ease;
+            transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
             transform-origin: center center;
             user-select: none;
         }
 
-        .picker-item.selected { 
-            color: #fff; 
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        .picker-item.selected {
+            color: #fff;
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(255,255,255,0.25);
         }
 
         /* --- TIME INPUT (SPLIT SYSTEM) --- */
@@ -622,13 +623,13 @@
             </div>
 
             <div class="wheels-container">
-                <div class="picker-column" id="dist-wheel">
-                    <div class="picker-highlight"></div>
-                    <div class="picker-scroll-area" id="dist-scroll"></div>
-                </div>
                 <div class="picker-column" id="style-wheel">
                     <div class="picker-highlight"></div>
                     <div class="picker-scroll-area" id="style-scroll"></div>
+                </div>
+                <div class="picker-column" id="dist-wheel">
+                    <div class="picker-highlight"></div>
+                    <div class="picker-scroll-area" id="dist-scroll"></div>
                 </div>
             </div>
 
@@ -834,39 +835,49 @@
         class WheelPicker {
             constructor(elementId, items, onChange) {
                 this.container = document.getElementById(elementId);
-                this.originalItems = items; // Сохраняем исходный список
+                this.originalItems = items;
                 this.onChange = onChange;
                 
-                this.itemWidth = 110; // Ширина одного элемента (как в CSS)
+                this.itemWidth = 110;
                 this.scrollX = 0;
                 this.velocity = 0;
                 this.isDragging = false;
+                this.dragMoved = false;
                 this.lastX = 0;
                 this.lastTime = 0;
                 this.rafId = null;
                 this.targetScrollX = null;
                 this.isProgrammaticScroll = false;
-                
-                // --- ЛОГИКА БЕСКОНЕЧНОСТИ ---
-                // Множим список, чтобы он был "бесконечным"
-                // 40 повторений достаточно для любого реального сценария
-                const REPEATS = 40; 
+
+                this.repeats = 40;
                 this.items = [];
-                for (let i = 0; i < REPEATS; i++) {
-                    this.items = [...this.items, ...items];
-                }
+                this.selectedIndex = 0;
                 
-                // Стартуем с середины списка
-                this.selectedIndex = Math.floor(this.items.length / 2);
-                // Корректируем, чтобы старт был на первом элементе исходного набора
-                const mod = this.selectedIndex % this.originalItems.length;
-                this.selectedIndex -= mod;
-
-                this.scrollX = this.selectedIndex * this.itemWidth;
-
+                this.rebuildItems(items);
                 this.render();
                 this.attachEvents();
                 this.animate();
+            }
+
+            rebuildItems(newOriginalItems, preferredValue = null) {
+                this.originalItems = newOriginalItems;
+                this.items = [];
+
+                for (let i = 0; i < this.repeats; i++) {
+                    this.items.push(...newOriginalItems);
+                }
+
+                const centerStart = Math.floor(this.repeats / 2) * newOriginalItems.length;
+                let offset = 0;
+                if (preferredValue) {
+                    const found = newOriginalItems.findIndex(item => item.value === preferredValue);
+                    if (found !== -1) offset = found;
+                }
+
+                this.selectedIndex = centerStart + offset;
+                this.scrollX = this.selectedIndex * this.itemWidth;
+                this.targetScrollX = null;
+                this.velocity = 0;
             }
 
             get maxScroll() {
@@ -881,46 +892,31 @@
                 return this.clamp(Math.round(this.scrollX / this.itemWidth), 0, this.items.length - 1);
             }
 
-            // Метод для обновления данных (например, смена бассейна)
+            normalizeAroundCenter() {
+                if (!this.originalItems.length) return;
+                const blockSize = this.originalItems.length;
+                const centerStart = Math.floor(this.repeats / 2) * blockSize;
+                const index = this.getClosestIndex();
+                const offset = ((index % blockSize) + blockSize) % blockSize;
+                const normalizedIndex = centerStart + offset;
+
+                if (Math.abs(normalizedIndex - index) > blockSize) {
+                    const shift = (normalizedIndex - index) * this.itemWidth;
+                    this.scrollX += shift;
+                    if (this.targetScrollX !== null) this.targetScrollX += shift;
+                }
+            }
+
             updateItems(newOriginalItems, options = {}) {
                 const { preferredValue = null, smooth = true } = options;
-                
-                this.originalItems = newOriginalItems;
-                
-                // Пересоздаем "бесконечный" список
-                const REPEATS = 40;
-                this.items = [];
-                for (let i = 0; i < REPEATS; i++) {
-                    this.items = [...this.items, ...newOriginalItems];
-                }
-                
+                this.rebuildItems(newOriginalItems, preferredValue);
                 this.render();
 
-                // Ищем значение, максимально близкое к текущей позиции скролла, 
-                // чтобы не было резкого прыжка
-                const currentIndex = this.getClosestIndex();
-                
-                // Ищем ближайший индекс с таким же value
-                let bestIndex = Math.floor(this.items.length / 2);
-                
-                if (preferredValue) {
-                    // Пытаемся найти такое же значение в "середине" массива
-                    // Находим первое вхождение в центральном блоке
-                    const centerStart = Math.floor(REPEATS / 2) * newOriginalItems.length;
-                    const offset = newOriginalItems.findIndex(i => i.value === preferredValue);
-                    if (offset !== -1) {
-                        bestIndex = centerStart + offset;
-                    }
-                }
-
                 if (smooth) {
-                    this.scrollToIndex(bestIndex, true);
+                    this.scrollToIndex(this.selectedIndex, true);
                 } else {
-                    this.selectedIndex = bestIndex;
-                    this.scrollX = bestIndex * this.itemWidth;
-                    this.velocity = 0;
                     this.targetScrollX = null;
-                    if (this.items[bestIndex]) this.onChange(this.items[bestIndex].value);
+                    if (this.items[this.selectedIndex]) this.onChange(this.items[this.selectedIndex].value);
                 }
             }
 
@@ -932,10 +928,7 @@
                     this.velocity = 0;
                     this.targetScrollX = targetX;
                     this.isProgrammaticScroll = true;
-                    
-                    if (this.items[this.selectedIndex]) {
-                        this.onChange(this.items[this.selectedIndex].value);
-                    }
+                    if (this.items[this.selectedIndex]) this.onChange(this.items[this.selectedIndex].value);
                     if (window.Telegram?.WebApp?.HapticFeedback) {
                         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
                     }
@@ -948,10 +941,8 @@
 
             render() {
                 const fragment = document.createDocumentFragment();
-                // Расчитываем отступы, чтобы первый элемент мог быть по центру
-                // Ширина экрана / 2 - Половина элемента
                 const screenWidth = document.body.clientWidth || window.innerWidth;
-                const padSize = (screenWidth / 2) - (this.itemWidth / 2);
+                const padSize = Math.max(0, (screenWidth / 2) - (this.itemWidth / 2));
 
                 const padLeft = document.createElement('div');
                 padLeft.style.width = `${padSize}px`;
@@ -962,10 +953,9 @@
                     const el = document.createElement('div');
                     el.className = 'picker-item';
                     el.innerText = item.label;
-                    // Блокируем клик, если драгаем
-                    el.addEventListener('click', (e) => { 
+                    el.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        if (!this.isDragging) this.scrollToIndex(index, true); 
+                        if (!this.dragMoved) this.scrollToIndex(index, true);
                     });
                     fragment.appendChild(el);
                 });
@@ -984,6 +974,7 @@
 
                 const start = (x) => {
                     this.isDragging = true;
+                    this.dragMoved = false;
                     this.lastX = x;
                     this.lastTime = Date.now();
                     this.velocity = 0;
@@ -995,14 +986,13 @@
                 const move = (x) => {
                     if (!this.isDragging) return;
                     const now = Date.now();
-                    const deltaX = x - this.lastX; // X вместо Y
+                    const deltaX = x - this.lastX;
                     const deltaTime = Math.max(1, now - this.lastTime);
+                    
+                    if (Math.abs(deltaX) > 2) this.dragMoved = true;
 
                     this.scrollX -= deltaX;
-                    // Убираем жесткие границы при перетаскивании для эластичности
-                    // но clamp всё равно нужен в animate
-                    
-                    this.velocity = this.velocity * 0.7 + (deltaX / deltaTime) * 5;
+                    this.velocity = this.velocity * 0.75 + (deltaX / deltaTime) * 3.5;
 
                     this.lastX = x;
                     this.lastTime = now;
@@ -1012,16 +1002,13 @@
                     if (!this.isDragging) return;
                     this.isDragging = false;
                     host.classList.remove('dragging');
-                    // Инерция приведет нас к ближайшему, но здесь мы просто отпускаем
                     this.targetScrollX = this.getClosestIndex() * this.itemWidth;
                 };
 
-                // Слушатели для Touch (мобилки)
                 host.addEventListener('touchstart', (e) => start(e.touches[0].clientX), { passive: true });
                 document.addEventListener('touchmove', (e) => move(e.touches[0].clientX), { passive: true });
                 document.addEventListener('touchend', end);
                 
-                // Слушатели для Мыши (ПК тест)
                 host.addEventListener('mousedown', (e) => start(e.clientX));
                 document.addEventListener('mousemove', (e) => move(e.clientX));
                 document.addEventListener('mouseup', end);
@@ -1031,16 +1018,15 @@
                 if (!this.isDragging) {
                     if (this.targetScrollX !== null) {
                         const diff = this.targetScrollX - this.scrollX;
-                        const easing = this.isProgrammaticScroll ? 0.1 : 0.15;
+                        const easing = this.isProgrammaticScroll ? 0.18 : 0.22;
                         this.scrollX += diff * easing;
-                        this.velocity *= 0.8;
+                        this.velocity *= 0.7;
 
                         if (Math.abs(diff) < 0.5) {
                             this.scrollX = this.targetScrollX;
                             this.targetScrollX = null;
                             this.isProgrammaticScroll = false;
                             
-                            // Когда анимация остановилась, сообщаем о выборе
                             const nextIndex = this.getClosestIndex();
                             if (nextIndex !== this.selectedIndex && this.items[nextIndex]) {
                                 this.selectedIndex = nextIndex;
@@ -1051,61 +1037,49 @@
                             }
                         }
                     } else {
-                        // Инерция
                         this.scrollX -= this.velocity;
-                        this.velocity *= 0.95;
+                        this.velocity *= 0.9;
 
-                        if (Math.abs(this.velocity) < 0.1) {
+                        if (Math.abs(this.velocity) < 0.05) {
                             this.velocity = 0;
                             this.targetScrollX = this.getClosestIndex() * this.itemWidth;
                         }
                     }
                 }
 
-                // Ограничиваем скролл, чтобы не улететь в пустоту (хотя список "бесконечный")
                 this.scrollX = this.clamp(this.scrollX, 0, this.maxScroll);
+                this.normalizeAroundCenter();
                 
-                // Двигаем ленту
                 this.container.style.transform = `translate3d(${-this.scrollX}px, 0, 0)`;
 
-                // Визуальные эффекты (scale, opacity, rotation)
                 const items = this.container.querySelectorAll('.picker-item');
                 const centerOffset = this.scrollX;
-
-                // Оптимизация: обрабатываем только видимые элементы
-                // Ширина экрана примерно 400px, элемент 110px. Видно ~5-6 штук.
-                const firstVisibleIndex = Math.floor((centerOffset - 300) / this.itemWidth);
-                const lastVisibleIndex = Math.ceil((centerOffset + 600) / this.itemWidth);
+                const firstVisibleIndex = Math.floor((centerOffset - 350) / this.itemWidth);
+                const lastVisibleIndex = Math.ceil((centerOffset + 700) / this.itemWidth);
 
                 items.forEach((item, i) => {
-                    // Пропускаем невидимые для производительности
                     if (i < firstVisibleIndex || i > lastVisibleIndex) {
-                        // Сбрасываем стили, если они были изменены
-                        item.style.transform = 'scale(0.85)'; 
-                        item.style.opacity = '0.1';
+                        item.style.transform = 'scale(0.92)';
+                        item.style.opacity = '0.2';
+                        item.classList.remove('selected');
                         return;
                     }
 
                     const itemX = i * this.itemWidth;
                     const distance = itemX - centerOffset;
                     const absDistance = Math.abs(distance);
-                    
-                    // Радиус влияния (чем больше число, тем плавнее изменения)
-                    const radius = this.itemWidth * 1.5; 
+                    const radius = this.itemWidth * 1.9;
                     const proximity = Math.max(0, 1 - absDistance / radius);
 
-                    // Эффекты
-                    const scale = 0.85 + (0.15 * proximity); // Увеличение в центре
-                    const opacity = 0.3 + (0.7 * proximity); // Прозрачность по краям
-                    const rotateY = (distance / radius) * 45; // Поворот (эффект цилиндра)
+                    const scale = 0.92 + (0.08 * proximity);
+                    const opacity = 0.35 + (0.65 * proximity);
 
-                    item.style.transform = `perspective(500px) rotateY(${rotateY}deg) scale(${scale})`;
+                    item.style.transform = `scale(${scale})`;
                     item.style.opacity = opacity;
 
                     if (absDistance < this.itemWidth / 2) {
                         if (!item.classList.contains('selected')) {
                             item.classList.add('selected');
-                            // Вибрация при прокрутке через центр
                             if (this.isDragging && window.Telegram?.WebApp?.HapticFeedback) {
                                 window.Telegram.WebApp.HapticFeedback.selectionChanged();
                             }
