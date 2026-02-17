@@ -1119,42 +1119,6 @@
             }
         }
 
-            updateItems(newItems, options = {}) {
-                const { preferredValue = null, smooth = true, emitChange = true, pulse = false } = options;
-                const host = this.container.parentElement;
-
-                // Сбрасываем инерцию, чтобы новый список не "улетел"
-                this.velocity = 0;
-                this.targetScrollY = null;
-
-                // Включаем блюр и прозрачность
-                host.classList.add('updating-content');
-
-                // Минимальная задержка 10мс, чтобы браузер успел отрисовать состояние opacity: 0
-                setTimeout(() => {
-                    const fallbackIndex = 0;
-                    const previousValue = preferredValue || this.items[this.selectedIndex]?.value;
-                    const nextIndex = Math.max(0, newItems.findIndex(item => item.value === previousValue));
-
-                    this.items = newItems;
-                    this.render(); 
-
-                    // Ставим индекс мгновенно (false), пока всё скрыто блюром
-                    this.scrollToIndex(nextIndex, false); 
-
-                    if (pulse) this.pulseRefresh();
-
-                    // Убираем блюр на следующем кадре
-                    requestAnimationFrame(() => {
-                        host.classList.remove('updating-content');
-                    });
-
-                    if (emitChange && this.items[this.selectedIndex]) {
-                        this.onChange(this.items[this.selectedIndex].value);
-                    }
-                }, 10); 
-            }
-        }
         // --- 3. APP LOGIC CONTROLLER ---
         const app = {
             state: {
