@@ -259,160 +259,145 @@
 
         /* --- 3D WHEEL PICKERS (BARRELS) --- */
         /* Это сердце интерфейса. Свой CSS-3D движок */
+        /* --- WHEELS PICKER LIGHT MOD --- */
         .wheels-container {
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
-            gap: 16px;
-            height: 130px; /* Ужали со 160px */
-            min-height: 130px;
+            gap: 12px;
+            height: 130px;
             position: relative;
             flex-shrink: 0;
-            margin-bottom: 12px; /* Ужали с 30px */
+            margin-bottom: 16px;
+            padding: 0 4px;
         }
+        
+        /* Убрали темное свечение, можно добавить легкую тень всей области если нужно */
         .wheels-container::before {
             content: '';
             position: absolute;
-            inset: -8px;
-            border-radius: 34px;
-            /* Убрали белый отсвет, заменили на черную пустоту */
-            background: radial-gradient(80% 120% at 50% 0%, rgba(0,0,0,0), rgba(0,0,0,0));
+            inset: -4px;
+            border-radius: var(--radius-l);
+            background: transparent;
             pointer-events: none;
             z-index: -1;
         }
-
+        
         .picker-column {
-            background: #000000;
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 30px;
+            background: var(--bg-surface);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
             overflow: hidden;
             position: relative;
-            height: 160px; /* Фиксируем высоту */
+            height: 100%; /* Занимает высоту контейнера */
         
+            /* Внутренние тени для объема в светлой теме */
             box-shadow:
-                inset 0 60px 50px -10px rgba(0,0,0,1), 
-                inset 0 -60px 50px -10px rgba(0,0,0,1);
+                inset 0 2px 8px rgba(0, 0, 0, 0.02),
+                0 1px 2px rgba(0, 0, 0, 0.01);
         
+            /* Маска для мягкого исчезновения текста сверху и снизу */
             -webkit-mask-image: linear-gradient(
-                to bottom, 
-                transparent 0%, 
-                rgba(0,0,0,0.2) 15%,
-                black 35%, 
-                black 65%, 
-                rgba(0,0,0,0.2) 85%,
+                to bottom,
+                transparent 0%,
+                rgba(0, 0, 0, 0.3) 15%,
+                black 40%,
+                black 60%,
+                rgba(0, 0, 0, 0.3) 85%,
                 transparent 100%
             );
             mask-image: linear-gradient(
-                to bottom, 
-                transparent 0%, 
-                rgba(0,0,0,0.2) 15%,
-                black 35%, 
-                black 65%, 
-                rgba(0,0,0,0.2) 85%,
+                to bottom,
+                transparent 0%,
+                rgba(0, 0, 0, 0.3) 15%,
+                black 40%,
+                black 60%,
+                rgba(0, 0, 0, 0.3) 85%,
                 transparent 100%
             );
-            transition: transform 0.55s var(--ease-smooth);
+            transition: transform 0.4s var(--ease-smooth), background-color 0.3s ease;
         }
-
+        
+        /* Эффект при обновлении */
         .picker-column.refreshing {
-            filter: brightness(1.1);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.08),
-                inset 0 -18px 30px rgba(0,0,0,0.2),
-                0 18px 34px rgba(0,0,0,0.34),
-                0 0 24px rgba(255,255,255,0.08);
+            background: var(--bg-surface-hover);
+            border-color: var(--accent);
         }
-
+        
         /* Визуальный центр (линза) */
         .picker-highlight {
-            position: absolute; 
-            top: 50%; 
-            left: 0; 
-            width: 100%; 
-            height: 40px;
-            margin-top: -20px;
-
-            /* Оставляем только мягкий горизонтальный блик */
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 38px;
+            margin-top: -19px;
+        
+            /* Очень легкий градиент в центре для фокуса */
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(255,255,255,0.04) 50%, 
+                rgba(0, 122, 255, 0.03) 50%, 
                 transparent
             );
-
-            /* Линии сверху и снизу теперь одинаковой яркости */
-            border-top: 1px solid rgba(255,255,255,0.12);
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-
-            /* Убрали все внутренние тени, которые создавали асимметрию */
-            box-shadow: none;
-
-            pointer-events: none; 
+        
+            /* Тонкие линии-разделители */
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        
+            pointer-events: none;
             z-index: 5;
         }
-
+        
         .picker-scroll-area {
-            height: 100%; 
+            height: 100%;
             width: 100%;
-            cursor: grab; 
+            cursor: grab;
             touch-action: none;
             transform-style: preserve-3d;
             overscroll-behavior: contain;
-            /* Ускоренная и мягкая анимация появления */
             transition: opacity 0.2s ease-out, filter 0.2s ease-out;
-            will-change: opacity, filter;
+            will-change: transform;
         }
-
-        /* Состояние в момент обновления данных */
+        
         .picker-column.updating-content .picker-scroll-area {
-            opacity: 0;
-            filter: blur(8px); /* Добавляем размытие для бесшовности */
+            opacity: 0.4;
+            filter: blur(4px);
         }
-
+        
         .picker-scroll-area.dragging { cursor: grabbing; }
-
-        .picker-column.refreshing .picker-scroll-area {
-            filter: saturate(1.1);
-            opacity: 0.94;
-        }
-
+        
         .picker-item {
-            height: 40px; 
-            display: flex; 
-            align-items: center; 
+            height: 38px; /* Согласовано с высотой линзы */
+            display: flex;
+            align-items: center;
             justify-content: center;
             width: 100%;
-
-            /* Фиксируем параметры, чтобы текст не "прыгал" */
-            font-size: 16px; 
-            font-weight: 600; /* Полужирный сразу для всех, так приятнее глазу */
+        
+            font-size: 15px;
+            font-weight: 500;
             color: var(--text-secondary);
-
-            /* Убираем тяжелые transition для веса и размера. 
-               Оставляем только плавный цвет и тени */
+            
             transition: 
-                color 0.4s var(--ease-smooth),
-                text-shadow 0.4s var(--ease-smooth),
-                opacity 0.4s var(--ease-smooth);
-
-            transform-origin: center center;
+                color 0.3s ease,
+                opacity 0.3s ease,
+                transform 0.3s ease;
+        
             will-change: transform, opacity;
-            letter-spacing: -0.2px;
+            letter-spacing: -0.3px;
             white-space: nowrap;
         }
-
-        .picker-item.selected { 
-            color: #fff; 
-            /* Вместо изменения веса (800) используем text-shadow. 
-               Это дает визуальный объем, не заставляя браузер перерисовывать буквы */
-            text-shadow: 0 0 1px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.15);
-
-            /* Размер оставляем прежним или меняем крайне незначительно через JS scale */
-            font-size: 16px; 
+        
+        .picker-item.selected {
+            color: var(--text-primary);
+            font-weight: 700;
+            /* Убрали тяжелые тени, оставили чистый текст */
+            text-shadow: none;
         }
-
+        
+        /* Анимация выбора */
         @keyframes pickerSelectionHit {
-            0% { transform: translateY(1px) scale(0.98); opacity: 0.74; }
-            55% { transform: translateY(-2px) scale(1.05); opacity: 1; }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.04); color: var(--accent); }
+            100% { transform: scale(1); }
         }
 
         /* --- TIME INPUT (SPLIT SYSTEM) --- */
@@ -1059,14 +1044,13 @@
                 }
             }
 
-            animate() {
+                        animate() {
                 if (!this.isDragging) {
                     if (this.targetScrollY !== null) {
                         const diff = this.targetScrollY - this.scrollY;
-                        // Делаем доводку еще мягче (0.06 вместо 0.08)
-                        const easing = this.isProgrammaticScroll ? 0.06 : 0.12; 
+                        const easing = this.isProgrammaticScroll ? 0.1 : 0.15; 
                         this.scrollY += diff * easing;
-                        this.velocity *= 0.75;
+                        this.velocity *= 0.8;
 
                         if (Math.abs(diff) < 0.1) {
                             this.scrollY = this.targetScrollY;
@@ -1076,7 +1060,7 @@
                         }
                     } else {
                         this.scrollY -= this.velocity;
-                        this.velocity *= 0.95; // Увеличили вязкость (было 0.92)
+                        this.velocity *= 0.95; 
 
                         if (Math.abs(this.velocity) < 0.01) {
                             this.velocity = 0;
@@ -1086,7 +1070,7 @@
                 }
 
                 this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
-                this.container.style.transform = `translateY(${-this.scrollY}px)`;
+                this.container.style.transform = `translate3d(0, ${-this.scrollY}px, 0)`;
 
                 const items = this.container.querySelectorAll('.picker-item');
                 const centerOffset = this.scrollY;
@@ -1095,24 +1079,16 @@
                     const itemY = i * this.itemHeight;
                     const distance = itemY - centerOffset;
                     const absDistance = Math.abs(distance);
-
-                    // Увеличиваем радиус влияния, чтобы изменения были очень растянуты во времени
-                    const radius = this.itemHeight * 2.5; 
-                    const proximity = Math.max(0, 1 - absDistance / radius);
-
-                    // Линейное сглаживание вместо агрессивного Power
-                    const curve = Math.sin(proximity * Math.PI / 2); 
-
-                    // Очень деликатные изменения (масштаб меняется всего на 15%)
-                    const scale = 0.88 + (0.12 * curve);
-                    const opacity = 0.3 + (0.7 * curve);
-                    const rotate = (distance / radius) * -30; 
-
-                    item.style.transform = `translateZ(0) rotateX(${rotate}deg) scale(${scale})`;
+                    
+                    // Плавное затухание и легкое масштабирование без изменения геометрии
+                    const proximity = Math.max(0, 1 - absDistance / (this.itemHeight * 2.5));
+                    const scale = 0.9 + (0.12 * Math.pow(proximity, 2));
+                    const opacity = 0.2 + (0.8 * Math.pow(proximity, 1.5));
+                    
+                    item.style.transform = `scale(${scale})`;
                     item.style.opacity = opacity;
 
-                    // Порог выбора делаем "невидимым"
-                    if (absDistance < 15) {
+                    if (absDistance < 10) {
                         if (!item.classList.contains('selected')) {
                             item.classList.add('selected');
                             if (this.isDragging && window.Telegram?.WebApp?.HapticFeedback) {
@@ -1621,81 +1597,86 @@
             confirmReverseCalc() {
                 const display = document.getElementById('fina-value');
                 const input = document.getElementById('fina-input');
-                const valStr = input.value.replace(/[^0-9]/g, '');
+                
+                // Очистка ввода: только цифры
+                const valStr = input.value.replace(/\D/g, '');
                 const targetPoints = parseInt(valStr);
-
-                // Возвращаем вид обратно
+            
+                // Возврат UI в исходное состояние
                 input.style.display = 'none';
                 display.style.display = 'inline-block';
-
+            
+                // Валидация
                 if (!valStr || isNaN(targetPoints) || targetPoints <= 0) {
-                    // Если пусто или 0 - просто возвращаем как было
                     display.innerText = this.lastPoints || 0;
                     return;
                 }
-
-                // --- САМАЯ ВАЖНАЯ ЧАСТЬ: МАТЕМАТИКА ---
-                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
-                if (!data || !data.rec) return;
-
-                const record = data.rec;
-
-                // 1. Алгебраический расчет времени: Time = Record / (Points/1000)^(1/3)
-                // Это дает "сырое" время
-                let rawTime = record / Math.pow(targetPoints / 1000, 1/3);
-
-                // 2. Округляем до сотых (как в реальном секундомере)
-                // Используем Math.round, чтобы получить ближайшую точку старта
-                let timeInSeconds = Math.round(rawTime * 100) / 100;
-
-                // 3. ПРОВЕРКА И ПОДГОНКА (LOOP)
-                // Прямая формула: Points = floor(1000 * (Rec/Time)^3)
-                // Нам нужно найти время T, которое дает результат >= targetPoints,
-                // но при этом оно должно быть максимально близким (желательно медленным), 
-                // чтобы при обратном вводе мы попали в те же очки.
-
-                const getP = (t) => Math.floor(1000 * Math.pow(record / t, 3));
-
-                let safetyCounter = 0;
-                let calculatedPoints = getP(timeInSeconds);
-
-                // Если текущее время дает МЕНЬШЕ очков, чем надо -> надо плыть быстрее (уменьшать время)
-                while (calculatedPoints < targetPoints && safetyCounter < 50) {
-                    timeInSeconds -= 0.01;
-                    // Округляем, чтобы избежать ошибок плавающей точки (56.0099999)
-                    timeInSeconds = Math.round(timeInSeconds * 100) / 100;
-                    calculatedPoints = getP(timeInSeconds);
-                    safetyCounter++;
-                }
-
-                // Если текущее время дает БОЛЬШЕ или РАВНО очков -> попробуем замедлиться (прибавить время),
-                // вдруг мы можем проплыть медленнее, но все еще получить эти очки?
-                // Это нужно, чтобы найти ГРАНИЦУ.
-                safetyCounter = 0;
-                while (getP(timeInSeconds + 0.01) >= targetPoints && safetyCounter < 50) {
-                    timeInSeconds += 0.01;
-                    timeInSeconds = Math.round(timeInSeconds * 100) / 100;
-                    safetyCounter++;
-                }
+            
+                // Получение данных рекорда (Base Time)
+                const category = DB[this.state.gender]?.[this.state.pool]?.[this.state.style]?.[this.state.dist];
+                if (!category || !category.rec) return;
+            
+                const record = category.rec;
+            
+                /**
+                 * МАТЕМАТИЧЕСКАЯ СПРАВКА:
+                 * Очки = floor( 1000 * (Record / Time)^3 )
+                 * Следовательно: Time = Record / ( (Points / 1000)^(1/3) )
+                 */
+            
+                // 1. Рассчитываем теоретическое время
+                let timeInSeconds = record / Math.pow(targetPoints / 1000, 1/3);
+            
+                // Функция для расчета очков из времени (с учетом правил FINA)
+                const calculatePointsFromTime = (t) => {
+                    // Округляем время до сотых, как это делает секундомер
+                    const roundedT = Math.round(t * 100) / 100;
+                    return Math.floor(1000 * Math.pow(record / roundedT, 3));
+                };
+            
+                // 2. Итеративная подгонка (Floating Point Safety)
+                // Нам нужно самое медленное время (максимальное T), при котором очки >= targetPoints
                 
-                // 4. Заполняем инпуты времени
-                const m = Math.floor(timeInSeconds / 60);
-                const s = Math.floor(timeInSeconds % 60);
-                const ms = Math.round((timeInSeconds - Math.floor(timeInSeconds)) * 100);
-
-                document.getElementById('inp-min').value = m > 0 ? m.toString().padStart(2, '0') : '';
-                document.getElementById('inp-sec').value = s.toString().padStart(2, '0');
-                document.getElementById('inp-ms').value = ms.toString().padStart(2, '0');
-
-                // 5. Запускаем обычный расчет, чтобы обновить UI (ранги, прогресс бар)
-                // Это также проверит нашу теорию: цифра на экране должна стать ровно targetPoints
+                // Сначала убеждаемся, что мы не перепрыгнули порог (делаем время чуть быстрее, если надо)
+                let safety = 0;
+                while (calculatePointsFromTime(timeInSeconds) < targetPoints && safety < 100) {
+                    timeInSeconds -= 0.01;
+                    safety++;
+                }
+            
+                // Теперь "отпускаем" время вперед, чтобы найти самую границу (медленный край)
+                safety = 0;
+                while (calculatePointsFromTime(timeInSeconds + 0.01) >= targetPoints && safety < 100) {
+                    timeInSeconds += 0.01;
+                    safety++;
+                }
+            
+                // Финальное округление результата
+                const finalTime = Math.round(timeInSeconds * 100) / 100;
+            
+                // 3. Форматирование для инпутов
+                const minutes = Math.floor(finalTime / 60);
+                const seconds = Math.floor(finalTime % 60);
+                const milliseconds = Math.round((finalTime % 1) * 100);
+            
+                // Заполнение полей
+                const inpMin = document.getElementById('inp-min');
+                const inpSec = document.getElementById('inp-sec');
+                const inpMs = document.getElementById('inp-ms');
+            
+                if (inpMin) inpMin.value = minutes > 0 ? minutes.toString().padStart(2, '0') : '';
+                if (inpSec) inpSec.value = seconds.toString().padStart(2, '0');
+                if (inpMs)  inpMs.value = milliseconds.toString().padStart(2, '0');
+            
+                // 4. Синхронизация UI
+                // Вызываем основной расчет, чтобы обновились прогресс-бары, разряды и текст очков
                 this.calculate();
                 
-                // Виброотклик успеха
+                // Тактильный отклик (Telegram)
                 if (window.Telegram?.WebApp?.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                 }
-            },
+            }
         }; // Конец объекта app
 
         // Boot
