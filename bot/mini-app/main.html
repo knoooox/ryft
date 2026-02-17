@@ -257,147 +257,101 @@
         }
         .segment-container[data-state="1"] .segment-glider { transform: translateX(100%); } /* Shift right */
 
-        /* --- 3D WHEEL PICKERS (BARRELS) --- */
-        /* Это сердце интерфейса. Свой CSS-3D движок */
-        /* --- WHEELS PICKER LIGHT MOD --- */
+        /* --- 3D WHEEL PICKERS (HORIZONTAL INFINITY) --- */
         .wheels-container {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
+            display: flex;
+            flex-direction: column; /* Элементы друг под другом */
             gap: 12px;
-            height: 130px;
-            position: relative;
+            width: 100%;
             flex-shrink: 0;
-            margin-bottom: 16px;
-            padding: 0 4px;
+            margin-bottom: 12px;
         }
-        
-        /* Убрали темное свечение, можно добавить легкую тень всей области если нужно */
-        .wheels-container::before {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: var(--radius-l);
-            background: transparent;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
+
         .picker-column {
-            background: var(--bg-surface);
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            background: #000000;
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 20px;
             overflow: hidden;
             position: relative;
-            height: 100%; /* Занимает высоту контейнера */
-        
-            /* Внутренние тени для объема в светлой теме */
-            box-shadow:
-                inset 0 2px 8px rgba(0, 0, 0, 0.02),
-                0 1px 2px rgba(0, 0, 0, 0.01);
-        
-            /* Маска для мягкого исчезновения текста сверху и снизу */
+            height: 64px; /* Фиксированная высота строки */
+            width: 100%;  /* Во всю ширину экрана */
+            
+            /* Маска прозрачности по бокам (горизонтальная) */
             -webkit-mask-image: linear-gradient(
-                to bottom,
-                transparent 0%,
-                rgba(0, 0, 0, 0.3) 15%,
-                black 40%,
-                black 60%,
-                rgba(0, 0, 0, 0.3) 85%,
+                to right, 
+                transparent 0%, 
+                black 30%, 
+                black 70%, 
                 transparent 100%
             );
             mask-image: linear-gradient(
-                to bottom,
-                transparent 0%,
-                rgba(0, 0, 0, 0.3) 15%,
-                black 40%,
-                black 60%,
-                rgba(0, 0, 0, 0.3) 85%,
+                to right, 
+                transparent 0%, 
+                black 30%, 
+                black 70%, 
                 transparent 100%
             );
-            transition: transform 0.4s var(--ease-smooth), background-color 0.3s ease;
+            transform: translateZ(0); /* GPU acceleration */
         }
-        
-        /* Эффект при обновлении */
-        .picker-column.refreshing {
-            background: var(--bg-surface-hover);
-            border-color: var(--accent);
-        }
-        
-        /* Визуальный центр (линза) */
+
+        /* Визуальный центр (линза - теперь вертикальные линии) */
         .picker-highlight {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 38px;
-            margin-top: -19px;
-        
-            /* Очень легкий градиент в центре для фокуса */
-            background: linear-gradient(90deg, 
+            position: absolute; 
+            top: 0; 
+            left: 50%; 
+            width: 110px; /* Ширина активной зоны */
+            height: 100%;
+            margin-left: -55px; /* Половина ширины для центровки */
+
+            /* Мягкая подсветка центра */
+            background: linear-gradient(180deg, 
                 transparent, 
-                rgba(0, 122, 255, 0.03) 50%, 
+                rgba(255,255,255,0.04) 50%, 
                 transparent
             );
-        
-            /* Тонкие линии-разделители */
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-        
-            pointer-events: none;
+
+            /* Линии слева и справа */
+            border-left: 1px solid rgba(255,255,255,0.12);
+            border-right: 1px solid rgba(255,255,255,0.12);
+            pointer-events: none; 
             z-index: 5;
         }
-        
+
         .picker-scroll-area {
-            height: 100%;
-            width: 100%;
-            cursor: grab;
-            touch-action: none;
-            transform-style: preserve-3d;
-            overscroll-behavior: contain;
-            transition: opacity 0.2s ease-out, filter 0.2s ease-out;
+            display: flex;       /* Горизонтальный список */
+            align-items: center; /* Центровка по вертикали */
+            height: 100%; 
+            width: max-content;  /* Ширина по контенту */
+            cursor: grab; 
+            touch-action: none;  /* Отключаем стандартный скролл */
             will-change: transform;
         }
-        
-        .picker-column.updating-content .picker-scroll-area {
-            opacity: 0.4;
-            filter: blur(4px);
-        }
-        
+
         .picker-scroll-area.dragging { cursor: grabbing; }
-        
+
         .picker-item {
-            height: 38px; /* Согласовано с высотой линзы */
-            display: flex;
-            align-items: center;
+            width: 110px; /* Фиксированная ширина элемента */
+            height: 100%;
+            display: flex; 
+            align-items: center; 
             justify-content: center;
-            width: 100%;
-        
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text-secondary);
             
-            transition: 
-                color 0.3s ease,
-                opacity 0.3s ease,
-                transform 0.3s ease;
-        
-            will-change: transform, opacity;
-            letter-spacing: -0.3px;
+            /* Типографика */
+            font-size: 15px; 
+            font-weight: 600; 
+            color: var(--text-secondary);
             white-space: nowrap;
+            letter-spacing: -0.2px;
+            
+            /* Анимация */
+            transition: color 0.3s ease, opacity 0.3s ease;
+            transform-origin: center center;
+            user-select: none;
         }
-        
-        .picker-item.selected {
-            color: var(--text-primary);
-            font-weight: 700;
-            /* Убрали тяжелые тени, оставили чистый текст */
-            text-shadow: none;
-        }
-        
-        /* Анимация выбора */
-        @keyframes pickerSelectionHit {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.04); color: var(--accent); }
-            100% { transform: scale(1); }
+
+        .picker-item.selected { 
+            color: #fff; 
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
         /* --- TIME INPUT (SPLIT SYSTEM) --- */
@@ -668,15 +622,13 @@
             </div>
 
             <div class="wheels-container">
-                <div class="picker-column" id="style-wheel">
-                    <div class="picker-highlight"></div>
-                    <div class="picker-scroll-area" id="style-scroll">
-                        </div>
-                </div>
                 <div class="picker-column" id="dist-wheel">
                     <div class="picker-highlight"></div>
-                    <div class="picker-scroll-area" id="dist-scroll">
-                        </div>
+                    <div class="picker-scroll-area" id="dist-scroll"></div>
+                </div>
+                <div class="picker-column" id="style-wheel">
+                    <div class="picker-highlight"></div>
+                    <div class="picker-scroll-area" id="style-scroll"></div>
                 </div>
             </div>
 
@@ -878,32 +830,47 @@
 
         const RANKS = ['msmk', 'ms', 'kms', 'i', 'ii', 'iii', 'i_j', 'ii_j', 'iii_j'];
 
-        // --- 2. PHYSICS WHEEL ENGINE ---
+        // --- 2. PHYSICS WHEEL ENGINE (HORIZONTAL INFINITE) ---
         class WheelPicker {
             constructor(elementId, items, onChange) {
                 this.container = document.getElementById(elementId);
-                this.items = items;
+                this.originalItems = items; // Сохраняем исходный список
                 this.onChange = onChange;
-                this.itemHeight = 40;
-                this.selectedIndex = 0;
-                this.scrollY = 0;
+                
+                this.itemWidth = 110; // Ширина одного элемента (как в CSS)
+                this.scrollX = 0;
                 this.velocity = 0;
                 this.isDragging = false;
-                this.lastY = 0;
+                this.lastX = 0;
                 this.lastTime = 0;
                 this.rafId = null;
-                this.maxOverScroll = this.itemHeight * 0.12;
-                this.targetScrollY = null;
+                this.targetScrollX = null;
                 this.isProgrammaticScroll = false;
-                this.lastVisualSelectedIndex = 0;
-                this.refreshFxTimer = null;
+                
+                // --- ЛОГИКА БЕСКОНЕЧНОСТИ ---
+                // Множим список, чтобы он был "бесконечным"
+                // 40 повторений достаточно для любого реального сценария
+                const REPEATS = 40; 
+                this.items = [];
+                for (let i = 0; i < REPEATS; i++) {
+                    this.items = [...this.items, ...items];
+                }
+                
+                // Стартуем с середины списка
+                this.selectedIndex = Math.floor(this.items.length / 2);
+                // Корректируем, чтобы старт был на первом элементе исходного набора
+                const mod = this.selectedIndex % this.originalItems.length;
+                this.selectedIndex -= mod;
+
+                this.scrollX = this.selectedIndex * this.itemWidth;
+
                 this.render();
                 this.attachEvents();
                 this.animate();
             }
 
             get maxScroll() {
-                return Math.max(0, (this.items.length - 1) * this.itemHeight);
+                return (this.items.length - 1) * this.itemWidth;
             }
 
             clamp(value, min, max) {
@@ -911,74 +878,102 @@
             }
 
             getClosestIndex() {
-                return this.clamp(Math.round(this.scrollY / this.itemHeight), 0, this.items.length - 1);
+                return this.clamp(Math.round(this.scrollX / this.itemWidth), 0, this.items.length - 1);
+            }
+
+            // Метод для обновления данных (например, смена бассейна)
+            updateItems(newOriginalItems, options = {}) {
+                const { preferredValue = null, smooth = true } = options;
+                
+                this.originalItems = newOriginalItems;
+                
+                // Пересоздаем "бесконечный" список
+                const REPEATS = 40;
+                this.items = [];
+                for (let i = 0; i < REPEATS; i++) {
+                    this.items = [...this.items, ...newOriginalItems];
+                }
+                
+                this.render();
+
+                // Ищем значение, максимально близкое к текущей позиции скролла, 
+                // чтобы не было резкого прыжка
+                const currentIndex = this.getClosestIndex();
+                
+                // Ищем ближайший индекс с таким же value
+                let bestIndex = Math.floor(this.items.length / 2);
+                
+                if (preferredValue) {
+                    // Пытаемся найти такое же значение в "середине" массива
+                    // Находим первое вхождение в центральном блоке
+                    const centerStart = Math.floor(REPEATS / 2) * newOriginalItems.length;
+                    const offset = newOriginalItems.findIndex(i => i.value === preferredValue);
+                    if (offset !== -1) {
+                        bestIndex = centerStart + offset;
+                    }
+                }
+
+                if (smooth) {
+                    this.scrollToIndex(bestIndex, true);
+                } else {
+                    this.selectedIndex = bestIndex;
+                    this.scrollX = bestIndex * this.itemWidth;
+                    this.velocity = 0;
+                    this.targetScrollX = null;
+                    if (this.items[bestIndex]) this.onChange(this.items[bestIndex].value);
+                }
             }
 
             scrollToIndex(index, smooth = true) {
-                this.selectedIndex = this.clamp(index, 0, Math.max(0, this.items.length - 1));
-                const targetY = this.selectedIndex * this.itemHeight;
+                this.selectedIndex = this.clamp(index, 0, this.items.length - 1);
+                const targetX = this.selectedIndex * this.itemWidth;
             
                 if (smooth) {
                     this.velocity = 0;
-                    this.targetScrollY = targetY;
+                    this.targetScrollX = targetX;
                     this.isProgrammaticScroll = true;
-            
-                    // ВАЖНО: вызываем onChange сразу при клике, не дожидаясь конца анимации
+                    
                     if (this.items[this.selectedIndex]) {
                         this.onChange(this.items[this.selectedIndex].value);
                     }
-            
                     if (window.Telegram?.WebApp?.HapticFeedback) {
                         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
                     }
                 } else {
-                    this.scrollY = targetY;
-                    this.targetScrollY = null;
+                    this.scrollX = targetX;
+                    this.targetScrollX = null;
                     this.isProgrammaticScroll = false;
                 }
             }
 
-            pulseRefresh() {
-                const wheel = this.container.parentElement;
-                wheel.classList.remove('refreshing');
-                void wheel.offsetWidth; // хак для перезапуска анимации
-                wheel.classList.add('refreshing');
-                if (this.refreshFxTimer) clearTimeout(this.refreshFxTimer);
-                this.refreshFxTimer = setTimeout(() => wheel.classList.remove('refreshing'), 520);
-            }
-
             render() {
                 const fragment = document.createDocumentFragment();
+                // Расчитываем отступы, чтобы первый элемент мог быть по центру
+                // Ширина экрана / 2 - Половина элемента
+                const screenWidth = document.body.clientWidth || window.innerWidth;
+                const padSize = (screenWidth / 2) - (this.itemWidth / 2);
 
-                // Верхний отступ для центрирования
-                const pad = document.createElement('div');
-                pad.style.height = '60px';
-                fragment.appendChild(pad);
+                const padLeft = document.createElement('div');
+                padLeft.style.width = `${padSize}px`;
+                padLeft.style.flexShrink = '0';
+                fragment.appendChild(padLeft);
 
                 this.items.forEach((item, index) => {
                     const el = document.createElement('div');
                     el.className = 'picker-item';
                     el.innerText = item.label;
-                    el.style.height = `${this.itemHeight}px`;
-
-                    // Добавляем возможность клика
-                    el.style.cursor = 'pointer';
-                    el.addEventListener('click', (e) => {
-                        // Останавливаем всплытие, чтобы не сработали другие события
-                        e.stopPropagation(); 
-                        
-                        // Если мы не дрифтуем по экрану со всей силы — засчитываем клик
-                        if (!this.isDragging) {
-                            this.scrollToIndex(index, true);
-                        }
+                    // Блокируем клик, если драгаем
+                    el.addEventListener('click', (e) => { 
+                        e.stopPropagation();
+                        if (!this.isDragging) this.scrollToIndex(index, true); 
                     });
-
                     fragment.appendChild(el);
                 });
 
-                const padBottom = document.createElement('div');
-                padBottom.style.height = '60px';
-                fragment.appendChild(padBottom);
+                const padRight = document.createElement('div');
+                padRight.style.width = `${padSize}px`;
+                padRight.style.flexShrink = '0';
+                fragment.appendChild(padRight);
 
                 this.container.innerHTML = '';
                 this.container.appendChild(fragment);
@@ -987,27 +982,29 @@
             attachEvents() {
                 const host = this.container.parentElement;
 
-                const start = (y) => {
+                const start = (x) => {
                     this.isDragging = true;
-                    this.lastY = y;
+                    this.lastX = x;
                     this.lastTime = Date.now();
                     this.velocity = 0;
-                    this.targetScrollY = null;
+                    this.targetScrollX = null;
                     this.isProgrammaticScroll = false;
                     host.classList.add('dragging');
                 };
 
-                const move = (y) => {
+                const move = (x) => {
                     if (!this.isDragging) return;
                     const now = Date.now();
-                    const deltaY = y - this.lastY;
+                    const deltaX = x - this.lastX; // X вместо Y
                     const deltaTime = Math.max(1, now - this.lastTime);
 
-                    this.scrollY -= deltaY;
-                    this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
-                    this.velocity = this.velocity * 0.75 + (deltaY / deltaTime) * 4.6;
+                    this.scrollX -= deltaX;
+                    // Убираем жесткие границы при перетаскивании для эластичности
+                    // но clamp всё равно нужен в animate
+                    
+                    this.velocity = this.velocity * 0.7 + (deltaX / deltaTime) * 5;
 
-                    this.lastY = y;
+                    this.lastX = x;
                     this.lastTime = now;
                 };
 
@@ -1015,82 +1012,100 @@
                     if (!this.isDragging) return;
                     this.isDragging = false;
                     host.classList.remove('dragging');
-                    this.targetScrollY = this.getClosestIndex() * this.itemHeight;
+                    // Инерция приведет нас к ближайшему, но здесь мы просто отпускаем
+                    this.targetScrollX = this.getClosestIndex() * this.itemWidth;
                 };
 
-                host.addEventListener('touchstart', (e) => start(e.touches[0].clientY), { passive: true });
-                document.addEventListener('touchmove', (e) => move(e.touches[0].clientY), { passive: true });
+                // Слушатели для Touch (мобилки)
+                host.addEventListener('touchstart', (e) => start(e.touches[0].clientX), { passive: true });
+                document.addEventListener('touchmove', (e) => move(e.touches[0].clientX), { passive: true });
                 document.addEventListener('touchend', end);
-                host.addEventListener('mousedown', (e) => start(e.clientY));
-                document.addEventListener('mousemove', (e) => move(e.clientY));
+                
+                // Слушатели для Мыши (ПК тест)
+                host.addEventListener('mousedown', (e) => start(e.clientX));
+                document.addEventListener('mousemove', (e) => move(e.clientX));
                 document.addEventListener('mouseup', end);
-
-                host.addEventListener('wheel', (e) => {
-                    e.preventDefault();
-                    this.velocity = 0;
-                    this.targetScrollY = null;
-                    this.scrollY += e.deltaY * 0.35;
-                    this.scrollY = this.clamp(this.scrollY, 0, this.maxScroll);
-                    this.targetScrollY = this.getClosestIndex() * this.itemHeight;
-                }, { passive: false });
             }
 
-            updateSelectionFromScroll() {
-                const nextIndex = this.getClosestIndex();
-                if (nextIndex !== this.selectedIndex && this.items[nextIndex]) {
-                    this.selectedIndex = nextIndex;
-                    this.onChange(this.items[this.selectedIndex].value);
-                    window.Telegram.WebApp.HapticFeedback.selectionChanged();
-                }
-            }
-
-                        animate() {
+            animate() {
                 if (!this.isDragging) {
-                    if (this.targetScrollY !== null) {
-                        const diff = this.targetScrollY - this.scrollY;
-                        const easing = this.isProgrammaticScroll ? 0.1 : 0.15; 
-                        this.scrollY += diff * easing;
+                    if (this.targetScrollX !== null) {
+                        const diff = this.targetScrollX - this.scrollX;
+                        const easing = this.isProgrammaticScroll ? 0.1 : 0.15;
+                        this.scrollX += diff * easing;
                         this.velocity *= 0.8;
 
-                        if (Math.abs(diff) < 0.1) {
-                            this.scrollY = this.targetScrollY;
-                            this.targetScrollY = null;
+                        if (Math.abs(diff) < 0.5) {
+                            this.scrollX = this.targetScrollX;
+                            this.targetScrollX = null;
                             this.isProgrammaticScroll = false;
-                            this.updateSelectionFromScroll();
+                            
+                            // Когда анимация остановилась, сообщаем о выборе
+                            const nextIndex = this.getClosestIndex();
+                            if (nextIndex !== this.selectedIndex && this.items[nextIndex]) {
+                                this.selectedIndex = nextIndex;
+                                this.onChange(this.items[this.selectedIndex].value);
+                                if (window.Telegram?.WebApp?.HapticFeedback) {
+                                    window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                                }
+                            }
                         }
                     } else {
-                        this.scrollY -= this.velocity;
-                        this.velocity *= 0.95; 
+                        // Инерция
+                        this.scrollX -= this.velocity;
+                        this.velocity *= 0.95;
 
-                        if (Math.abs(this.velocity) < 0.01) {
+                        if (Math.abs(this.velocity) < 0.1) {
                             this.velocity = 0;
-                            this.targetScrollY = this.getClosestIndex() * this.itemHeight;
+                            this.targetScrollX = this.getClosestIndex() * this.itemWidth;
                         }
                     }
                 }
 
-                this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
-                this.container.style.transform = `translate3d(0, ${-this.scrollY}px, 0)`;
+                // Ограничиваем скролл, чтобы не улететь в пустоту (хотя список "бесконечный")
+                this.scrollX = this.clamp(this.scrollX, 0, this.maxScroll);
+                
+                // Двигаем ленту
+                this.container.style.transform = `translate3d(${-this.scrollX}px, 0, 0)`;
 
+                // Визуальные эффекты (scale, opacity, rotation)
                 const items = this.container.querySelectorAll('.picker-item');
-                const centerOffset = this.scrollY;
+                const centerOffset = this.scrollX;
+
+                // Оптимизация: обрабатываем только видимые элементы
+                // Ширина экрана примерно 400px, элемент 110px. Видно ~5-6 штук.
+                const firstVisibleIndex = Math.floor((centerOffset - 300) / this.itemWidth);
+                const lastVisibleIndex = Math.ceil((centerOffset + 600) / this.itemWidth);
 
                 items.forEach((item, i) => {
-                    const itemY = i * this.itemHeight;
-                    const distance = itemY - centerOffset;
+                    // Пропускаем невидимые для производительности
+                    if (i < firstVisibleIndex || i > lastVisibleIndex) {
+                        // Сбрасываем стили, если они были изменены
+                        item.style.transform = 'scale(0.85)'; 
+                        item.style.opacity = '0.1';
+                        return;
+                    }
+
+                    const itemX = i * this.itemWidth;
+                    const distance = itemX - centerOffset;
                     const absDistance = Math.abs(distance);
                     
-                    // Плавное затухание и легкое масштабирование без изменения геометрии
-                    const proximity = Math.max(0, 1 - absDistance / (this.itemHeight * 2.5));
-                    const scale = 0.9 + (0.12 * Math.pow(proximity, 2));
-                    const opacity = 0.2 + (0.8 * Math.pow(proximity, 1.5));
-                    
-                    item.style.transform = `scale(${scale})`;
+                    // Радиус влияния (чем больше число, тем плавнее изменения)
+                    const radius = this.itemWidth * 1.5; 
+                    const proximity = Math.max(0, 1 - absDistance / radius);
+
+                    // Эффекты
+                    const scale = 0.85 + (0.15 * proximity); // Увеличение в центре
+                    const opacity = 0.3 + (0.7 * proximity); // Прозрачность по краям
+                    const rotateY = (distance / radius) * 45; // Поворот (эффект цилиндра)
+
+                    item.style.transform = `perspective(500px) rotateY(${rotateY}deg) scale(${scale})`;
                     item.style.opacity = opacity;
 
-                    if (absDistance < 10) {
+                    if (absDistance < this.itemWidth / 2) {
                         if (!item.classList.contains('selected')) {
                             item.classList.add('selected');
+                            // Вибрация при прокрутке через центр
                             if (this.isDragging && window.Telegram?.WebApp?.HapticFeedback) {
                                 window.Telegram.WebApp.HapticFeedback.selectionChanged();
                             }
@@ -1102,6 +1117,7 @@
 
                 this.rafId = requestAnimationFrame(() => this.animate());
             }
+        }
 
             updateItems(newItems, options = {}) {
                 const { preferredValue = null, smooth = true, emitChange = true, pulse = false } = options;
@@ -1597,86 +1613,81 @@
             confirmReverseCalc() {
                 const display = document.getElementById('fina-value');
                 const input = document.getElementById('fina-input');
-                
-                // Очистка ввода: только цифры
-                const valStr = input.value.replace(/\D/g, '');
+                const valStr = input.value.replace(/[^0-9]/g, '');
                 const targetPoints = parseInt(valStr);
-            
-                // Возврат UI в исходное состояние
+
+                // Возвращаем вид обратно
                 input.style.display = 'none';
                 display.style.display = 'inline-block';
-            
-                // Валидация
+
                 if (!valStr || isNaN(targetPoints) || targetPoints <= 0) {
+                    // Если пусто или 0 - просто возвращаем как было
                     display.innerText = this.lastPoints || 0;
                     return;
                 }
-            
-                // Получение данных рекорда (Base Time)
-                const category = DB[this.state.gender]?.[this.state.pool]?.[this.state.style]?.[this.state.dist];
-                if (!category || !category.rec) return;
-            
-                const record = category.rec;
-            
-                /**
-                 * МАТЕМАТИЧЕСКАЯ СПРАВКА:
-                 * Очки = floor( 1000 * (Record / Time)^3 )
-                 * Следовательно: Time = Record / ( (Points / 1000)^(1/3) )
-                 */
-            
-                // 1. Рассчитываем теоретическое время
-                let timeInSeconds = record / Math.pow(targetPoints / 1000, 1/3);
-            
-                // Функция для расчета очков из времени (с учетом правил FINA)
-                const calculatePointsFromTime = (t) => {
-                    // Округляем время до сотых, как это делает секундомер
-                    const roundedT = Math.round(t * 100) / 100;
-                    return Math.floor(1000 * Math.pow(record / roundedT, 3));
-                };
-            
-                // 2. Итеративная подгонка (Floating Point Safety)
-                // Нам нужно самое медленное время (максимальное T), при котором очки >= targetPoints
-                
-                // Сначала убеждаемся, что мы не перепрыгнули порог (делаем время чуть быстрее, если надо)
-                let safety = 0;
-                while (calculatePointsFromTime(timeInSeconds) < targetPoints && safety < 100) {
+
+                // --- САМАЯ ВАЖНАЯ ЧАСТЬ: МАТЕМАТИКА ---
+                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
+                if (!data || !data.rec) return;
+
+                const record = data.rec;
+
+                // 1. Алгебраический расчет времени: Time = Record / (Points/1000)^(1/3)
+                // Это дает "сырое" время
+                let rawTime = record / Math.pow(targetPoints / 1000, 1/3);
+
+                // 2. Округляем до сотых (как в реальном секундомере)
+                // Используем Math.round, чтобы получить ближайшую точку старта
+                let timeInSeconds = Math.round(rawTime * 100) / 100;
+
+                // 3. ПРОВЕРКА И ПОДГОНКА (LOOP)
+                // Прямая формула: Points = floor(1000 * (Rec/Time)^3)
+                // Нам нужно найти время T, которое дает результат >= targetPoints,
+                // но при этом оно должно быть максимально близким (желательно медленным), 
+                // чтобы при обратном вводе мы попали в те же очки.
+
+                const getP = (t) => Math.floor(1000 * Math.pow(record / t, 3));
+
+                let safetyCounter = 0;
+                let calculatedPoints = getP(timeInSeconds);
+
+                // Если текущее время дает МЕНЬШЕ очков, чем надо -> надо плыть быстрее (уменьшать время)
+                while (calculatedPoints < targetPoints && safetyCounter < 50) {
                     timeInSeconds -= 0.01;
-                    safety++;
+                    // Округляем, чтобы избежать ошибок плавающей точки (56.0099999)
+                    timeInSeconds = Math.round(timeInSeconds * 100) / 100;
+                    calculatedPoints = getP(timeInSeconds);
+                    safetyCounter++;
                 }
-            
-                // Теперь "отпускаем" время вперед, чтобы найти самую границу (медленный край)
-                safety = 0;
-                while (calculatePointsFromTime(timeInSeconds + 0.01) >= targetPoints && safety < 100) {
+
+                // Если текущее время дает БОЛЬШЕ или РАВНО очков -> попробуем замедлиться (прибавить время),
+                // вдруг мы можем проплыть медленнее, но все еще получить эти очки?
+                // Это нужно, чтобы найти ГРАНИЦУ.
+                safetyCounter = 0;
+                while (getP(timeInSeconds + 0.01) >= targetPoints && safetyCounter < 50) {
                     timeInSeconds += 0.01;
-                    safety++;
+                    timeInSeconds = Math.round(timeInSeconds * 100) / 100;
+                    safetyCounter++;
                 }
-            
-                // Финальное округление результата
-                const finalTime = Math.round(timeInSeconds * 100) / 100;
-            
-                // 3. Форматирование для инпутов
-                const minutes = Math.floor(finalTime / 60);
-                const seconds = Math.floor(finalTime % 60);
-                const milliseconds = Math.round((finalTime % 1) * 100);
-            
-                // Заполнение полей
-                const inpMin = document.getElementById('inp-min');
-                const inpSec = document.getElementById('inp-sec');
-                const inpMs = document.getElementById('inp-ms');
-            
-                if (inpMin) inpMin.value = minutes > 0 ? minutes.toString().padStart(2, '0') : '';
-                if (inpSec) inpSec.value = seconds.toString().padStart(2, '0');
-                if (inpMs)  inpMs.value = milliseconds.toString().padStart(2, '0');
-            
-                // 4. Синхронизация UI
-                // Вызываем основной расчет, чтобы обновились прогресс-бары, разряды и текст очков
+                
+                // 4. Заполняем инпуты времени
+                const m = Math.floor(timeInSeconds / 60);
+                const s = Math.floor(timeInSeconds % 60);
+                const ms = Math.round((timeInSeconds - Math.floor(timeInSeconds)) * 100);
+
+                document.getElementById('inp-min').value = m > 0 ? m.toString().padStart(2, '0') : '';
+                document.getElementById('inp-sec').value = s.toString().padStart(2, '0');
+                document.getElementById('inp-ms').value = ms.toString().padStart(2, '0');
+
+                // 5. Запускаем обычный расчет, чтобы обновить UI (ранги, прогресс бар)
+                // Это также проверит нашу теорию: цифра на экране должна стать ровно targetPoints
                 this.calculate();
                 
-                // Тактильный отклик (Telegram)
+                // Виброотклик успеха
                 if (window.Telegram?.WebApp?.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                 }
-            }
+            },
         }; // Конец объекта app
 
         // Boot
