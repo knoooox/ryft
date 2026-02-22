@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>RYFT</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* * ==========================================
+         * RYFT DESIGN SYSTEM: LIQUID DARK v2.0
+         * Core Principles: Depth, Glass, Physics
+         * ==========================================
+         */
+
+        :root {
+            --bg-deep: #000000;
+            --bg-surface: #0a0a0a;
+            --glass-light: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --text-tertiary: rgba(255, 255, 255, 0.2);
+            --accent-glow: 0 0 20px rgba(255, 255, 255, 0.1);
+            --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* --- GLOBAL RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        html, body {
+            /* Это предотвратит изменение высоты всей страницы на некоторых Android */
+            height: 100%;
+            position: fixed;
+            overflow: hidden;
+        }
+        
+        body {
+            background: var(--bg-deep); color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: flex; flex-direction: column;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        /* --- BACKGROUND FX --- */
+        .scene-fx {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none;
+            /* Сделали фон полностью черным по всему экрану */
+            background: #000000;
+        }
+        .noise-layer {
+            position: fixed; inset: 0; opacity: 0.04; z-index: 0;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            pointer-events: none;
+        }
+
+        /* --- APP LAYOUT --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            padding: 0; /* Убираем лишние падинги, будем центровать внутренним flex */
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            height: 100dvh; /* Строго по высоте экрана */
+            box-sizing: border-box;
+        }
+
+        /* --- 1. FINA DISPLAY (УВЕЛИЧИЛИ ОТСТУПЫ) --- */
+        .fina-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Центрирует всё содержимое по вертикали */
+            flex: 1; /* Занимает ВСЁ свободное место от верха до кнопок */
+            padding: 0;
+            perspective: 1000px;
+            width: 100%;
+        }
+
+        .fina-wrapper {
+            position: relative; 
+            text-align: center;
+            transform-style: preserve-3d;
+            /* Убираем лишние внешние отступы, чтобы центровка была математически точной */
+            margin: 0; 
+        }
+
+        /* --- ЕДИНЫЙ СТИЛЬ ДЛЯ ОЧКОВ (ТЕКСТ И ВВОД) --- */
+        .fina-number, 
+        .fina-input-field {
+            /* ШРИФТ И РАЗМЕР: идентичны для бесшовности */
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(60px, 25vw, 110px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 0.9;
+            
+            /* ГРАДИЕНТ: применен ко обоим */
+            background: linear-gradient(180deg, #fff 20%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* ВИЗУАЛ: тени и выравнивание */
+            filter: drop-shadow(0 10px 30px rgba(255,255,255,0.05));
+            text-align: center;
+            display: inline-block;
+            
+            /* ЗАЩИТА ОТ ОБРЕЗКИ: одинаковые отступы */
+            padding-left: 10px;
+            padding-right: 15px; 
+            box-sizing: border-box;
+            overflow: visible;
+            
+            /* СБРОС СТАНДАРТНЫХ СТИЛЕЙ ИНПУТА */
+            border: none;
+            outline: none;
+            background-color: transparent;
+            appearance: none;
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* СПЕЦИФИКА ДЛЯ ТЕКСТА (ОДОМЕТРА) */
+        .fina-number {
+            font-variant-numeric: tabular-nums;
+            transition: transform 0.3s var(--ease-elastic);
+            cursor: pointer;
+        }
+
+        /* СПЕЦИФИКА ДЛЯ ПОЛЯ ВВОДА */
+        .fina-input-field {
+            width: 100%;
+            caret-color: #fff; /* Белый курсор ввода */
+            display: none;     /* По умолчанию скрыт */
+        }
+
+        .fina-input-field::placeholder {
+            -webkit-text-fill-color: rgba(255,255,255,0.1);
+        }
+
+        .fina-badge {
+            margin-top: 15px; padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--text-secondary);
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+        }
+        .fina-badge.active { background: #fff; color: #000; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+
+        /* --- 2. CONTROLS AREA --- */
+        .controls-section {
+            /* Минимальный паддинг снизу, чтобы только не касаться края экрана */
+            padding: 0 24px calc(10px + env(safe-area-inset-bottom, 0px)); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 14px; /* Ужали в два раза (с 28px), чтобы всё поднялось вверх */
+        }
+
+        /* Микро-фикс для очень низких экранов (меньше 670px в высоту) */
+        /* 1. Средние экраны или начало сжатия (до 750px) */
+        /* 1. Средние экраны или начало сжатия (до 750px) */
+        @media (max-height: 750px) {
+            .fina-section { 
+                /* Убираем фиксированную высоту, даем блоку расти */
+                flex: 1; 
+                min-height: auto; 
+                padding: 0; 
+                justify-content: center; /* Центрируем содержимое */
+            }
+            
+            /* Сжимаем только элементы управления, чтобы освободить место для очков */
+            .wheels-container, 
+            .picker-column { 
+                height: 130px; 
+                min-height: 130px; 
+            }
+            .controls-section { 
+                gap: 10px; 
+                padding-bottom: 15px;
+            }
+        }
+        
+        /* 2. Совсем маленькие экраны или открытая клавиатура (до 600px) */
+        @media (max-height: 600px) {
+            .app-container {
+                /* Оставляем flex, чтобы очки все равно пытались быть в центре */
+                overflow-y: hidden; /* Пока клавиатура не открыта, скролл не нужен */
+                justify-content: space-between;
+            }
+            
+            /* Если клавиатура открыта, Telegram меняет высоту viewport, 
+               в этом случае разрешаем скролл */
+            body.keyboard-open .app-container {
+                overflow-y: auto;
+            }
+        
+            .fina-badge, 
+            #world-record { 
+                display: none !important; 
+            } 
+        
+            .fina-section { 
+                flex: 1.5; /* Даем чуть больше веса верхней части */
+                min-height: 80px; 
+            }
+        
+            .wheels-container, 
+            .picker-column { 
+                height: 110px; 
+                min-height: 110px; 
+            }
+        
+            .controls-section {
+                gap: 6px;
+                padding-bottom: 10px;
+            }
+            
+            .fina-number {
+                font-size: clamp(40px, 18vw, 70px); /* Уменьшаем шрифт, чтобы не вылезал */
+            }
+        }
+
+        /* --- SEGMENTED TABS (Pool / Gender) --- */
+        .tabs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .segment-container {
+            background: var(--glass-light);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px; padding: 4px; display: flex;
+            position: relative; overflow: hidden;
+        }
+        .segment-btn {
+            flex: 1; padding: 12px 0; text-align: center;
+            font-size: 11px; font-weight: 800; color: var(--text-secondary);
+            position: relative; z-index: 2; transition: color 0.3s;
+            cursor: pointer;
+        }
+        .segment-btn.active { color: #000; }
+
+        /* Плавающая подложка (Glider) */
+        .segment-glider {
+            position: absolute; top: 4px; left: 4px; bottom: 4px; width: calc(50% - 4px);
+            background: #fff; border-radius: 14px; z-index: 1;
+            transition: transform 0.4s var(--ease-smooth);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .segment-container[data-state="1"] .segment-glider { transform: translateX(100%); } /* Shift right */
+
+        /* --- 3D WHEEL PICKERS (BARRELS) --- */
+        /* Это сердце интерфейса. Свой CSS-3D движок */
+        .wheels-container {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 16px;
+            height: 130px; /* Ужали со 160px */
+            min-height: 130px;
+            position: relative;
+            flex-shrink: 0;
+            margin-bottom: 12px; /* Ужали с 30px */
+        }
+        .wheels-container::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 34px;
+            /* Убрали белый отсвет, заменили на черную пустоту */
+            background: radial-gradient(80% 120% at 50% 0%, rgba(0,0,0,0), rgba(0,0,0,0));
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .picker-column {
+            background: #000000;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            height: 160px; /* Фиксируем высоту */
+        
+            box-shadow:
+                inset 0 60px 50px -10px rgba(0,0,0,1), 
+                inset 0 -60px 50px -10px rgba(0,0,0,1);
+        
+            -webkit-mask-image: linear-gradient(
+                to bottom, 
+                transparent 0%, 
+                rgba(0,0,0,0.2) 15%,
+                black 35%, 
+                black 65%, 
+                rgba(0,0,0,0.2) 85%,
+                transparent 100%
+            );
+            mask-image: linear-gradient(
+                to bottom, 
+                transparent 0%, 
+                rgba(0,0,0,0.2) 15%,
+                black 35%, 
+                black 65%, 
+                rgba(0,0,0,0.2) 85%,
+                transparent 100%
+            );
+            transition: transform 0.55s var(--ease-smooth);
+        }
+
+        .picker-column.refreshing {
+            filter: brightness(1.1);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                inset 0 -18px 30px rgba(0,0,0,0.2),
+                0 18px 34px rgba(0,0,0,0.34),
+                0 0 24px rgba(255,255,255,0.08);
+        }
+
+        /* Визуальный центр (линза) */
+        .picker-highlight {
+            position: absolute; 
+            top: 50%; 
+            left: 0; 
+            width: 100%; 
+            height: 40px;
+            margin-top: -20px;
+
+            /* Оставляем только мягкий горизонтальный блик */
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255,255,255,0.04) 50%, 
+                transparent
+            );
+
+            /* Линии сверху и снизу теперь одинаковой яркости */
+            border-top: 1px solid rgba(255,255,255,0.12);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+
+            /* Убрали все внутренние тени, которые создавали асимметрию */
+            box-shadow: none;
+
+            pointer-events: none; 
+            z-index: 5;
+        }
+
+        .picker-scroll-area {
+            height: 100%; 
+            width: 100%;
+            cursor: grab; 
+            touch-action: none;
+            transform-style: preserve-3d;
+            overscroll-behavior: contain;
+            /* Ускоренная и мягкая анимация появления */
+            transition: opacity 0.2s ease-out, filter 0.2s ease-out;
+            will-change: opacity, filter;
+        }
+
+        /* Состояние в момент обновления данных */
+        .picker-column.updating-content .picker-scroll-area {
+            opacity: 0;
+            filter: blur(8px); /* Добавляем размытие для бесшовности */
+        }
+
+        .picker-scroll-area.dragging { cursor: grabbing; }
+
+        .picker-column.refreshing .picker-scroll-area {
+            filter: saturate(1.1);
+            opacity: 0.94;
+        }
+
+        .picker-item {
+            height: 40px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            width: 100%;
+
+            /* Фиксируем параметры, чтобы текст не "прыгал" */
+            font-size: 16px; 
+            font-weight: 600; /* Полужирный сразу для всех, так приятнее глазу */
+            color: var(--text-secondary);
+
+            /* Убираем тяжелые transition для веса и размера. 
+               Оставляем только плавный цвет и тени */
+            transition: 
+                color 0.4s var(--ease-smooth),
+                text-shadow 0.4s var(--ease-smooth),
+                opacity 0.4s var(--ease-smooth);
+
+            transform-origin: center center;
+            will-change: transform, opacity;
+            letter-spacing: -0.2px;
+            white-space: nowrap;
+        }
+
+        .picker-item.selected { 
+            color: #fff; 
+            /* Вместо изменения веса (800) используем text-shadow. 
+               Это дает визуальный объем, не заставляя браузер перерисовывать буквы */
+            text-shadow: 0 0 1px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.15);
+
+            /* Размер оставляем прежним или меняем крайне незначительно через JS scale */
+            font-size: 16px; 
+        }
+
+        @keyframes pickerSelectionHit {
+            0% { transform: translateY(1px) scale(0.98); opacity: 0.74; }
+            55% { transform: translateY(-2px) scale(1.05); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        /* --- TIME INPUT (SPLIT SYSTEM) --- */
+        .time-input-wrapper {
+            background: var(--glass-light);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px; /* Чуть меньше радиус для компактности */
+            padding: 12px 20px;  /* Ужали с 20px */
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 8px;
+            position: relative;
+            transition: 0.3s;
+        }
+        .time-input-wrapper:focus-within {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 0 30px rgba(255,255,255,0.05);
+        }
+
+        .time-field {
+            width: 60px; /* Чуть уже */
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px; /* Ужали с 36px */
+            font-weight: 700; 
+            color: #fff;
+            background: transparent; 
+            border: none; 
+            padding: 0;
+            border-bottom: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .time-field:focus { border-bottom-color: #fff; }
+        .time-field::placeholder { color: var(--text-tertiary); }
+
+        .time-divider { font-size: 24px; color: var(--text-tertiary); font-weight: 300; margin-top: -5px; }
+
+        /* ГЛАВНАЯ БЕЛАЯ КНОПКА НОРМАТИВОВ */
+        .btn-norms {
+            width: 100%;
+            padding: 22px;
+            background: #ffffff; /* Чистый белый */
+            color: #000000;    /* Черный текст для контраста */
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            
+            /* Эффект свечения и глубины */
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.15), 
+                        0 4px 10px rgba(255, 255, 255, 0.1);
+            
+            transition: all 0.3s var(--ease-smooth);
+        }
+
+        .btn-norms:active {
+            transform: scale(0.96);
+            background: #f0f0f0;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Добавляем легкий блик на кнопку */
+        .btn-norms::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .btn-norms:active::after {
+            opacity: 1;
+        }
+
+        /* --- SHEET (NORMS) --- */
+        .sheet-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            opacity: 0; visibility: hidden; transition: 0.4s; z-index: 99;
+            touch-action: none;
+        }
+        .sheet-backdrop.active { opacity: 1; visibility: visible; }
+
+        .sheet {
+            position: fixed; left: 0; bottom: 0; width: 100%; 
+            height: 480px; /* Фиксированная высота для заголовка и 6 строк */
+            background: #0f0f0f;
+            border-top: 1px solid var(--glass-highlight);
+            border-radius: 40px 40px 0 0;
+            transform: translateY(100%); transition: transform 0.5s var(--ease-smooth);
+            z-index: 100; display: flex; flex-direction: column;
+            box-shadow: 0 -20px 80px rgba(0,0,0,0.8);
+            touch-action: pan-y;
+        }
+
+        .sheet.active { transform: translateY(0); }
+        .sheet.dragging { transition: none; }
+        .sheet-handle { touch-action: none; cursor: grab; }
+        .sheet-handle:active { cursor: grabbing; }
+
+        .sheet-header { padding: 30px 20px 10px; text-align: center; }
+        .sheet-handle { 
+            width: 40px; height: 5px; background: #333; border-radius: 10px; 
+            margin: 0 auto 20px; 
+        }
+        .sheet-title { font-size: 24px; font-weight: 800; letter-spacing: -1px; margin-bottom: 5px; }
+        .sheet-subtitle { font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- BACKGROUND FX --- */
+        .scene-fx {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none;
+            /* Сделали фон полностью черным по всему экрану */
+            background: #000000;
+        }
+
+        .sheet-scroll { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 10px 20px 40px; /* Увеличили нижний отступ для красоты */
+            scroll-behavior: smooth;
+        }
+
+        .norm-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 18px 15px; margin-bottom: 8px;
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);
+            background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+            transition: background 0.35s var(--ease-smooth), color 0.35s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth), transform 0.35s var(--ease-smooth);
+        }
+        .norm-row.achieved {
+            background: #fff; color: #000; box-shadow: 0 5px 20px rgba(255,255,255,0.1);
+            border-color: transparent;
+            transform: translateY(-1px) scale(1.01);
+        }
+        .norm-rank { font-size: 14px; font-weight: 800; text-transform: uppercase; }
+        .norm-time { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; }
+
+        /* Прогресс бар внутри строки */
+        .norm-progress {
+            height: 4px; background: rgba(255,255,255,0.12); margin-top: 7px;
+            border-radius: 2px; overflow: hidden; display: none;
+        }
+        .norm-row.next-goal .norm-progress { display: block; }
+        .progress-fill {
+            height: 100%; background: #fff; width: 0%;
+            transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+            transform-origin: left center;
+            box-shadow: 0 0 10px rgba(255,255,255,0.4);
+        }
+
+        .norm-row-anchor {
+            scroll-margin-top: 16px;
+        }
+
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 10px;
+            flex-shrink: 0; /* Чтобы кнопка не сжималась */
+        }
+        .clear-btn:active {
+            transform: scale(0.85);
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+        /* Улучшаем wrapper, чтобы кнопка влезла */
+        .time-input-wrapper {
+            padding: 15px 15px 15px 25px; /* Немного изменили отступы */
+        }
+
+        /* НИЖНЯЯ ПАНЕЛЬ (ТАБ-БАР) */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 10px;
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .nav-tab.active { color: #fff; }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.6;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active .nav-icon {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+
+        .nav-tab span {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="scene-fx"></div>
+    <div class="noise-layer"></div>
+
+    <div class="app-container">
+
+        <section class="fina-section">
+            <div class="fina-wrapper" id="fina-container">
+                <div class="fina-number" id="fina-value" onclick="app.enableReverseMode()">0</div>
+                
+                <input type="tel" class="fina-input-field" id="fina-input" 
+                       maxlength="4" style="display: none;" 
+                       onblur="app.confirmReverseCalc()" 
+                       onkeydown="if(event.key === 'Enter') app.confirmReverseCalc()">
+            </div>
+
+            <div class="fina-badge" id="rank-badge">NO DATA</div>
+            <div id="world-record" style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-tertiary); margin-top: 12px; font-weight: 700; letter-spacing: 0.5px;">WR: 00:00.00</div>
+        </section>
+
+        <section class="controls-section">
+
+            <div class="tabs-row">
+                <div class="segment-container" id="gender-switch" data-state="0">
+                    <div class="segment-glider"></div>
+                    <div class="segment-btn active" onclick="app.setGender('male')">МУЖ</div>
+                    <div class="segment-btn" onclick="app.setGender('female')">ЖЕН</div>
+                </div>
+                <div class="segment-container" id="pool-switch" data-state="0">
+                    <div class="segment-glider"></div>
+                    <div class="segment-btn active" onclick="app.setPool('25')">25M</div>
+                    <div class="segment-btn" onclick="app.setPool('50')">50M</div>
+                </div>
+            </div>
+
+            <div class="wheels-container">
+                <div class="picker-column" id="style-wheel">
+                    <div class="picker-highlight"></div>
+                    <div class="picker-scroll-area" id="style-scroll">
+                        </div>
+                </div>
+                <div class="picker-column" id="dist-wheel">
+                    <div class="picker-highlight"></div>
+                    <div class="picker-scroll-area" id="dist-scroll">
+                        </div>
+                </div>
+            </div>
+
+            <div class="time-input-wrapper">
+                <input type="tel" class="time-field" id="inp-min" placeholder="00" maxlength="2">
+                <span class="time-divider">:</span>
+                <input type="tel" class="time-field" id="inp-sec" placeholder="00" maxlength="2">
+                <span class="time-divider">.</span>
+                <input type="tel" class="time-field" id="inp-ms" placeholder="00" maxlength="2">
+                
+                <button class="clear-btn" id="btn-clear" onclick="app.clearInputs()" aria-label="Clear">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <button class="btn-norms" onclick="app.openSheet()">Нормативы</button>
+
+            <div class="bottom-nav">
+                <button class="nav-tab active" onclick="app.switchTab('calc')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="9" x2="20" y2="9"></line>
+                        <line x1="4" y1="15" x2="20" y2="15"></line>
+                        <line x1="10" y1="3" x2="8" y2="21"></line>
+                        <line x1="16" y1="3" x2="14" y2="21"></line>
+                    </svg>
+                    <span>Расчет</span>
+                </button>
+            
+                <button class="nav-tab" onclick="app.switchTab('profile')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Профиль</span>
+                </button>
+            </div>
+
+        </section>
+    </div>
+
+    <div class="sheet-backdrop" id="backdrop"></div>
+    <div class="sheet" id="sheet">
+        <div class="sheet-header">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">НОРМАТИВЫ</div>
+            <div class="sheet-subtitle" id="sheet-sub">МУЖЧИНЫ • 25 М • ВОЛЬНЫЙ СТИЛЬ • 100 М</div>
+        </div>
+        <div class="sheet-scroll" id="norms-list">
+            </div>
+    </div>
+
+    <script>
+        /* * ========================================================
+         * RYFT ENGINE CORE v4.0
+         * Includes: Database, Physics Engine, Logic, Haptics
+         * Character count optimized for functionality
+         * ========================================================
+         */
+
+        // --- 1. THE DATABASE (Converted from your HTML table) ---
+        // Format: DB[gender][pool][style][distance]
+        const DB = {
+            male: {
+                "25": {
+                    freestyle: {
+                        "50": { rec: 19.9, msmk: 21.18, ms: 22.45, kms: 23.2, i: 24.45, ii: 26.85, iii: 29.05, i_j: 35.05, ii_j: 45.05, iii_j: 55.05 },
+                        "100": { rec: 44.84, msmk: 46.72, ms: 50, kms: 53.3, i: 56.7, ii: 63.1, iii: 70.6, i_j: 83.1, ii_j: 103.1, iii_j: 123.1 },
+                        "200": { rec: 98.61, msmk: 103.02, ms: 110.95, kms: 117.45, i: 125.7, ii: 140.2, iii: 158.7, i_j: 184.2, ii_j: 225, iii_j: 264.2 },
+                        "400": { rec: 212.25, msmk: 220.94, ms: 236, kms: 248.5, i: 265, ii: 300, iii: 341, i_j: 397, ii_j: 453, iii_j: 509 },
+                        "800": { rec: 440.46, msmk: 462.7, ms: 497, kms: 530, i: 564, ii: 662, iii: 744, i_j: 866, ii_j: 986, iii_j: 1106 },
+                        "1500": { rec: 846.88, msmk: 884.74, ms: 928.5, kms: 1026.5, i: 1085, ii: 1227.5, iii: 1407.5, i_j: 1650, ii_j: 1890, iii_j: 2130 }
+                    },
+                    backstroke: {
+                        "50": { rec: 22.11, msmk: 23.29, ms: 25.89, kms: 27.35, i: 29.35, ii: 32.05, iii: 35.55, i_j: 41.55, ii_j: 51.55, iii_j: 61.55 },
+                        "100": { rec: 48.33, msmk: 50.54, ms: 57, kms: 60.4, i: 64.4, ii: 72.6, iii: 81.1, i_j: 93.6, ii_j: 116.1, iii_j: 136.1 },
+                        "200": { rec: 105.63, msmk: 112.45, ms: 124.75, kms: 131.45, i: 139.2, ii: 156.2, iii: 176.2, i_j: 204.2, ii_j: 250.2, iii_j: 290.2 }
+                    },
+                    breaststroke: {
+                        "50": { rec: 24.95, msmk: 26.28, ms: 28.25, kms: 30, i: 31.65, ii: 35.05, iii: 38.55, i_j: 45.05, ii_j: 55.05, iii_j: 65.05 },
+                        "100": { rec: 55.28, msmk: 57.34, ms: 63, kms: 66.9, i: 71.4, ii: 80.1, iii: 88.1, i_j: 104.1, ii_j: 123.1, iii_j: 143.1 },
+                        "200": { rec: 120.16, msmk: 125.56, ms: 138.45, kms: 146.45, i: 156.45, ii: 175.7, iii: 198.7, i_j: 231.6, ii_j: 264.6, iii_j: 304.6 }
+                    },
+                    butterfly: {
+                        "50": { rec: 21.32, msmk: 22.52, ms: 23.95, kms: 24.95, i: 26.95, ii: 30.05, iii: 33.05, i_j: 38.05, ii_j: 48.05, iii_j: 58.05 },
+                        "100": { rec: 47.71, msmk: 50.15, ms: 54, kms: 58, i: 61.5, ii: 70.1, iii: 80.1, i_j: 90.1, ii_j: 109.1, iii_j: 121.1 },
+                        "200": { rec: 106.85, msmk: 112.45, ms: 122.95, kms: 129.95, i: 137.95, ii: 156.7, iii: 177.2, i_j: 201.2, ii_j: 236.2, iii_j: 276.2 }
+                    },
+                    medley: {
+                        "100": { rec: 49.28, msmk: 52.57, ms: 56.5, kms: 61.5, i: 65.5, ii: 73.6, iii: 83.6, i_j: 94.6, ii_j: 113.6, iii_j: 133.6 },
+                        "200": { rec: 108.88, msmk: 114.17, ms: 125.95, kms: 134.45, i: 141.95, ii: 158.95, iii: 184.2, i_j: 209.2, ii_j: 244.2, iii_j: 284.2 },
+                        "400": { rec: 234.81, msmk: 246.68, ms: 268, kms: 283, i: 302, ii: 343, iii: 391, i_j: 446, ii_j: 502, iii_j: 558 }
+                    }
+                },
+                "50": {
+                    freestyle: {
+                        "50": { rec: 20.91, msmk: 21.91, ms: 23.2, kms: 23.95, i: 25.2, ii: 27.6, iii: 29.8, i_j: 35.8, ii_j: 45.8, iii_j: 55.8 },
+                        "100": { rec: 46.4, msmk: 48.25, ms: 51.5, kms: 54.9, i: 58.3, ii: 64.6, iii: 72.1, i_j: 84.6, ii_j: 104.6, iii_j: 124.6 },
+                        "200": { rec: 102, msmk: 106.5, ms: 113.95, kms: 120.65, i: 128.95, ii: 143.2, iii: 161.7, i_j: 187.2, ii_j: 227.2, iii_j: 267.2 },
+                        "400": { rec: 219.96, msmk: 227.71, ms: 242, kms: 254.5, i: 271, ii: 306, iii: 347, i_j: 403, ii_j: 459, iii_j: 515 },
+                        "800": { rec: 452.12, msmk: 472.6, ms: 505, kms: 538, i: 577, ii: 674, iii: 756, i_j: 878, ii_j: 998, iii_j: 1118 },
+                        "1500": { rec: 870.67, msmk: 906.19, ms: 951, kms: 1049, i: 1109, ii: 1250, iii: 1430, i_j: 1672.5, ii_j: 1912.5, iii_j: 2152.5 }
+                    },
+                    backstroke: {
+                        "50": { rec: 23.55, msmk: 24.85, ms: 26.65, kms: 28.15, i: 29.95, ii: 32.8, iii: 36.3, i_j: 42.3, ii_j: 52.3, iii_j: 62.3 },
+                        "100": { rec: 51.6, msmk: 53.72, ms: 58.5, kms: 62, i: 66, ii: 74.1, iii: 82.6, i_j: 95.1, ii_j: 117.6, iii_j: 137.6 },
+                        "200": { rec: 111.92, msmk: 117.3, ms: 127.75, kms: 135.45, i: 142.45, ii: 158.2, iii: 179.2, i_j: 207.2, ii_j: 253.2, iii_j: 293.2 }
+                    },
+                    breaststroke: {
+                        "50": { rec: 25.95, msmk: 27.22, ms: 29, kms: 30.5, i: 32.4, ii: 35.8, iii: 39.3, i_j: 45.8, ii_j: 55.8, iii_j: 65.8 },
+                        "100": { rec: 56.88, msmk: 59.91, ms: 64.5, kms: 68.5, i: 73, ii: 81.6, iii: 89.6, i_j: 105.6, ii_j: 124.6, iii_j: 144.6 },
+                        "200": { rec: 125.48, msmk: 129.97, ms: 141.45, kms: 149.45, i: 159.45, ii: 178.7, iii: 201.7, i_j: 234.2, ii_j: 267.2, iii_j: 307.2 }
+                    },
+                    butterfly: {
+                        "50": { rec: 22.27, msmk: 23.27, ms: 24.7, kms: 25.7, i: 27.7, ii: 30.8, iii: 33.8, i_j: 38.8, ii_j: 48.8, iii_j: 58.8 },
+                        "100": { rec: 49.45, msmk: 51.62, ms: 55.5, kms: 59.5, i: 63, ii: 71.6, iii: 81.6, i_j: 91.6, ii_j: 110.6, iii_j: 130.6 },
+                        "200": { rec: 110.34, msmk: 116.23, ms: 125.95, kms: 133.95, i: 140.95, ii: 159.7, iii: 180.2, i_j: 204.2, ii_j: 239.2, iii_j: 279.2 }
+                    },
+                    medley: {
+                        "200": { rec: 112.69, msmk: 118.59, ms: 129.75, kms: 137.25, i: 145.75, ii: 164, iii: 188, i_j: 213, ii_j: 248, iii_j: 288 },
+                        "400": { rec: 242.5, msmk: 253.76, ms: 274, kms: 288, i: 307, ii: 348, iii: 397, i_j: 452, ii_j: 508, iii_j: 564 }
+                    }
+                }
+            },
+            female: {
+                "25": {
+                    freestyle: {
+                        "50": { rec: 22.83, msmk: 24.13, ms: 25.75, kms: 26.55, i: 27.85, ii: 30.55, iii: 32.55, i_j: 39.55, ii_j: 49.55, iii_j: 59.05 },
+                        "100": { rec: 50.25, msmk: 52.68, ms: 56, kms: 60, i: 63.84, ii: 71.4, iii: 79.1, i_j: 93.1, ii_j: 113.1, iii_j: 132.1 },
+                        "200": { rec: 110.31, msmk: 115.02, ms: 123.45, kms: 131.75, i: 140.45, ii: 156.2, iii: 174.2, i_j: 205.2, ii_j: 245.2, iii_j: 283.2 },
+                        "400": { rec: 230.25, msmk: 243.32, ms: 260, kms: 270, i: 292, ii: 334, iii: 378, i_j: 449, ii_j: 520, iii_j: 591 },
+                        "800": { rec: 477.42, msmk: 503.99, ms: 540, kms: 570, i: 611, ii: 702, iii: 795, i_j: 960, ii_j: 1110, iii_j: 1260 },
+                        "1500": { rec: 908.24, msmk: 972.06, ms: 1032.5, kms: 1101.5, i: 1204.5, ii: 1354.5, iii: 1557.5, i_j: 1805, ii_j: 2050, iii_j: 2300 }
+                    },
+                    backstroke: {
+                        "50": { rec: 25.23, msmk: 26.57, ms: 28.65, kms: 29.85, i: 31.55, ii: 36.55, iii: 40.55, i_j: 47.05, ii_j: 57.05, iii_j: 67.05 },
+                        "100": { rec: 54.02, msmk: 57.36, ms: 63.6, kms: 68.5, i: 73, ii: 81.1, iii: 91.1, i_j: 105.1, ii_j: 128.1, iii_j: 148.1 },
+                        "200": { rec: 118.04, msmk: 125.15, ms: 137.95, kms: 145.95, i: 154.95, ii: 174.2, iii: 196.2, i_j: 230.2, ii_j: 275.2, iii_j: 315.2 }
+                    },
+                    breaststroke: {
+                        "50": { rec: 28.37, msmk: 30.04, ms: 32.45, kms: 34.25, i: 35.95, ii: 40.05, iii: 44.05, i_j: 51.55, ii_j: 61.55, iii_j: 71.55 },
+                        "100": { rec: 62.36, msmk: 65.05, ms: 72, kms: 76, i: 81, ii: 89.6, iii: 101.6, i_j: 126.1, ii_j: 136.1, iii_j: 157.1 },
+                        "200": { rec: 132.5, msmk: 141.34, ms: 154.45, kms: 163.45, i: 173.95, ii: 194.2, iii: 219.6, i_j: 256.6, ii_j: 291.6, iii_j: 333.2 }
+                    },
+                    butterfly: {
+                        "50": { rec: 23.94, msmk: 25.62, ms: 27.3, kms: 28.45, i: 30.95, ii: 33.55, iii: 36.55, i_j: 43.55, ii_j: 53.55, iii_j: 63.55 },
+                        "100": { rec: 52.71, msmk: 57.16, ms: 61.5, kms: 65, i: 69.5, ii: 79.1, iii: 90.1, i_j: 102.1, ii_j: 121.1, iii_j: 141.1 },
+                        "200": { rec: 119.32, msmk: 127.15, ms: 136.95, kms: 144.45, i: 154.45, ii: 175.2, iii: 198.2, i_j: 225.2, ii_j: 261.2, iii_j: 301.2 }
+                    },
+                    medley: {
+                        "100": { rec: 55.11, msmk: 59.56, ms: 64.5, kms: 69.5, i: 74.5, ii: 83.6, iii: 94.6, i_j: 106.6, ii_j: 125.6, iii_j: 165.6 },
+                        "200": { rec: 121.63, msmk: 128.11, ms: 140.95, kms: 149.45, i: 158.95, ii: 179.2, iii: 205.2, i_j: 234.2, ii_j: 270.2, iii_j: 310.2 },
+                        "400": { rec: 255.48, msmk: 275.03, ms: 298, kms: 315.5, i: 337, ii: 381, iii: 434, i_j: 495, ii_j: 566, iii_j: 637 }
+                    }
+                },
+                "50": {
+                    freestyle: {
+                        "50": { rec: 23.61, msmk: 24.82, ms: 26.5, kms: 27.3, i: 28.6, ii: 31.3, iii: 33.3, i_j: 40.3, ii_j: 50.3, iii_j: 59.8 },
+                        "100": { rec: 51.71, msmk: 53.99, ms: 57.5, kms: 61.5, i: 65.34, ii: 72.9, iii: 80.6, i_j: 94.6, ii_j: 114.6, iii_j: 133.6 },
+                        "200": { rec: 112.23, msmk: 116.9, ms: 126.45, kms: 134.76, i: 143.45, ii: 158.2, iii: 177.2, i_j: 208.2, ii_j: 248.2, iii_j: 286.2 },
+                        "400": { rec: 234.18, msmk: 248.04, ms: 266, kms: 281, i: 299, ii: 340, iii: 384, i_j: 455, ii_j: 526, iii_j: 597 },
+                        "800": { rec: 484.12, msmk: 511.12, ms: 548, kms: 582, i: 623, ii: 714, iii: 807, i_j: 972, ii_j: 1122, iii_j: 1272 },
+                        "1500": { rec: 920.48, msmk: 980.88, ms: 1055, kms: 1124, i: 1227, ii: 1377, iii: 1580, i_j: 1827.5, ii_j: 2072.5, iii_j: 2322.5 }
+                    },
+                    backstroke: {
+                        "50": { rec: 26.86, msmk: 28.05, ms: 29, kms: 30.7, i: 32.3, ii: 37.3, iii: 41.3, i_j: 47.8, ii_j: 57.8, iii_j: 67.8 },
+                        "100": { rec: 57.13, msmk: 59.8, ms: 66, kms: 70, i: 74.5, ii: 82.6, iii: 92.6, i_j: 106.6, ii_j: 129.6, iii_j: 149.6 },
+                        "200": { rec: 123.14, msmk: 129.77, ms: 140.95, kms: 148.95, i: 157.95, ii: 177.2, iii: 199.2, i_j: 233.2, ii_j: 278.2, iii_j: 318 }
+                    },
+                    breaststroke: {
+                        "50": { rec: 29.16, msmk: 30.77, ms: 33.2, kms: 35, i: 36.7, ii: 40.8, iii: 44.8, i_j: 52.3, ii_j: 62.3, iii_j: 72.3 },
+                        "100": { rec: 64.13, msmk: 66.88, ms: 73.5, kms: 77.5, i: 82.5, ii: 91.1, iii: 103.1, i_j: 127.6, ii_j: 137.6, iii_j: 158.6 },
+                        "200": { rec: 137.55, msmk: 145.24, ms: 157.45, kms: 166.4, i: 176.95, ii: 197.2, iii: 222.2, i_j: 259.2, ii_j: 294.2, iii_j: 336.2 }
+                    },
+                    butterfly: {
+                        "50": { rec: 24.43, msmk: 26.03, ms: 28.05, kms: 29.2, i: 31.7, ii: 34.3, iii: 37.3, i_j: 44.3, ii_j: 54.3, iii_j: 64.3 },
+                        "100": { rec: 54.6, msmk: 58.06, ms: 63, kms: 66.5, i: 71, ii: 80.6, iii: 91.6, i_j: 103.6, ii_j: 122.6, iii_j: 142.6 },
+                        "200": { rec: 121.81, msmk: 128.9, ms: 139.95, kms: 147.45, i: 157.45, ii: 178.2, iii: 201.2, i_j: 228.2, ii_j: 264.2, iii_j: 304.2 }
+                    },
+                    medley: {
+                        "200": { rec: 125.7, msmk: 132.12, ms: 144.75, kms: 153.25, i: 162.75, ii: 183, iii: 209, i_j: 238, ii_j: 274, iii_j: 314 },
+                        "400": { rec: 263.65, msmk: 280.8, ms: 303, kms: 320.5, i: 342, ii: 387, iii: 440, i_j: 501, ii_j: 572, iii_j: 643 }
+                    }
+                }
+            }
+        };
+
+        const LABELS = {
+            freestyle: "Вольный", backstroke: "На спине", breaststroke: "Брасс", butterfly: "Баттерфляй", medley: "Комплекс",
+            msmk: "МСМК", ms: "МС", kms: "КМС", i: "I Взрослый", ii: "II Взрослый", iii: "III Взрослый", 
+            i_j: "I Юношеский", ii_j: "II Юношеский", iii_j: "III Юношеский"
+        };
+
+        const UI_TEXT = {
+            male: "Мужчины",
+            female: "Женщины",
+            noData: "Нет данных",
+            noRank: "Без разряда"
+        };
+
+        const RANKS = ['msmk', 'ms', 'kms', 'i', 'ii', 'iii', 'i_j', 'ii_j', 'iii_j'];
+
+        // --- 2. PHYSICS WHEEL ENGINE ---
+        class WheelPicker {
+            constructor(elementId, items, onChange) {
+                this.container = document.getElementById(elementId);
+                this.items = items;
+                this.onChange = onChange;
+                this.itemHeight = 40;
+                this.selectedIndex = 0;
+                this.scrollY = 0;
+                this.velocity = 0;
+                this.isDragging = false;
+                this.lastY = 0;
+                this.lastTime = 0;
+                this.rafId = null;
+                this.maxOverScroll = this.itemHeight * 0.12;
+                this.targetScrollY = null;
+                this.isProgrammaticScroll = false;
+                this.lastVisualSelectedIndex = 0;
+                this.refreshFxTimer = null;
+                this.render();
+                this.attachEvents();
+                this.animate();
+            }
+
+            get maxScroll() {
+                return Math.max(0, (this.items.length - 1) * this.itemHeight);
+            }
+
+            clamp(value, min, max) {
+                return Math.min(max, Math.max(min, value));
+            }
+
+            getClosestIndex() {
+                return this.clamp(Math.round(this.scrollY / this.itemHeight), 0, this.items.length - 1);
+            }
+
+            scrollToIndex(index, smooth = true) {
+                this.selectedIndex = this.clamp(index, 0, Math.max(0, this.items.length - 1));
+                const targetY = this.selectedIndex * this.itemHeight;
+            
+                if (smooth) {
+                    this.velocity = 0;
+                    this.targetScrollY = targetY;
+                    this.isProgrammaticScroll = true;
+            
+                    // ВАЖНО: вызываем onChange сразу при клике, не дожидаясь конца анимации
+                    if (this.items[this.selectedIndex]) {
+                        this.onChange(this.items[this.selectedIndex].value);
+                    }
+            
+                    if (window.Telegram?.WebApp?.HapticFeedback) {
+                        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                    }
+                } else {
+                    this.scrollY = targetY;
+                    this.targetScrollY = null;
+                    this.isProgrammaticScroll = false;
+                }
+            }
+
+            pulseRefresh() {
+                const wheel = this.container.parentElement;
+                wheel.classList.remove('refreshing');
+                void wheel.offsetWidth; // хак для перезапуска анимации
+                wheel.classList.add('refreshing');
+                if (this.refreshFxTimer) clearTimeout(this.refreshFxTimer);
+                this.refreshFxTimer = setTimeout(() => wheel.classList.remove('refreshing'), 520);
+            }
+
+            render() {
+                const fragment = document.createDocumentFragment();
+
+                // Верхний отступ для центрирования
+                const pad = document.createElement('div');
+                pad.style.height = '60px';
+                fragment.appendChild(pad);
+
+                this.items.forEach((item, index) => {
+                    const el = document.createElement('div');
+                    el.className = 'picker-item';
+                    el.innerText = item.label;
+                    el.style.height = `${this.itemHeight}px`;
+
+                    // Добавляем возможность клика
+                    el.style.cursor = 'pointer';
+                    el.addEventListener('click', (e) => {
+                        // Останавливаем всплытие, чтобы не сработали другие события
+                        e.stopPropagation(); 
+                        
+                        // Если мы не дрифтуем по экрану со всей силы — засчитываем клик
+                        if (!this.isDragging) {
+                            this.scrollToIndex(index, true);
+                        }
+                    });
+
+                    fragment.appendChild(el);
+                });
+
+                const padBottom = document.createElement('div');
+                padBottom.style.height = '60px';
+                fragment.appendChild(padBottom);
+
+                this.container.innerHTML = '';
+                this.container.appendChild(fragment);
+            }
+
+            attachEvents() {
+                const host = this.container.parentElement;
+
+                const start = (y) => {
+                    this.isDragging = true;
+                    this.lastY = y;
+                    this.lastTime = Date.now();
+                    this.velocity = 0;
+                    this.targetScrollY = null;
+                    this.isProgrammaticScroll = false;
+                    host.classList.add('dragging');
+                };
+
+                const move = (y) => {
+                    if (!this.isDragging) return;
+                    const now = Date.now();
+                    const deltaY = y - this.lastY;
+                    const deltaTime = Math.max(1, now - this.lastTime);
+
+                    this.scrollY -= deltaY;
+                    this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
+                    this.velocity = this.velocity * 0.75 + (deltaY / deltaTime) * 4.6;
+
+                    this.lastY = y;
+                    this.lastTime = now;
+                };
+
+                const end = () => {
+                    if (!this.isDragging) return;
+                    this.isDragging = false;
+                    host.classList.remove('dragging');
+                    this.targetScrollY = this.getClosestIndex() * this.itemHeight;
+                };
+
+                host.addEventListener('touchstart', (e) => start(e.touches[0].clientY), { passive: true });
+                document.addEventListener('touchmove', (e) => move(e.touches[0].clientY), { passive: true });
+                document.addEventListener('touchend', end);
+                host.addEventListener('mousedown', (e) => start(e.clientY));
+                document.addEventListener('mousemove', (e) => move(e.clientY));
+                document.addEventListener('mouseup', end);
+
+                host.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    this.velocity = 0;
+                    this.targetScrollY = null;
+                    this.scrollY += e.deltaY * 0.35;
+                    this.scrollY = this.clamp(this.scrollY, 0, this.maxScroll);
+                    this.targetScrollY = this.getClosestIndex() * this.itemHeight;
+                }, { passive: false });
+            }
+
+            updateSelectionFromScroll() {
+                const nextIndex = this.getClosestIndex();
+                if (nextIndex !== this.selectedIndex && this.items[nextIndex]) {
+                    this.selectedIndex = nextIndex;
+                    this.onChange(this.items[this.selectedIndex].value);
+                    window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                }
+            }
+
+            animate() {
+                if (!this.isDragging) {
+                    if (this.targetScrollY !== null) {
+                        const diff = this.targetScrollY - this.scrollY;
+                        // Делаем доводку еще мягче (0.06 вместо 0.08)
+                        const easing = this.isProgrammaticScroll ? 0.06 : 0.12; 
+                        this.scrollY += diff * easing;
+                        this.velocity *= 0.75;
+
+                        if (Math.abs(diff) < 0.1) {
+                            this.scrollY = this.targetScrollY;
+                            this.targetScrollY = null;
+                            this.isProgrammaticScroll = false;
+                            this.updateSelectionFromScroll();
+                        }
+                    } else {
+                        this.scrollY -= this.velocity;
+                        this.velocity *= 0.95; // Увеличили вязкость (было 0.92)
+
+                        if (Math.abs(this.velocity) < 0.01) {
+                            this.velocity = 0;
+                            this.targetScrollY = this.getClosestIndex() * this.itemHeight;
+                        }
+                    }
+                }
+
+                this.scrollY = this.clamp(this.scrollY, -this.maxOverScroll, this.maxScroll + this.maxOverScroll);
+                this.container.style.transform = `translateY(${-this.scrollY}px)`;
+
+                const items = this.container.querySelectorAll('.picker-item');
+                const centerOffset = this.scrollY;
+
+                items.forEach((item, i) => {
+                    const itemY = i * this.itemHeight;
+                    const distance = itemY - centerOffset;
+                    const absDistance = Math.abs(distance);
+
+                    // Увеличиваем радиус влияния, чтобы изменения были очень растянуты во времени
+                    const radius = this.itemHeight * 2.5; 
+                    const proximity = Math.max(0, 1 - absDistance / radius);
+
+                    // Линейное сглаживание вместо агрессивного Power
+                    const curve = Math.sin(proximity * Math.PI / 2); 
+
+                    // Очень деликатные изменения (масштаб меняется всего на 15%)
+                    const scale = 0.88 + (0.12 * curve);
+                    const opacity = 0.3 + (0.7 * curve);
+                    const rotate = (distance / radius) * -30; 
+
+                    item.style.transform = `translateZ(0) rotateX(${rotate}deg) scale(${scale})`;
+                    item.style.opacity = opacity;
+
+                    // Порог выбора делаем "невидимым"
+                    if (absDistance < 15) {
+                        if (!item.classList.contains('selected')) {
+                            item.classList.add('selected');
+                            if (this.isDragging && window.Telegram?.WebApp?.HapticFeedback) {
+                                window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                            }
+                        }
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+
+                this.rafId = requestAnimationFrame(() => this.animate());
+            }
+
+            updateItems(newItems, options = {}) {
+                const { preferredValue = null, smooth = true, emitChange = true, pulse = false } = options;
+                const host = this.container.parentElement;
+
+                // Сбрасываем инерцию, чтобы новый список не "улетел"
+                this.velocity = 0;
+                this.targetScrollY = null;
+
+                // Включаем блюр и прозрачность
+                host.classList.add('updating-content');
+
+                // Минимальная задержка 10мс, чтобы браузер успел отрисовать состояние opacity: 0
+                setTimeout(() => {
+                    const fallbackIndex = 0;
+                    const previousValue = preferredValue || this.items[this.selectedIndex]?.value;
+                    const nextIndex = Math.max(0, newItems.findIndex(item => item.value === previousValue));
+
+                    this.items = newItems;
+                    this.render(); 
+
+                    // Ставим индекс мгновенно (false), пока всё скрыто блюром
+                    this.scrollToIndex(nextIndex, false); 
+
+                    if (pulse) this.pulseRefresh();
+
+                    // Убираем блюр на следующем кадре
+                    requestAnimationFrame(() => {
+                        host.classList.remove('updating-content');
+                    });
+
+                    if (emitChange && this.items[this.selectedIndex]) {
+                        this.onChange(this.items[this.selectedIndex].value);
+                    }
+                }, 10); 
+            }
+        }
+        // --- 3. APP LOGIC CONTROLLER ---
+        const app = {
+            state: {
+                gender: 'male',
+                pool: '25',
+                style: 'freestyle',
+                dist: '50'
+            },
+
+            stylePicker: null,
+            distPicker: null,
+            isSheetOpen: false,
+            sheetDragStartY: 0,
+            sheetTranslateY: 0,
+            isSheetDragging: false,
+
+            init() {
+                const tg = window.Telegram.WebApp;
+                this.sheet = document.getElementById('sheet');
+                this.backdrop = document.getElementById('backdrop');
+                tg.expand();
+                tg.headerColor = '#000000';
+                tg.backgroundColor = '#000000';
+
+                // Initialize Pickers
+                this.stylePicker = new WheelPicker('style-scroll', [
+                    {label: LABELS.freestyle, value: 'freestyle'},
+                    {label: LABELS.backstroke, value: 'backstroke'},
+                    {label: LABELS.breaststroke, value: 'breaststroke'},
+                    {label: LABELS.butterfly, value: 'butterfly'},
+                    {label: LABELS.medley, value: 'medley'}
+                ], (val) => {
+                    this.state.style = val;
+                    // Ставим smooth: true, чтобы при клике на стиль дистанции обновлялись мягко
+                    this.updateDistances({ smooth: true, pulse: true }); 
+                    this.calculate();
+                });
+
+                // Init distance (empty first, filled by updateDistances)
+                this.distPicker = new WheelPicker('dist-scroll', [], (val) => {
+                    this.state.dist = val;
+                    this.calculate();
+                });
+
+                this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: false });
+                this.setupInputs();
+                this.setupSheetGesture();
+            },
+
+            setGender(val) {
+                if (this.state.gender === val) return; // Защита от повторного клика
+                this.state.gender = val;
+                this.animateSwitch('gender-switch', val === 'female');
+
+                // Дистанции не меняются от пола, просто пересчитываем очки и рекорды
+                this.calculate();
+            },
+
+            setPool(val) {
+                if (this.state.pool === val) return;
+                this.state.pool = val;
+                this.animateSwitch('pool-switch', val === '50');
+
+                // Обновляем список дистанций только для комплексного плавания (где есть разница 100/200/400)
+                if (this.state.style === 'medley') {
+                    this.updateDistances({ smooth: false, allowScrollAnchor: false, pulse: true });
+                } else {
+                    // Для остальных стилей просто обновляем расчеты
+                    this.calculate();
+                }
+            },
+
+            animateSwitch(id, isRight) {
+                const el = document.getElementById(id);
+                el.setAttribute('data-state', isRight ? '1' : '0');
+                const btns = el.querySelectorAll('.segment-btn');
+                btns[0].classList.toggle('active', !isRight);
+                btns[1].classList.toggle('active', isRight);
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            },
+
+            updateDistances(options = {}) {
+                const { smooth = true, allowScrollAnchor = true, pulse = false } = options;
+                const distances = Object.keys(DB[this.state.gender][this.state.pool][this.state.style])
+                    .sort((a,b) => parseInt(a) - parseInt(b));
+
+                const items = distances.map(d => ({label: `${d} м`, value: d}));
+                this.distPicker.updateItems(items, {
+                    preferredValue: this.state.dist,
+                    smooth,
+                    emitChange: true,
+                    pulse
+                });
+
+                if (allowScrollAnchor && this.isSheetOpen) {
+                    this.refreshSheet({ align: true });
+                }
+            },
+
+            setupInputs() {
+                const inputs = ['inp-min', 'inp-sec', 'inp-ms'];
+                inputs.forEach((id, idx) => {
+                    const el = document.getElementById(id);
+                    el.addEventListener('input', (e) => {
+                        let val = e.target.value.replace(/[^0-9]/g, '');
+                        if (id === 'inp-sec' && parseInt(val) > 59) val = '59';
+                        e.target.value = val;
+
+                        if (val.length >= 2) {
+                            if (idx < 2) document.getElementById(inputs[idx+1]).focus();
+                        }
+                        this.calculate();
+                    });
+
+                    el.addEventListener('keydown', (e) => {
+                        if (e.key === 'Backspace' && e.target.value === '') {
+                            if (idx > 0) document.getElementById(inputs[idx-1]).focus();
+                        }
+                    });
+                });
+            },
+
+            setupSheetGesture() {
+                const sheet = document.getElementById('sheet');
+                const handle = sheet.querySelector('.sheet-handle');
+                const scrollContainer = document.getElementById('norms-list');
+
+                const canStartDrag = (target) => {
+                    if (!this.isSheetOpen) return false;
+                    if (target.closest('.sheet-handle')) return true;
+                    const insideScroll = target.closest('.sheet-scroll');
+                    return insideScroll && scrollContainer.scrollTop <= 0;
+                };
+
+                const start = (y, target) => {
+                    if (!this.isSheetOpen) return;
+                    if (!canStartDrag(target)) return;
+                    this.isSheetDragging = true;
+                    this.sheetDragStartY = y;
+                    this.sheet.classList.add('dragging');
+                };
+
+                const move = (y) => {
+                    if (!this.isSheetDragging) return;
+                    const rawDelta = Math.max(0, y - this.sheetDragStartY);
+                    const delta = rawDelta > 140 ? 140 + (rawDelta - 140) * 0.35 : rawDelta;
+                    this.sheetTranslateY = delta;
+                    this.sheet.style.transform = `translateY(${delta}px)`;
+                };
+
+                const end = () => {
+                    if (!this.isSheetDragging) return;
+                    this.isSheetDragging = false;
+                    this.sheet.classList.remove('dragging');
+                    if (this.sheetTranslateY > 110) {
+                        this.closeSheet();
+                        return;
+                    }
+                    this.sheetTranslateY = 0;
+                    this.sheet.style.transform = '';
+                    this.sheet.classList.add('active');
+                };
+
+                sheet.addEventListener('touchstart', (e) => start(e.touches[0].clientY, e.target), { passive: true });
+                document.addEventListener('touchmove', (e) => move(e.touches[0].clientY), { passive: true });
+                document.addEventListener('touchend', end);
+
+                handle.addEventListener('mousedown', (e) => start(e.clientY, e.target));
+                document.addEventListener('mousemove', (e) => move(e.clientY));
+                document.addEventListener('mouseup', end);
+
+                this.backdrop.addEventListener('click', () => {
+                    if (this.isSheetOpen) this.closeSheet();
+                });
+            },
+
+            getRankState(data, userTime) {
+                const achievedRanks = [];
+                if (userTime > 0) {
+                    RANKS.forEach((rank) => {
+                        if (userTime <= data[rank]) achievedRanks.push(rank);
+                    });
+                }
+
+                const achievedRank = achievedRanks.length ? achievedRanks[0] : null;
+                const achievedIndex = achievedRank ? RANKS.indexOf(achievedRank) : -1;
+
+                let nextRank = null;
+                let nextIndex = -1;
+                if (userTime > 0 && achievedIndex > 0) {
+                    nextIndex = achievedIndex - 1;
+                    nextRank = RANKS[nextIndex];
+                } else if (userTime > 0 && achievedIndex === -1) {
+                    nextIndex = RANKS.length - 1;
+                    nextRank = RANKS[nextIndex];
+                }
+
+                return { achievedRank, achievedIndex, nextRank, nextIndex };
+            },
+
+            getProgressWidth(userTime, data, rankState) {
+                if (userTime <= 0 || !rankState.nextRank) return 0;
+
+                const targetIndex = rankState.nextIndex;
+                const targetTime = data[rankState.nextRank];
+                const lowerBound = targetIndex < RANKS.length - 1
+                    ? data[RANKS[targetIndex + 1]]
+                    : targetTime * 1.18;
+
+                const range = Math.max(0.01, lowerBound - targetTime);
+                const progress = ((lowerBound - userTime) / range) * 100;
+                return Math.max(0, Math.min(100, progress));
+            },
+
+            calculate() {
+                const min = parseInt(document.getElementById('inp-min').value) || 0;
+                const sec = parseInt(document.getElementById('inp-sec').value) || 0;
+                const ms = parseInt(document.getElementById('inp-ms').value) || 0;
+
+                const totalSeconds = (min * 60) + sec + (ms / 100);
+
+                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
+                if (!data) return;
+
+                const record = data.rec;
+                const rM = Math.floor(record / 60);
+                const rS = Math.floor(record % 60);
+                const rMS = Math.round((record - Math.floor(record)) * 100);
+                const recordStr = `${rM > 0 ? rM + ':' : ''}${rS.toString().padStart(2, '0')}.${rMS.toString().padStart(2, '0')}`;
+                document.getElementById('world-record').innerText = `WORLD RECORD: ${recordStr}`;
+
+                if (totalSeconds === 0) {
+                    this.lastPoints = 0;
+                    this.updateDisplay(0, UI_TEXT.noData);
+                    if (this.isSheetOpen) this.refreshSheet({ align: false });
+                    return;
+                }
+
+                let points = Math.floor(1000 * Math.pow(record / totalSeconds, 3));
+                if (points > 1199) points = 1199;
+                if (points < 0) points = 0;
+
+                let rank = UI_TEXT.noRank;
+                for (let r of RANKS) {
+                    if (totalSeconds <= data[r]) {
+                        rank = LABELS[r];
+                        break;
+                    }
+                }
+
+                this.lastPoints = points; // Теперь это работает
+                this.updateDisplay(points, rank);
+
+                if (this.isSheetOpen) {
+                    this.refreshSheet({ align: false });
+                }
+            },
+
+            updateDisplay(points, rank) {
+                const display = document.getElementById('fina-value');
+                const badge = document.getElementById('rank-badge');
+
+                // Оставляем только логику одометра (смены цифр)
+                const start = parseInt(display.innerText);
+                if (start !== points) {
+                    // Мы убрали добавление класса value-refresh, теперь прыжков не будет
+                    this.animateValue(display, start, points, 720);
+                }
+
+                badge.innerText = rank;
+                badge.classList.toggle('active', rank !== UI_TEXT.noRank && rank !== UI_TEXT.noData);
+            },
+
+            animateValue(obj, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    // Elastic ease out
+                    const ease = 1 - Math.pow(1 - progress, 3); 
+                    obj.innerHTML = Math.floor(ease * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            },
+
+            buildNormRows() {
+                const list = document.getElementById('norms-list');
+                const sub = document.getElementById('sheet-sub');
+                list.innerHTML = '';
+
+                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
+                const min = parseInt(document.getElementById('inp-min').value) || 0;
+                const sec = parseInt(document.getElementById('inp-sec').value) || 0;
+                const ms = parseInt(document.getElementById('inp-ms').value) || 0;
+                const userTime = (min * 60) + sec + (ms / 100);
+                const rankState = this.getRankState(data, userTime);
+
+                sub.innerText = `${UI_TEXT[this.state.gender]} • ${this.state.pool} М • ${LABELS[this.state.style]} • ${this.state.dist} М`;
+
+                let anchorRow = null;
+
+                RANKS.forEach((r) => {
+                    const time = data[r];
+                    const isDone = rankState.achievedRank === r;
+                    const isNext = rankState.nextRank === r;
+
+                    const row = document.createElement('div');
+                    row.className = `norm-row ${isDone ? 'achieved' : ''} ${isNext ? 'next-goal' : ''}`;
+
+                    let tM = Math.floor(time / 60);
+                    let tS = Math.floor(time % 60);
+                    let tMS = Math.round((time - Math.floor(time)) * 100);
+                    const timeStr = `${tM > 0 ? tM + ':' : ''}${tS.toString().padStart(2, '0')}.${tMS.toString().padStart(2, '0')}`;
+                    const progress = this.getProgressWidth(userTime, data, rankState);
+
+                    row.innerHTML = `
+                        <div style="width:100%">
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap: 8px;">
+                                <span class="norm-rank">${LABELS[r]}</span>
+                                <span class="norm-time">${timeStr}</span>
+                            </div>
+                            ${isNext ? `
+                            <div class="norm-progress">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>` : ''}
+                        </div>
+                    `;
+
+                    if (!userTime && r === 'iii') {
+                        row.classList.add('norm-row-anchor');
+                        anchorRow = row;
+                    }
+
+                    if (userTime > 0 && isDone) {
+                        row.classList.add('norm-row-anchor');
+                        anchorRow = row;
+                    }
+
+                    list.appendChild(row);
+                });
+
+                return { anchorRow };
+            },
+
+            refreshSheet(options = {}) {
+                if (!this.isSheetOpen) return;
+                const { align = false } = options;
+                const list = document.getElementById('norms-list');
+                const prevScrollTop = list.scrollTop;
+                const { anchorRow } = this.buildNormRows();
+
+                if (align && anchorRow) {
+                    anchorRow.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                    return;
+                }
+
+                list.scrollTop = prevScrollTop;
+            },
+
+            openSheet() {
+                this.buildNormRows(); // Просто пересобираем строки без поиска якоря
+                
+                this.sheet.classList.add('active');
+                this.backdrop.classList.add('active');
+                this.isSheetOpen = true;
+
+                const list = document.getElementById('norms-list');
+
+                // Принудительно скроллим в самое начало, чтобы видеть МСМК
+                requestAnimationFrame(() => {
+                    list.scrollTo({ top: 0, behavior: 'instant' });
+                });
+
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                }
+            },
+
+
+            closeSheet() {
+                this.isSheetOpen = false;
+                this.sheet.classList.remove('active');
+                this.backdrop.classList.remove('active');
+                this.sheet.style.transform = '';
+                this.sheetTranslateY = 0;
+            }, // <-- Запятая здесь важна!
+
+            openProfile() {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+                window.Telegram.WebApp.showAlert("Разделы: Профиль, рекорды и ГПС находится в разработке, следите за обновлениями");
+            },
+
+            switchTab(tab) {
+                window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                const tabs = document.querySelectorAll('.nav-tab');
+                
+                if (tab === 'profile') {
+                    tabs[0].classList.remove('active');
+                    tabs[1].classList.add('active');
+                    this.openProfile();
+                    
+                    // Возвращаем фокус на калькулятор через секунду, так как профиля пока нет
+                    setTimeout(() => {
+                        tabs[1].classList.remove('active');
+                        tabs[0].classList.add('active');
+                    }, 1500);
+                } else {
+                    tabs[1].classList.remove('active');
+                    tabs[0].classList.add('active');
+                }
+            },
+
+            clearInputs() {
+                const inputs = ['inp-min', 'inp-sec', 'inp-ms'];
+                inputs.forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+                
+                // Убрали focus(), чтобы не вылетала клавиатура
+                
+                // Запускаем пересчет (обнулит очки и сбросит WR)
+                this.calculate();
+
+                // Оставляем только легкую вибрацию об успешной очистке
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+            },
+            
+            // --- REVERSE CALCULATOR (POINTS -> TIME) ---
+            
+            enableReverseMode() {
+                const display = document.getElementById('fina-value');
+                const input = document.getElementById('fina-input');
+                
+                // Скрываем старый текст, но сохраняем место
+                display.style.display = 'none';
+                
+                // Показываем инпут как inline-block
+                input.style.display = 'inline-block';
+                
+                let currentVal = display.innerText;
+                input.value = (currentVal === '0') ? '' : currentVal;
+                
+                // Фокус и подъем клавиатуры
+                setTimeout(() => input.focus(), 50);
+                
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.selectionChanged();
+                }
+            },
+
+            confirmReverseCalc() {
+                const display = document.getElementById('fina-value');
+                const input = document.getElementById('fina-input');
+                const valStr = input.value.replace(/[^0-9]/g, '');
+                const targetPoints = parseInt(valStr);
+
+                // Возвращаем вид обратно
+                input.style.display = 'none';
+                display.style.display = 'inline-block';
+
+                if (!valStr || isNaN(targetPoints) || targetPoints <= 0) {
+                    // Если пусто или 0 - просто возвращаем как было
+                    display.innerText = this.lastPoints || 0;
+                    return;
+                }
+
+                // --- САМАЯ ВАЖНАЯ ЧАСТЬ: МАТЕМАТИКА ---
+                const data = DB[this.state.gender][this.state.pool][this.state.style][this.state.dist];
+                if (!data || !data.rec) return;
+
+                const record = data.rec;
+
+                // 1. Алгебраический расчет времени: Time = Record / (Points/1000)^(1/3)
+                // Это дает "сырое" время
+                let rawTime = record / Math.pow(targetPoints / 1000, 1/3);
+
+                // 2. Округляем до сотых (как в реальном секундомере)
+                // Используем Math.round, чтобы получить ближайшую точку старта
+                let timeInSeconds = Math.round(rawTime * 100) / 100;
+
+                // 3. ПРОВЕРКА И ПОДГОНКА (LOOP)
+                // Прямая формула: Points = floor(1000 * (Rec/Time)^3)
+                // Нам нужно найти время T, которое дает результат >= targetPoints,
+                // но при этом оно должно быть максимально близким (желательно медленным), 
+                // чтобы при обратном вводе мы попали в те же очки.
+
+                const getP = (t) => Math.floor(1000 * Math.pow(record / t, 3));
+
+                let safetyCounter = 0;
+                let calculatedPoints = getP(timeInSeconds);
+
+                // Если текущее время дает МЕНЬШЕ очков, чем надо -> надо плыть быстрее (уменьшать время)
+                while (calculatedPoints < targetPoints && safetyCounter < 50) {
+                    timeInSeconds -= 0.01;
+                    // Округляем, чтобы избежать ошибок плавающей точки (56.0099999)
+                    timeInSeconds = Math.round(timeInSeconds * 100) / 100;
+                    calculatedPoints = getP(timeInSeconds);
+                    safetyCounter++;
+                }
+
+                // Если текущее время дает БОЛЬШЕ или РАВНО очков -> попробуем замедлиться (прибавить время),
+                // вдруг мы можем проплыть медленнее, но все еще получить эти очки?
+                // Это нужно, чтобы найти ГРАНИЦУ.
+                safetyCounter = 0;
+                while (getP(timeInSeconds + 0.01) >= targetPoints && safetyCounter < 50) {
+                    timeInSeconds += 0.01;
+                    timeInSeconds = Math.round(timeInSeconds * 100) / 100;
+                    safetyCounter++;
+                }
+                
+                // 4. Заполняем инпуты времени
+                const m = Math.floor(timeInSeconds / 60);
+                const s = Math.floor(timeInSeconds % 60);
+                const ms = Math.round((timeInSeconds - Math.floor(timeInSeconds)) * 100);
+
+                document.getElementById('inp-min').value = m > 0 ? m.toString().padStart(2, '0') : '';
+                document.getElementById('inp-sec').value = s.toString().padStart(2, '0');
+                document.getElementById('inp-ms').value = ms.toString().padStart(2, '0');
+
+                // 5. Запускаем обычный расчет, чтобы обновить UI (ранги, прогресс бар)
+                // Это также проверит нашу теорию: цифра на экране должна стать ровно targetPoints
+                this.calculate();
+                
+                // Виброотклик успеха
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+            },
+        }; // Конец объекта app
+
+        // Boot
+        window.addEventListener('load', () => app.init());
+
+    </script>
+</body>
+</html>
