@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="RYFT Legal Framework: Пользовательское соглашение и Политика конфиденциальности сервиса.">
+    <title>RYFT | Legal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           1. ROOT VARIABLES & TOKENS (ИЗ ТВОЕГО ВАРИАНТА 1)
+           ========================================================================== */
+        :root {
+            --bg-page: #ffffff;
+            --bg-surface: #F5F5F7;
+            --bg-surface-hover: #EBEBF0;
+            
+            --accent: #007AFF; 
+            --accent-dark: #005ecb;
+            --accent-light: rgba(0, 122, 255, 0.1);
+            
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --text-tertiary: #d2d2d7;
+            
+            --border: #d2d2d7;
+            --border-light: #e5e5ea;
+            
+            --success: #34c759;
+            --danger: #ff3b30;
+            --warning: #ff9500;
+            --info: #5856d6;
+
+            --radius-s: 8px;
+            --radius-m: 16px;
+            --radius-l: 24px;
+            --radius-xl: 32px;
+            --radius-pill: 999px;
+            
+            --container-max: 1000px;
+            --section-gap: 80px;
+            --module-gap: 40px;
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-fast: all 0.2s ease;
+            --transition-smooth: all 0.4s var(--ease-out-expo);
+        }
+
+        /* ==========================================================================
+           2. GLOBAL RESET & TYPOGRAPHY
+           ========================================================================== */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+
+        /* ==========================================================================
+           3. ANIMATION ENGINE
+           ========================================================================== */
+        @keyframes ryftFadeInUp {
+            from { opacity: 0; transform: translateY(40px); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        .animate-load {
+            animation: ryftFadeInUp 1s var(--ease-out-expo) forwards;
+            opacity: 0; 
+            will-change: transform, opacity, filter;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        .delay-6 { animation-delay: 0.6s; }
+
+        .container {
+            width: 100%; max-width: var(--container-max);
+            margin: 0 auto; padding: 80px 24px; min-height: 100vh;
+            display: flex; flex-direction: column;
+        }
+
+        /* ==========================================================================
+           4. MODULE: HEADER (IDENTITY)
+           ========================================================================== */
+        header {
+            position: relative; padding-left: 32px;
+            margin-bottom: var(--section-gap);
+            border-left: 6px solid var(--accent);
+        }
+
+        .kicker {
+            color: var(--accent); text-transform: uppercase; font-weight: 800;
+            letter-spacing: 5px; font-size: 12px; display: block; margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: clamp(48px, 10vw, 96px); font-weight: 900; margin: 0;
+            letter-spacing: -0.05em; line-height: 0.85; text-transform: uppercase;
+        }
+        
+        .sub-h1 {
+            font-size: clamp(16px, 3vw, 22px); font-weight: 500; color: var(--text-secondary);
+            margin-top: 24px; max-width: 750px; line-height: 1.4;
+        }
+
+        h2 { 
+            font-size: clamp(28px, 5vw, 42px); font-weight: 800; 
+            margin: 60px 0 30px 0; letter-spacing: -0.03em; 
+            text-transform: uppercase; line-height: 1.1; position: relative;
+        }
+
+        /* ==========================================================================
+           5. MODULE: STATS GRID
+           ========================================================================== */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-bottom: var(--section-gap);
+        }
+
+        .stat-card {
+            background: var(--bg-surface); padding: 40px 24px;
+            border-radius: var(--radius-m); text-align: center;
+            transition: var(--transition-smooth); border: 1px solid transparent;
+        }
+
+        .stat-card:hover { 
+            transform: translateY(-8px); background: #fff; border-color: var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        .stat-val { 
+            display: block; font-size: clamp(36px, 5vw, 48px); font-weight: 900; 
+            letter-spacing: -2px; margin-bottom: 12px;
+        }
+        .stat-lbl { 
+            display: block; font-size: 11px; text-transform: uppercase; 
+            color: var(--text-secondary); font-weight: 800; letter-spacing: 1.5px; 
+        }
+
+        .txt-blue { color: var(--accent); }
+        .txt-orange { color: var(--warning); }
+        .txt-black { color: var(--text-primary); }
+
+        /* ==========================================================================
+           6. MODULE: INSIGHT BOX
+           ========================================================================== */
+        .insight-box {
+            background: #fff; border-left: 6px solid var(--accent);
+            padding: 50px 40px; margin-bottom: var(--module-gap);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+            border-radius: 0 var(--radius-l) var(--radius-l) 0;
+            position: relative; overflow: hidden;
+        }
+        .insight-box::after {
+            content: '§'; position: absolute; top: -30px; right: 20px;
+            font-size: 200px; color: var(--bg-surface); opacity: 0.5; z-index: 0;
+        }
+        .insight-text { 
+            font-size: clamp(20px, 3vw, 24px); font-weight: 600; font-style: italic; 
+            line-height: 1.4; letter-spacing: -0.5px; position: relative; z-index: 1;
+        }
+
+        /* ==========================================================================
+           7. MODULE: LONG READ (LEGAL TEXT)
+           ========================================================================== */
+        .long-read { margin: var(--section-gap) 0; }
+        .lr-section { margin-bottom: 60px; border-bottom: 1px solid var(--border); padding-bottom: 40px; }
+        .lr-section:last-child { border: none; }
+
+        .lr-title { 
+            font-size: 18px; font-weight: 900; text-transform: uppercase; 
+            margin-bottom: 24px; color: var(--text-primary); letter-spacing: 1px;
+            display: flex; align-items: center;
+        }
+        .lr-title::before {
+            content: ''; display: inline-block; width: 24px; height: 4px;
+            background: var(--text-primary); margin-right: 16px; border-radius: 2px;
+        }
+
+        .lr-text { 
+            font-size: 16px; line-height: 1.8; color: var(--text-secondary); 
+            margin-bottom: 20px; text-align: justify; font-weight: 400;
+        }
+
+        .lr-highlight { 
+            background: rgba(0, 122, 255, 0.08); padding: 2px 6px; 
+            border-radius: 4px; color: var(--accent-dark); font-weight: 700; 
+            border-bottom: 1px solid rgba(0, 122, 255, 0.2); margin-right: 6px;
+        }
+
+        .doc-divider {
+            height: 2px; background: var(--text-primary); width: 100%;
+            margin: 100px 0; opacity: 0.1;
+        }
+
+        /* ==========================================================================
+           8. CTA & FOOTER
+           ========================================================================== */
+        .cta-section { 
+            text-align: center; margin: 80px 0; padding: 100px 40px;
+            background: var(--bg-surface); border-radius: var(--radius-xl);
+            position: relative; overflow: hidden;
+        }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--text-primary); color: white; padding: 24px 60px;
+            border-radius: var(--radius-pill); font-weight: 800; font-size: 14px;
+            letter-spacing: 2px; text-transform: uppercase; text-decoration: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15); transition: var(--transition-smooth);
+        }
+        .cta-btn:hover { transform: scale(1.05); background: var(--accent); box-shadow: 0 30px 60px rgba(0, 122, 255, 0.3); }
+
+        footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--border); }
+        .footer-logo { font-size: 20px; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; }
+        .footer-sub { margin-top: 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 4px; font-weight: 700; }
+
+        @media (max-width: 768px) {
+            .container { padding: 40px 20px; }
+            h1 { font-size: 46px; }
+            header { padding-left: 20px; border-left-width: 4px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
+            .insight-box { padding: 30px 24px; }
+            .lr-title { font-size: 16px; }
+            .cta-section { padding: 60px 20px; }
+            .cta-btn { width: 100%; padding: 20px; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ==========================================================================
+           9. ДОПОЛНИТЕЛЬНЫЕ КЛАССЫ ДЛЯ ДОКУМЕНТА (MERGED)
+           Эти стили добавлены, чтобы красиво отрисовать текст соглашения
+           ========================================================================== */
+        .doc-main-title {
+            color: var(--accent); font-size: clamp(24px, 5vw, 32px); font-weight: 900;
+            letter-spacing: -1px; border-bottom: 3px solid var(--accent); 
+            padding-bottom: 15px; margin-bottom: 50px; display: block; line-height: 1.2;
+        }
+
+        .sub-items-block {
+            padding-left: 24px; border-left: 2px solid var(--border-light);
+            margin-bottom: 24px; margin-top: -10px;
+        }
+        
+        .sub-item-text {
+            font-size: 15px; line-height: 1.7; color: var(--text-secondary);
+            margin-bottom: 12px; text-align: justify;
+        }
+        
+        .sub-item-text:last-child { margin-bottom: 0; }
+        
+        .sub-item-num {
+            font-weight: 800; color: var(--text-primary); margin-right: 6px;
+            font-family: 'Inter', monospace; font-size: 13px; background: rgba(0,0,0,0.04);
+            padding: 2px 6px; border-radius: 4px;
+        }
+
+        .lr-strong {
+            font-weight: 700; color: var(--text-primary);
+        }
+
+        /* ==========================================================================
+           10. MODULE: METRICS, TIMELINE & TABLE (RESTORED)
+           ========================================================================== */
+        
+        /* --- METRICS (Прогресс-бары) --- */
+        .metrics-container { background: var(--bg-surface); border-radius: var(--radius-l); padding: 60px 40px; margin-bottom: var(--section-gap); }
+        .metric-item { margin-bottom: 35px; } .metric-item:last-child { margin-bottom: 0; }
+        .metric-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-primary); }
+        .metric-track { width: 100%; height: 12px; background: #e0e0e0; border-radius: 6px; overflow: hidden; position: relative; }
+        .metric-fill { height: 100%; background: var(--text-primary); border-radius: 6px; width: 0; transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1); position: relative; }
+        .metric-fill::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 40px 40px; animation: moveStripes 2s linear infinite; }
+        @keyframes moveStripes { 0% { background-position: 0 0; } 100% { background-position: 40px 0; } }
+        .fill-blue { background: var(--accent); } .fill-green { background: var(--success); } .fill-orange { background: var(--warning); }
+
+        /* --- TIMELINE (Вертикальная линия шагов) --- */
+        .timeline-section { margin-bottom: var(--section-gap); }
+        .timeline-stream { position: relative; padding-left: 0; margin-top: 40px; }
+        .timeline-stream::before { content: ''; position: absolute; top: 10px; bottom: 0; left: 7px; width: 2px; background: var(--border); z-index: 0; }
+        .timeline-event { position: relative; padding-left: 50px; margin-bottom: 60px; transition: var(--transition-smooth); }
+        .timeline-event:last-child { margin-bottom: 0; }
+        .timeline-dot { position: absolute; left: 0; top: 6px; width: 16px; height: 16px; background: var(--bg-page); border: 3px solid var(--text-primary); border-radius: 50%; z-index: 2; box-sizing: border-box; transition: var(--transition-smooth); }
+        .timeline-event:hover .timeline-dot { transform: scale(1.4); background: var(--text-primary); box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.05); }
+        .time-label { font-size: 12px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 10px; display: block; letter-spacing: 1px; }
+        .event-title { font-size: 20px; font-weight: 800; color: var(--text-primary); margin-bottom: 10px; letter-spacing: -0.5px; }
+        .event-desc { font-size: 15px; color: var(--text-secondary); margin: 0; line-height: 1.6; max-width: 800px; }
+
+        /* --- TABLE (Таблица Data Matrix) --- */
+        .table-wrap { border: 1px solid var(--border); border-radius: var(--radius-m); overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: var(--section-gap); background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        table { width: 100%; border-collapse: collapse; min-width: 750px; }
+        th { text-align: left; padding: 24px 30px; font-size: 11px; text-transform: uppercase; color: var(--text-secondary); border-bottom: 1px solid var(--border); background: #fafafa; font-weight: 800; letter-spacing: 1.5px; }
+        td { padding: 24px 30px; font-size: 14px; color: var(--text-primary); border-bottom: 1px solid var(--border); font-weight: 500; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; } tr:hover td { background-color: var(--bg-surface); }
+        .td-highlight { font-weight: 800; color: var(--accent); } .td-dim { color: var(--text-secondary); font-weight: 400; }
+        .status-badge { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-success { background: rgba(52, 199, 89, 0.1); color: var(--success); } .status-warning { background: rgba(255, 149, 0, 0.1); color: var(--warning); } .status-neutral { background: rgba(142, 142, 147, 0.1); color: var(--text-secondary); }
+
+        /* Адаптация таблицы для телефонов */
+        @media (max-width: 768px) {
+            .table-wrap { margin-left: -20px; margin-right: -20px; border-radius: 0; border-left: none; border-right: none; width: calc(100% + 40px); }
+        }
+    </style>
+
+<link rel="icon" type="image/svg+xml" href="https://ryft-official.ru/favicon.svg">
+
+<link rel="apple-touch-icon" href="https://ryft-official.ru/apple-touch-icon.png">
+
+<link rel="manifest" href="https://ryft-official.ru/site.webmanifest">
+<meta name="theme-color" content="#FFFFFF">
+
+</head>
+<body>
+
+<div class="container">
+    
+    <header class="animate-load delay-1">
+        <span class="kicker">RYFT Legal Unit</span>
+        <h1>RYFT<br><span style="color: var(--accent);">Framework</span></h1>
+        <div class="sub-h1">Официальные документы, регулирующие использование платформы RYFT. Максимальная прозрачность, защита данных и строгий отказ от ответственности.</div>
+    </header>
+
+    <div class="stats-grid animate-load delay-1">
+        <div class="stat-card">
+            <span class="stat-val txt-black">EULA</span>
+            <span class="stat-lbl">Формат Лицензии</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val txt-blue">152-ФЗ</span>
+            <span class="stat-lbl">Стандарт Данных</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val txt-orange">100%</span>
+            <span class="stat-lbl">Анонимность</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val">2026</span>
+            <span class="stat-lbl">Год Редакции</span>
+        </div>
+    </div>
+
+    <div class="insight-box animate-load delay-2">
+        <div class="insight-text">«Используя алгоритмы RYFT, вы получаете передовую спортивную математику. Однако ни один алгоритм не заменит квалифицированного тренера. Ваш прогресс — это ваша ответственность.»</div>
+    </div>
+
+    <div class="long-read animate-load delay-3">
+        <h2 style="color: var(--accent); font-size: 32px; letter-spacing: -1px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; display: block;">ПОЛЬЗОВАТЕЛЬСКОЕ СОГЛАШЕНИЕ (ПУБЛИЧНАЯ ОФЕРТА) СЕРВИСА «RYFT»</h2>
+        
+        <div class="lr-section">
+            <span class="lr-title">1. ТЕРМИНЫ И ОПРЕДЕЛЕНИЯ</span>
+            <p class="lr-text"><span class="lr-highlight">1.1.</span> Сервис «RYFT» (Сервис) — аппаратно-программный комплекс, включающий в себя Telegram-бота и интегрированное веб-приложение (Mini App), доступный в мессенджере Telegram, предназначенный для ведения спортивной статистики, расчета параметров плавания и взаимодействия спортсменов.</p>
+            <p class="lr-text"><span class="lr-highlight">1.2.</span> Администрация — правообладатель Сервиса «RYFT», обладающий всеми исключительными имущественными правами на него, осуществляющий управление Сервисом.</p>
+            <p class="lr-text"><span class="lr-highlight">1.3.</span> Пользователь — дееспособное физическое лицо, присоединившееся к настоящему Соглашению и использующее Сервис.</p>
+            <p class="lr-text"><span class="lr-highlight">1.4.</span> Профиль (Аккаунт) — учетная запись Пользователя, привязанная к его Telegram ID, содержащая спортивные и личные данные Пользователя.</p>
+            <p class="lr-text"><span class="lr-highlight">1.5.</span> Пользовательский контент — любая информация (текст, цифры, результаты, фото), вносимая Пользователем в Сервис.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">2. ОБЩИЕ ПОЛОЖЕНИЯ И ПРЕДМЕТ СОГЛАШЕНИЯ</span>
+            <p class="lr-text"><span class="lr-highlight">2.1.</span> Настоящее Соглашение является публичной офертой. Использование Сервиса Пользователем (отправка команды /start, запуск мини-приложения, ввод данных) признается полным, безусловным и безоговорочным акцептом (принятием) условий настоящего Соглашения.</p>
+            <p class="lr-text"><span class="lr-highlight">2.2.</span> По настоящему Соглашению Администрация предоставляет Пользователю простую (неисключительную), отзывную, безвозмездную (если не указано иное) лицензию на использование Сервиса на территории всего мира по его прямому назначению на условиях «как есть» (as is).</p>
+            <p class="lr-text"><span class="lr-highlight">2.3.</span> Если Пользователь не согласен хотя бы с одним пунктом настоящего Соглашения, он не имеет права использовать Сервис и обязан немедленно его покинуть.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">3. ПОРЯДОК РЕГИСТРАЦИИ И ИСПОЛЬЗОВАНИЯ СЕРВИСА</span>
+            <p class="lr-text"><span class="lr-highlight">3.1.</span> Идентификация и авторизация Пользователя происходят автоматически через инфраструктуру мессенджера Telegram путем получения уникального Telegram ID.</p>
+            <p class="lr-text"><span class="lr-highlight">3.2.</span> Для получения полного доступа к функциям Сервиса Администрация вправе устанавливать обязательные условия, включая, но не ограничиваясь: подписку на официальные информационные каналы Сервиса в Telegram.</p>
+            <p class="lr-text"><span class="lr-highlight">3.3.</span> В случае использования Сервиса лицом, не достигшим 14-летнего возраста, такое лицо подтверждает, что действует с прямого согласия своих законных представителей (родителей, опекунов) и под наблюдением квалифицированного тренера. Администрация не проверяет возраст Пользователей и не несет ответственности за использование Сервиса несовершеннолетними.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">4. ПРАВА И БЕЗОГОВОРОЧНЫЕ ПОЛНОМОЧИЯ АДМИНИСТРАЦИИ</span>
+            <p class="lr-text"><span class="lr-highlight">4.1.</span> Абсолютное право управления. Администрация вправе по своему единоличному усмотрению, в любое время, без предварительного уведомления и без объяснения причин:</p>
+            <p class="lr-text sub"><span class="lr-highlight">4.1.1.</span> Блокировать, ограничивать или приостанавливать доступ любого Пользователя к Сервису.</p>
+            <p class="lr-text sub"><span class="lr-highlight">4.1.2.</span> Удалять любые данные, результаты, таблицы ГПС или аккаунты Пользователей без возможности восстановления.</p>
+            <p class="lr-text sub"><span class="lr-highlight">4.1.3.</span> Вносить любые изменения в интерфейс, алгоритмы расчетов (включая формулы подсчета очков FINA, нормативов, пульсовых зон). Администрация не гарантирует, что новые алгоритмы будут совпадать с предыдущими.</p>
+            <p class="lr-text"><span class="lr-highlight">4.2.</span> Монетизация и реклама. Администрация оставляет за собой право в любой момент вводить платную подписку на определенные функции Сервиса, которые ранее были бесплатными, а также демонстрировать Пользователю рекламные и информационные материалы любых третьих лиц внутри Сервиса.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">5. ПРАВА И ОБЯЗАННОСТИ ПОЛЬЗОВАТЕЛЯ</span>
+            <p class="lr-text"><span class="lr-highlight">5.1.</span> Обязанности Пользователя:</p>
+            <p class="lr-text sub"><span class="lr-highlight">5.1.1.</span> Предоставлять при заполнении профиля достоверную информацию.</p>
+            <p class="lr-text sub"><span class="lr-highlight">5.1.2.</span> Не использовать Сервис для извлечения коммерческой выгоды, парсинга (автоматизированного сбора) данных других спортсменов, рассылки спама.</p>
+            <p class="lr-text sub"><span class="lr-highlight">5.1.3.</span> Не предпринимать действий, направленных на дестабилизацию работы серверов Сервиса, обход систем защиты, декомпиляцию программного кода или подделку результатов запросов к API.</p>
+            <p class="lr-text"><span class="lr-highlight">5.2.</span> Согласие на публичность. Пользователь осознает, что Сервис содержит функцию глобального поиска. Вводя свои данные (ФИО, разряд, школа, тренер, рекорды), Пользователь дает прямое согласие на то, что эти данные будут публично доступны другим Пользователям Сервиса.</p>
+            <p class="lr-text"><span class="lr-highlight">5.3.</span> Связка с тренером. Предоставляя доступ к своему профилю или таблицам ГПС другому Пользователю (выступающему в роли тренера), Пользователь принимает на себя все риски, связанные с передачей такой информации.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">6. ИНТЕЛЛЕКТУАЛЬНАЯ СОБСТВЕННОСТЬ</span>
+            <p class="lr-text"><span class="lr-highlight">6.1.</span> Все объекты, доступные в Сервисе, включая элементы дизайна, текст, графические изображения, скрипты, алгоритмы, базы данных нормативов, являются объектами исключительных прав Администрации.</p>
+            <p class="lr-text"><span class="lr-highlight">6.2.</span> Пользователь предоставляет Администрации неисключительное, безвозмездное, бессрочное право на использование, хранение, техническую обработку и публичное отображение любого Пользовательского контента (включая фото профиля и спортивные результаты) внутри Сервиса.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">7. ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ И ОГРАНИЧЕНИЕ ГАРАНТИЙ (DISCLAIMER)</span>
+            <p class="lr-text"><span class="lr-highlight">7.1.</span> Принцип «Как есть». Сервис предоставляется на условиях «AS IS». Администрация не дает никаких гарантий того, что Сервис будет функционировать бесперебойно, безошибочно, быстро, или что он будет отвечать ожиданиям Пользователя.</p>
+            <p class="lr-text"><span class="lr-highlight">7.2.</span> Медицинский и спортивный отказ от ответственности. Сервис является исключительно математическим и статистическим инструментом. Никакие данные, графики, таблицы Градиента падения скорости (ГПС), расчеты пульсовых зон или нормативы не могут расцениваться как медицинские диагнозы, тренерские указания или профессиональные спортивные рекомендации.</p>
+            <p class="lr-text"><span class="lr-highlight">7.3.</span> Отсутствие ответственности за здоровье. Администрация полностью снимает с себя любую ответственность за возможный вред здоровью, физические травмы, перетренированность, психологический ущерб, ухудшение спортивных результатов или финансовые убытки, понесенные Пользователем в результате использования данных, расчетов или рекомендаций Сервиса. Пользователь обязан осуществлять тренировочную деятельность исключительно под контролем сертифицированных тренеров и медицинских работников.</p>
+            <p class="lr-text"><span class="lr-highlight">7.4.</span> Отсутствие ответственности за данные и третьих лиц. Администрация не несет ответственности за:</p>
+            <p class="lr-text sub"><span class="lr-highlight">7.4.1.</span> Утерю Пользовательских данных в результате технических сбоев, хакерских атак или плановых обновлений Сервиса.</p>
+            <p class="lr-text sub"><span class="lr-highlight">7.4.2.</span> Сбои в работе мессенджера Telegram, провайдеров хостинга или интернет-сетей, из-за которых Сервис может быть недоступен.</p>
+            <p class="lr-text sub"><span class="lr-highlight">7.4.3.</span> Действия других Пользователей внутри Сервиса.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">8. ФОРС-МАЖОР И РАЗРЕШЕНИЕ СПОРОВ</span>
+            <p class="lr-text"><span class="lr-highlight">8.1.</span> Стороны освобождаются от ответственности за неисполнение обязательств по настоящему Соглашению, если оно явилось следствием обстоятельств непреодолимой силы (форс-мажор), включая, но не ограничиваясь: сбои в работе интернета, блокировки мессенджера Telegram государственными органами, хакерские атаки.</p>
+            <p class="lr-text"><span class="lr-highlight">8.2.</span> Все споры и разногласия решаются путем переписки со службой поддержки Сервиса. Обязательный срок ответа на претензию Пользователя составляет 60 (шестьдесят) календарных дней.</p>
+        </div>
+
+        <div class="lr-section" style="border-bottom: none;">
+            <span class="lr-title">9. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ</span>
+            <p class="lr-text"><span class="lr-highlight">9.1.</span> Настоящее Соглашение может быть изменено Администрацией в одностороннем порядке в любой момент. Новая редакция Соглашения вступает в силу немедленно с момента ее размещения в Сервисе или информационных каналах Сервиса.</p>
+            <p class="lr-text"><span class="lr-highlight">9.2.</span> Продолжение использования Сервиса после внесения изменений означает полное согласие Пользователя с новой редакцией Соглашения.</p>
+        </div>
+    </div>
+
+    <div class="metrics-container animate-load delay-4">
+        <h2 style="margin-top: 0; font-size: 24px;">Security & Privacy Standards</h2>
+        <p style="font-size: 14px; margin-bottom: 40px; color: var(--text-secondary);">Внутренние стандарты обработки данных Сервисом RYFT в соответствии с нормами конфиденциальности.</p>
+        
+        <div class="metric-item">
+            <div class="metric-header"><span>Прозрачность сбора данных</span><span>100%</span></div>
+            <div class="metric-track"><div class="metric-fill fill-blue" style="width: 100%;"></div></div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-header"><span>Передача сторонним маркетологам</span><span>0%</span></div>
+            <div class="metric-track"><div class="metric-fill fill-green" style="width: 0%;"></div></div>
+        </div>
+        <div class="metric-item">
+            <div class="metric-header"><span>Изоляция медицинских данных (не собираются)</span><span>100%</span></div>
+            <div class="metric-track"><div class="metric-fill fill-orange" style="width: 100%;"></div></div>
+        </div>
+    </div>
+
+    <div class="timeline-section animate-load delay-4">
+        <h3>Data Lifecycle Timeline</h3>
+        <div class="timeline-stream">
+            <div class="timeline-event">
+                <div class="timeline-dot"></div>
+                <span class="time-label">01 / Инициализация</span>
+                <div class="event-title">Авторизация Telegram</div>
+                <p class="event-desc">При запуске бота мы получаем только ваш базовый ID для создания защищенной ячейки в базе данных.</p>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-dot"></div>
+                <span class="time-label">02 / Наполнение</span>
+                <div class="event-title">Пользовательский Ввод</div>
+                <p class="event-desc">Вы самостоятельно решаете, какие данные (школа, город, тренер, рекорды) добавлять в свой профиль.</p>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-dot"></div>
+                <span class="time-label">03 / Интеграция</span>
+                <div class="event-title">Публичный Поиск & ГПС</div>
+                <p class="event-desc">Введенные данные формируют публичную карточку, доступную другим атлетам и вашему тренеру для работы с таблицами.</p>
+            </div>
+            <div class="timeline-event">
+                <div class="timeline-dot"></div>
+                <span class="time-label">04 / Уничтожение</span>
+                <div class="event-title">Право на забвение</div>
+                <p class="event-desc">По вашему запросу Администрации аккаунт и вся спортивная статистика стираются с серверов безвозвратно.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-wrap animate-load delay-5">
+        <h3 style="padding: 25px 30px 0; margin-bottom: 0;">Data Matrix Overview</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Категория Данных</th>
+                    <th>Тип Информации</th>
+                    <th>Публичность в Боте</th>
+                    <th>Назначение</th>
+                    <th>Статус Риска</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-dim">Технические</td>
+                    <td>Telegram ID, Username, Язык</td>
+                    <td class="td-dim">Скрыто</td>
+                    <td>Идентификация сессии</td>
+                    <td><span class="status-badge status-success">System</span></td>
+                </tr>
+                <tr>
+                    <td class="td-dim">Личные</td>
+                    <td class="td-highlight">ФИО, Возраст, Регион, Тренер</td>
+                    <td>Публично (Поиск)</td>
+                    <td>Формирование карточки</td>
+                    <td><span class="status-badge status-neutral">Public</span></td>
+                </tr>
+                <tr>
+                    <td class="td-dim">Спортивные</td>
+                    <td class="td-highlight">Рекорды, Разряды, Дистанции</td>
+                    <td>Публично (Поиск)</td>
+                    <td>Рейтинги и FINA очки</td>
+                    <td><span class="status-badge status-neutral">Public</span></td>
+                </tr>
+                <tr>
+                    <td class="td-dim">Аналитика</td>
+                    <td>Пульсовые зоны (ГПС), Сплиты</td>
+                    <td class="td-dim">Доступно Тренеру</td>
+                    <td>Спортивная математика</td>
+                    <td><span class="status-badge status-warning">Protected</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="long-read animate-load delay-5">
+        <h2 style="color: var(--accent); display: block; border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 40px; font-size: 26px;">ПОЛИТИКА ОБРАБОТКИ И ЗАЩИТЫ ПЕРСОНАЛЬНЫХ ДАННЫХ СЕРВИСА «RYFT»</h2>
+        
+        <div class="lr-section">
+            <span class="lr-title">1. ОБЩИЕ ПОЛОЖЕНИЯ</span>
+            <p class="lr-text"><span class="lr-highlight">1.1.</span> Настоящая Политика (далее — «Политика») определяет общие принципы, цели, порядок и условия обработки данных физических лиц (далее — «Пользователи»), использующих программный комплекс «RYFT», состоящий из Telegram-бота и веб-приложения (далее — «Сервис»).</p>
+            <p class="lr-text"><span class="lr-highlight">1.2.</span> Оператором данных выступает Администрация Сервиса (далее — «Оператор»).</p>
+            <p class="lr-text"><span class="lr-highlight">1.3.</span> Присоединение к Пользовательскому соглашению Сервиса и использование его функций означает безусловное согласие Пользователя с настоящей Политикой. В случае несогласия Пользователь обязан прекратить использование Сервиса.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">2. СОСТАВ СОБИРАЕМЫХ И ОБРАБАТЫВАЕМЫХ ДАННЫХ</span>
+            <p class="lr-text"><span class="lr-highlight">2.1.</span> Оператор осуществляет сбор и обработку следующих категорий данных:</p>
+            <p class="lr-text sub"><span class="lr-highlight">2.1.1.</span> Учетные (технические) данные: уникальный идентификатор Пользователя в системе Telegram (Telegram User ID), публичное имя пользователя (username), публичная фотография профиля Telegram, языковые настройки клиента, данные об устройстве, IP-адрес (в рамках сессий WebApp).</p>
+            <p class="lr-text sub"><span class="lr-highlight">2.1.2.</span> Сведения, предоставляемые Пользователем: имя и/или фамилия (или псевдоним), дата рождения, пол, регион и город проживания, название спортивной школы или клуба, ФИО тренера, спортивные квалификации и разряды, предпочитаемые стили плавания.</p>
+            <p class="lr-text sub"><span class="lr-highlight">2.1.3.</span> Спортивная статистика: внесенные Пользователем результаты (рекорды) на различных дистанциях, временные метрики, данные пульсовых зон, необходимые для построения таблиц Градиента падения скорости (ГПС).</p>
+            <p class="lr-text"><span class="lr-highlight">2.2.</span> Оператор исходит из того, что Пользователь предоставляет достоверные данные. Оператор не контролирует подлинность предоставленных данных и не несет ответственности за последствия предоставления ложной информации.</p>
+            <p class="lr-text"><span class="lr-highlight">2.3.</span> Отказ от сбора специальных категорий данных. Данные о пульсовых зонах, времени и интенсивности тренировок собираются исключительно в математических, статистических и развлекательных целях. Данная информация не классифицируется как данные о состоянии здоровья (медицинская тайна) согласно действующему законодательству о персональных данных, поскольку Сервис не осуществляет медицинскую деятельность, диагностику или лечение.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">3. ЦЕЛИ ОБРАБОТКИ ДАННЫХ</span>
+            <p class="lr-text"><span class="lr-highlight">3.1.</span> Обработка данных осуществляется в следующих исчерпывающих целях:</p>
+            <p class="lr-text sub"><span class="lr-highlight">3.1.1.</span> Предоставление Пользователю полного функционала Сервиса (ведение профиля, расчет очков FINA и прогресса).</p>
+            <p class="lr-text sub"><span class="lr-highlight">3.1.2.</span> Публикация карточки Пользователя в глобальном поиске Сервиса для обеспечения социального взаимодействия между спортсменами.</p>
+            <p class="lr-text sub"><span class="lr-highlight">3.1.3.</span> Обеспечение технической синхронизации данных между аккаунтами «Ученик» и «Тренер» для совместного ведения таблиц ГПС.</p>
+            <p class="lr-text sub"><span class="lr-highlight">3.1.4.</span> Проведение статистических и аналитических исследований на основе обезличенных данных для улучшения алгоритмов Сервиса.</p>
+            <p class="lr-text sub"><span class="lr-highlight">3.1.5.</span> Отправка Пользователю сервисных, информационных и рекламных уведомлений (push-уведомлений) через Telegram-бота.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">4. ПОРЯДОК И УСЛОВИЯ ОБРАБОТКИ ДАННЫХ</span>
+            <p class="lr-text"><span class="lr-highlight">4.1.</span> Обработка данных осуществляется с использованием средств автоматизации (сбор, запись, систематизация, накопление, хранение, извлечение, использование, блокирование, удаление).</p>
+            <p class="lr-text"><span class="lr-highlight">4.2.</span> Передача третьим лицам. Оператор вправе передавать данные Пользователя третьим лицам исключительно в следующих случаях:</p>
+            <p class="lr-text sub"><span class="lr-highlight">4.2.1.</span> Данные профиля становятся доступны другим Пользователям в рамках логики работы Сервиса (раздел «Поиск спортсменов»).</p>
+            <p class="lr-text sub"><span class="lr-highlight">4.2.2.</span> Передача необходима для технического функционирования Сервиса (например, поставщикам услуг облачного хостинга, серверов баз данных).</p>
+            <p class="lr-text sub"><span class="lr-highlight">4.2.3.</span> По мотивированному и законному требованию уполномоченных государственных органов.</p>
+            <p class="lr-text"><span class="lr-highlight">4.3.</span> Трансграничная передача. Поскольку Сервис функционирует на базе мессенджера Telegram и облачных серверов, Пользователь соглашается с тем, что его данные могут храниться и обрабатываться на серверах, находящихся за пределами его страны проживания.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">5. ЗАЩИТА ИНФОРМАЦИИ И СНЯТИЕ ОТВЕТСТВЕННОСТИ</span>
+            <p class="lr-text"><span class="lr-highlight">5.1.</span> Оператор предпринимает стандартные для индустрии технические меры для защиты данных от несанкционированного доступа.</p>
+            <p class="lr-text"><span class="lr-highlight">5.2.</span> Тем не менее, Оператор не гарантирует абсолютную безопасность передачи данных через сеть Интернет и инфраструктуру сторонних мессенджеров. Оператор не несет ответственности за утечки данных, произошедшие вследствие программных уязвимостей, хакерских атак или действий третьих лиц.</p>
+        </div>
+
+        <div class="lr-section">
+            <span class="lr-title">6. ИЗМЕНЕНИЕ И УДАЛЕНИЕ ДАННЫХ</span>
+            <p class="lr-text"><span class="lr-highlight">6.1.</span> Пользователь имеет право самостоятельно изменять, обновлять или скрывать часть своих данных, используя интерфейс мини-приложения Сервиса (режим редактирования профиля).</p>
+            <p class="lr-text"><span class="lr-highlight">6.2.</span> Для полного удаления своего аккаунта и безвозвратного уничтожения спортивной статистики Пользователь обязан направить соответствующий запрос Администрации Сервиса.</p>
+            <p class="lr-text"><span class="lr-highlight">6.3.</span> Оператор осуществляет удаление данных в разумные сроки после получения запроса. При этом Оператор сохраняет за собой право бессрочно хранить обезличенные статистические агрегированные данные, по которым невозможно идентифицировать конкретного Пользователя.</p>
+        </div>
+
+        <div class="lr-section" style="border-bottom: none;">
+            <span class="lr-title">7. ОБРАТНАЯ СВЯЗЬ</span>
+            <p class="lr-text"><span class="lr-highlight">7.1.</span> По вопросам, связанным с настоящей Политикой конфиденциальности, запросами на удаление данных или сообщениями об ошибках, Пользователь может обратиться к Администрации Сервиса по следующим контактам:</p>
+            <p class="lr-text sub">Telegram для связи: <strong>@knoooox</strong></p>
+            <p class="lr-text sub">Официальное сообщество Сервиса: <strong>https://t.me/ryft_hub</strong></p>
+        </div>
+    </div>
+
+    <div class="cta-section animate-load delay-6">
+        <h2 style="margin-top: 0; font-size: 32px; letter-spacing: -1px; color: var(--text-primary);">AGREE & CONTINUE</h2>
+        <p style="margin-bottom: 40px; color: var(--text-secondary); max-width: 600px; margin-left: auto; margin-right: auto;">Если вы прочитали правила платформы и согласны с ними, вы можете вернуться в Telegram и начать загружать свои спортивные рекорды.</p>
+        <a href="https://t.me/RyftAppBot" class="cta-btn">
+            ПОДТВЕРДИТЬ И ОТКРЫТЬ RYFT
+        </a>
+    </div>
+
+    <footer class="animate-load delay-5">
+        <div class="footer-logo">RYFT | LEGAL <span style="color: var(--accent);">© 2026</span></div>
+        <div class="footer-sub">Privacy • Protection • Performance</div>
+    </footer>
+
+</div>
+
+</body>
+</html>
