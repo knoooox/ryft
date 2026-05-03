@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>RYFT</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="base.css?v=26.0">
+    <link rel="stylesheet" href="layout.css?v=26.0">
+    <link rel="stylesheet" href="screens.css?v=26.0">
+</head>
+<body class="tab-calc-active">
+
+    <div id="ban-overlay" style="display: none; position: fixed; inset: 0; z-index: 999999; background: var(--bg-base); flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 59, 48, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <h2 style="color: #fff; font-size: 24px; font-weight: 900; margin-bottom: 10px; letter-spacing: -0.5px;">ДОСТУП ЗАКРЫТ</h2>
+        <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5; max-width: 300px;">Ваш аккаунт был заблокирован администратором платформы.</p>
+    </div>
+
+    <div id="maintenance-overlay" style="display: none; position: fixed; inset: 0; z-index: 999999; background: var(--bg-base); flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+        </div>
+        <h2 style="color: #fff; font-size: 24px; font-weight: 900; margin-bottom: 10px; letter-spacing: -0.5px;">СИСТЕМА ОСТАНОВЛЕНА</h2>
+        <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5; max-width: 300px;">Ведутся технические работы. Скоро мы вернемся!</p>
+    </div>
+
+    <div class="scene-fx"></div>
+    <div class="noise-layer"></div>
+    <div class="input-spotlight-backdrop"></div>
+
+    <div class="app-container">
+        <main id="main-content">
+
+            <div id="calc-screen" class="screen">
+                <section class="fina-section">
+                    <div class="fina-wrapper" id="fina-container">
+                        <div class="fina-number" id="fina-value" onclick="app.enableReverseMode()">0</div>
+                        <input type="tel" class="fina-input-field" id="fina-input" maxlength="4" onblur="app.confirmReverseCalc()" onkeydown="if(event.key === 'Enter') app.confirmReverseCalc()">
+                    </div>
+                    <div class="fina-badge" id="rank-badge">NO DATA</div>
+                    <div id="world-record">WR: 00:00.00</div>
+                </section>
+
+                <section class="controls-section">
+                    <div class="tabs-row">
+                        <div class="segment-container" id="gender-switch" data-state="0">
+                            <div class="segment-glider"></div>
+                            <div class="segment-btn active" onclick="app.setGender('male')">МУЖ</div>
+                            <div class="segment-btn" onclick="app.setGender('female')">ЖЕН</div>
+                        </div>
+                        <div class="segment-container" id="pool-switch" data-state="0">
+                            <div class="segment-glider"></div>
+                            <div class="segment-btn active" onclick="app.setPool('25')">25M</div>
+                            <div class="segment-btn" onclick="app.setPool('50')">50M</div>
+                        </div>
+                    </div>
+
+                    <div class="wheels-container" id="wheels-container">
+                        <div class="picker-column" id="style-wheel">
+                            <div class="picker-highlight"></div>
+                            <div class="picker-scroll-area" id="style-scroll"></div>
+                        </div>
+                        <div class="picker-column" id="dist-wheel">
+                            <div class="picker-highlight"></div>
+                            <div class="picker-scroll-area" id="dist-scroll"></div>
+                        </div>
+                    </div>
+
+                    <div class="time-input-wrapper">
+                        <input type="tel" class="time-field" id="inp-min" placeholder="00" maxlength="2">
+                        <span class="time-divider">:</span>
+                        <input type="tel" class="time-field" id="inp-sec" placeholder="00" maxlength="2">
+                        <span class="time-divider">.</span>
+                        <input type="tel" class="time-field" id="inp-ms" placeholder="00" maxlength="2">
+                        <button type="button" class="clear-btn icon-btn-circular" id="btn-clear" onclick="app.clearInputs()" aria-label="Clear">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <button type="button" class="btn-norms btn-base" onclick="app.openSheet()">Нормативы</button>
+                </section>
+            </div>
+
+            <div id="profile-screen" class="screen">
+                <div id="p-bg-blur" class="profile-bg-blur"></div>
+                <div id="profile-loader"><div class="spinner"></div></div>
+
+                <div class="profile-header-content">
+                    <div class="avatar-wrapper" onclick="app.openPhotoViewer()">
+                        <div class="avatar-image" id="p-avatar"></div>
+                        <div class="avatar-controls" id="p-avatar-controls">
+                            <button type="button" class="avatar-btn edit" onclick="event.stopPropagation(); document.getElementById('photo-upload').click()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            </button>
+                            <button type="button" class="avatar-btn delete" id="p-btn-del-photo" onclick="event.stopPropagation(); app.deletePhoto()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                        <input type="file" id="photo-upload" accept="image/jpeg, image/png" style="display:none" onchange="app.initCropper(event)">
+                    </div>
+
+                    <div class="profile-name-row">
+                        <div class="profile-fullname" id="p-fullname">ИМЯ ФАМИЛИЯ</div>
+
+                        <div id="p-premium-badge" class="premium-badge-icon premium-sparkle-container" onclick="premiumApp.openPromoModal()">
+                            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+                                <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <input type="text" class="bento-input input-base" id="i-fullname" placeholder="Фамилия Имя">
+
+                    <div id="premium-bio-block" class="premium-bio-block">
+                        <div id="p-bio-text" class="premium-bio-text"></div>
+                        <textarea id="i-bio" class="premium-edit-input premium-bio-input" maxlength="120" placeholder="Расскажите о себе (до 120 символов)..." oninput="premiumApp.updateCharCount()"></textarea>
+                        <div id="p-bio-counter" class="bio-counter">0/120</div>
+                    </div>
+
+                    <div id="premium-social-block" class="premium-social-block">
+                        <a id="s-vk" href="#" target="_blank" class="social-btn vk">
+                            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path transform="translate(-0.5, 1.5)" d="m23.456 5.784c-.27.849-.634 1.588-1.09 2.259l.019-.03q-.672 1.12-1.605 2.588-.8 1.159-.847 1.2c-.138.173-.234.385-.267.618l-.001.007c.027.212.125.397.268.535l.4.446q3.21 3.299 3.611 4.548c.035.092.055.198.055.309 0 .194-.062.373-.167.52l.002-.003c-.176.181-.422.293-.694.293-.03 0-.061-.001-.09-.004h.004-2.631c-.001 0-.003 0-.005 0-.337 0-.647-.118-.89-.314l.003.002c-.354-.291-.669-.606-.951-.948l-.009-.012q-.691-.781-1.226-1.315-1.782-1.694-2.63-1.694c-.021-.002-.045-.003-.07-.003-.165 0-.319.051-.446.138l.003-.002c-.104.13-.167.298-.167.479 0 .036.002.07.007.105v-.004c-.027.314-.043.679-.043 1.048 0 .119.002.237.005.355v-.017 1.159c.01.047.016.101.016.156 0 .242-.11.458-.282.601l-.001.001c-.387.177-.839.281-1.316.281-.102 0-.202-.005-.301-.014l.013.001c-1.574-.03-3.034-.491-4.275-1.268l.035.02c-1.511-.918-2.763-2.113-3.717-3.525l-.027-.042c-.906-1.202-1.751-2.56-2.471-3.992l-.07-.154c-.421-.802-.857-1.788-1.233-2.802l-.06-.185c-.153-.456-.264-.986-.31-1.535l-.002-.025q0-.758.892-.758h2.63c.024-.002.052-.003.081-.003.248 0 .477.085.658.228l-.002-.002c.2.219.348.488.421.788l.003.012c.484 1.367.997 2.515 1.587 3.615l-.067-.137c.482.97 1.015 1.805 1.623 2.576l-.023-.031q.8.982 1.248.982c.009.001.02.001.032.001.148 0 .277-.08.347-.2l.001-.002c.074-.19.117-.411.117-.641 0-.049-.002-.098-.006-.146v.006-3.879c-.021-.457-.133-.884-.32-1.267l.008.019c-.124-.264-.273-.492-.45-.695l.003.004c-.164-.164-.276-.379-.311-.619l-.001-.006c0-.17.078-.323.2-.423l.001-.001c.121-.111.283-.178.46-.178h.008 4.146c.022-.003.047-.004.073-.004.195 0 .37.088.486.226l.001.001c.103.188.164.413.164.651 0 .038-.002.075-.005.112v-.005 5.173c-.002.024-.003.052-.003.08 0 .184.051.357.139.504l-.002-.004c.073.108.195.178.333.178h.001c.176-.012.336-.07.471-.162l-.003.002c.272-.187.506-.4.709-.641l.004-.005c.607-.686 1.167-1.444 1.655-2.25l.039-.07c.344-.57.716-1.272 1.053-1.993l.062-.147.446-.892c.155-.446.571-.76 1.06-.76.019 0 .038 0 .057.001h-.003 2.631q1.066 0 .8.981z"/></svg>
+                        </a>
+                        <a id="s-tg" href="#" target="_blank" class="social-btn tg">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path transform="translate(-1, 1)" fill="#ffffff" d="M41.4193 7.30899C41.4193 7.30899 45.3046 5.79399 44.9808 9.47328C44.8729 10.9883 43.9016 16.2908 43.1461 22.0262L40.5559 39.0159C40.5559 39.0159 40.3401 41.5048 38.3974 41.9377C36.4547 42.3705 33.5408 40.4227 33.0011 39.9898C32.5694 39.6652 24.9068 34.7955 22.2086 32.4148C21.4531 31.7655 20.5897 30.4669 22.3165 28.9519L33.6487 18.1305C34.9438 16.8319 36.2389 13.8019 30.8426 17.4812L15.7331 27.7616C15.7331 27.7616 14.0063 28.8437 10.7686 27.8698L3.75342 25.7055C3.75342 25.7055 1.16321 24.0823 5.58815 22.459C16.3807 17.3729 29.6555 12.1786 41.4193 7.30899Z"/></svg>
+                        </a>
+                        <a id="s-inst" href="#" target="_blank" class="social-btn inst">
+                            <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/></svg>
+                        </a>
+                        <a id="s-tiktok" href="#" target="_blank" class="social-btn tiktok">
+                            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path transform="translate(0, 0.5)" d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"/></svg>
+                        </a>
+                    </div>
+
+                    <div id="premium-social-edit" class="social-edit-grid">
+                        <button type="button" class="social-btn social-edit-trigger vk" id="edit-vk" onclick="premiumApp.openSocialEditor('vk')">
+                            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path transform="translate(-0.5, 1.5)" d="m23.456 5.784c-.27.849-.634 1.588-1.09 2.259l.019-.03q-.672 1.12-1.605 2.588-.8 1.159-.847 1.2c-.138.173-.234.385-.267.618l-.001.007c.027.212.125.397.268.535l.4.446q3.21 3.299 3.611 4.548c.035.092.055.198.055.309 0 .194-.062.373-.167.52l.002-.003c-.176.181-.422.293-.694.293-.03 0-.061-.001-.09-.004h.004-2.631c-.001 0-.003 0-.005 0-.337 0-.647-.118-.89-.314l.003.002c-.354-.291-.669-.606-.951-.948l-.009-.012q-.691-.781-1.226-1.315-1.782-1.694-2.63-1.694c-.021-.002-.045-.003-.07-.003-.165 0-.319.051-.446.138l.003-.002c-.104.13-.167.298-.167.479 0 .036.002.07.007.105v-.004c-.027.314-.043.679-.043 1.048 0 .119.002.237.005.355v-.017 1.159c.01.047.016.101.016.156 0 .242-.11.458-.282.601l-.001.001c-.387.177-.839.281-1.316.281-.102 0-.202-.005-.301-.014l.013.001c-1.574-.03-3.034-.491-4.275-1.268l.035.02c-1.511-.918-2.763-2.113-3.717-3.525l-.027-.042c-.906-1.202-1.751-2.56-2.471-3.992l-.07-.154c-.421-.802-.857-1.788-1.233-2.802l-.06-.185c-.153-.456-.264-.986-.31-1.535l-.002-.025q0-.758.892-.758h2.63c.024-.002.052-.003.081-.003.248 0 .477.085.658.228l-.002-.002c.2.219.348.488.421.788l.003.012c.484 1.367.997 2.515 1.587 3.615l-.067-.137c.482.97 1.015 1.805 1.623 2.576l-.023-.031q.8.982 1.248.982c.009.001.02.001.032.001.148 0 .277-.08.347-.2l.001-.002c.074-.19.117-.411.117-.641 0-.049-.002-.098-.006-.146v.006-3.879c-.021-.457-.133-.884-.32-1.267l.008.019c-.124-.264-.273-.492-.45-.695l.003.004c-.164-.164-.276-.379-.311-.619l-.001-.006c0-.17.078-.323.2-.423l.001-.001c.121-.111.283-.178.46-.178h.008 4.146c.022-.003.047-.004.073-.004.195 0 .37.088.486.226l.001.001c.103.188.164.413.164.651 0 .038-.002.075-.005.112v-.005 5.173c-.002.024-.003.052-.003.08 0 .184.051.357.139.504l-.002-.004c.073.108.195.178.333.178h.001c.176-.012.336-.07.471-.162l-.003.002c.272-.187.506-.4.709-.641l.004-.005c.607-.686 1.167-1.444 1.655-2.25l.039-.07c.344-.57.716-1.272 1.053-1.993l.062-.147.446-.892c.155-.446.571-.76 1.06-.76.019 0 .038 0 .057.001h-.003 2.631q1.066 0 .8.981z"/></svg>
+                        </button>
+                        <button type="button" class="social-btn social-edit-trigger tg" id="edit-tg" onclick="premiumApp.openSocialEditor('tg')">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path transform="translate(-1, 1)" fill="#ffffff" d="M41.4193 7.30899C41.4193 7.30899 45.3046 5.79399 44.9808 9.47328C44.8729 10.9883 43.9016 16.2908 43.1461 22.0262L40.5559 39.0159C40.5559 39.0159 40.3401 41.5048 38.3974 41.9377C36.4547 42.3705 33.5408 40.4227 33.0011 39.9898C32.5694 39.6652 24.9068 34.7955 22.2086 32.4148C21.4531 31.7655 20.5897 30.4669 22.3165 28.9519L33.6487 18.1305C34.9438 16.8319 36.2389 13.8019 30.8426 17.4812L15.7331 27.7616C15.7331 27.7616 14.0063 28.8437 10.7686 27.8698L3.75342 25.7055C3.75342 25.7055 1.16321 24.0823 5.58815 22.459C16.3807 17.3729 29.6555 12.1786 41.4193 7.30899Z"/></svg>
+                        </button>
+                        <button type="button" class="social-btn social-edit-trigger inst" id="edit-inst" onclick="premiumApp.openSocialEditor('inst')">
+                            <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/></svg>
+                        </button>
+                        <button type="button" class="social-btn social-edit-trigger tiktok" id="edit-tiktok" onclick="premiumApp.openSocialEditor('tiktok')">
+                            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path transform="translate(0, 0.5)" d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"/></svg>
+                        </button>
+                        <input type="hidden" id="i-vk">
+                        <input type="hidden" id="i-tg">
+                        <input type="hidden" id="i-inst">
+                        <input type="hidden" id="i-tiktok">
+                    </div>
+
+                    <button type="button" class="profile-search-pill btn-base" id="btn-open-search" onclick="app.openSearch()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <span>Найти спортсмена</span>
+                    </button>
+                </div>
+
+                <div class="profile-actions-row">
+                    <button type="button" class="p-btn btn-base" id="p-btn-gps" onclick="gpsApp.open()">ГПС</button>
+                    <button type="button" class="p-btn btn-base" id="p-btn-rec" onclick="recordsApp.open()">РЕКОРДЫ</button>
+
+                    <button type="button" class="p-btn btn-base" id="p-btn-my-athletes" onclick="app.openMyAthletes()" style="display: none;">МОИ СПОРТСМЕНЫ</button>
+
+                    <button type="button" class="p-btn primary btn-base" id="p-btn-edit" onclick="app.toggleEditMode()">
+                        <span id="p-btn-edit-text">РЕДАКТИРОВАТЬ</span>
+                    </button>
+
+                    <button type="button" class="p-btn primary btn-base" id="p-btn-toggle-role" onclick="app.toggleViewerRole()" style="display: none;">
+                        <span id="p-btn-toggle-text">АККАУНТ ТРЕНЕРА</span>
+                    </button>
+
+                    <button type="button" class="p-btn primary btn-base" id="p-btn-share" onclick="app.openShareModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>
+                    </button>
+                </div>
+
+                <div style="padding: 0 20px;">
+                    <button type="button" class="info-toggle-btn" id="btn-toggle-info" onclick="app.toggleProfileInfo()">
+                        <span>Информация о спортсмене</span>
+                        <svg class="info-toggle-icon" id="info-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="p-fields-wrapper" class="info-accordion-wrapper collapsed">
+                    <div class="info-accordion-inner">
+                        <div class="bento-grid" id="p-fields-container">
+
+                            <div class="bento-box coach-only-block" style="display: none;">
+                                <div class="bento-header">
+                                    <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                    <div class="bento-label">Стаж работы</div>
+                                </div>
+                                <div class="bento-value" id="t-career-time">Не указано</div>
+                                <div class="bento-sub" id="t-career-start"></div>
+                                <input type="tel" class="bento-input input-base" id="i-career-start" placeholder="ДД.ММ.ГГГГ" oninput="app.formatDOBInput(this)">
+                            </div>
+
+                            <div class="bento-box coach-only-block" style="display: none;">
+                                <div class="bento-header">
+                                    <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                    <div class="bento-label">Ученики</div>
+                                </div>
+                                <div class="bento-value" id="t-athletes-count">0</div>
+                                <div class="bento-sub">Привязано аккаунтов</div>
+                            </div>
+
+                            <div class="bento-box athlete-only-block">
+                                <div class="bento-header">
+                                    <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                                    <div class="bento-label">Спортивный разряд</div>
+                                </div>
+                                <div class="bento-value" id="t-rank">Не указано</div>
+                                <div class="custom-select-btn" id="btn-sel-rank" onclick="app.openCustomSelect('rank')">
+                                    <span id="disp-rank">Выбрать</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                            </div>
+
+                            <div class="bento-box athlete-only-block">
+                                <div class="bento-header">
+                                    <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                                    <div class="bento-label">Стиль / Дистанция</div>
+                                </div>
+                                <div class="bento-value" id="t-style-dist">Не указано</div>
+                                <div class="custom-select-btn" id="btn-sel-style" onclick="app.openCustomSelect('style')">
+                                    <span id="disp-style">Стиль</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                                <div class="custom-select-btn" id="btn-sel-distance" onclick="app.openCustomSelect('distance')">
+                                    <span id="disp-distance">Метры</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                            </div>
+
+                            <div class="bento-box full-width">
+                                <div class="bento-header">
+                                    <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    <div class="bento-label">Возраст и дата рождения</div>
+                                </div>
+                                <div class="bento-value" id="t-age">Не указано</div>
+                                <div class="bento-sub" id="t-dob"></div>
+                                <input type="tel" class="bento-input input-base" id="i-dob" placeholder="ДД.ММ.ГГГГ" oninput="app.formatDOBInput(this)">
+                            </div>
+
+                            <div class="bento-box full-width">
+                                <div class="bento-header">
+                                    <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                    <div class="bento-label">Локация / Бассейн</div>
+                                </div>
+                                <div class="bento-value" id="t-city">Не указано</div>
+                                <div class="bento-sub" id="t-school"></div>
+
+                                <div class="custom-select-btn" id="btn-sel-city" onclick="app.openCustomSelect('city')" style="margin-bottom: 8px;">
+                                    <span id="disp-city">Город / Регион</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                                <input type="text" class="bento-input input-base" id="i-city" placeholder="Регион, Город" style="margin-bottom: 8px;">
+
+                                <div class="custom-select-btn" id="btn-sel-school" onclick="app.openCustomSelect('school')">
+                                    <span id="disp-school">Спортивная школа / Бассейн</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                                <input type="text" class="bento-input input-base" id="i-school" placeholder="Спортивная Школа (Бассейн)">
+                            </div>
+
+                            <div class="bento-box full-width athlete-only-block">
+                                <div class="bento-header">
+                                    <svg class="bento-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                    <div class="bento-label">Тренер (ФИО)</div>
+                                </div>
+                                <div class="bento-value" id="t-coach">Не указано</div>
+                                <input type="text" class="bento-input input-base" id="i-coach" placeholder="Иванов И.И.">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-screen" class="screen">
+                <div class="settings-header">
+                    <div class="s-avatar" id="st-avatar"></div>
+                    <div class="s-name" id="st-name">Пользователь</div>
+                    <div class="s-id-copy" onclick="app.copyUserId()">
+                        <div class="s-id" id="st-id">ID: —</div>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </div>
+
+                    <div id="st-acc-switcher-container" style="display: none;">
+                        <button type="button" class="s-acc-switcher btn-base" id="st-btn-switch-role" onclick="app.toggleCoachMode()">
+                            <span id="st-switcher-text">Перейти в аккаунт Тренера</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tg-group-title">ПРИВАТНОСТЬ (ДЛЯ ДРУГИХ)</div>
+                <div class="tg-list">
+                    <div class="tg-item">
+                        <div class="tg-item-text">Скрыть таблицу ГПС</div>
+                        <label class="tg-switch">
+                            <input type="checkbox" id="st-gps-hidden" onchange="app.updateServerSettings()">
+                            <span class="tg-slider"></span>
+                        </label>
+                    </div>
+                    <div class="tg-item">
+                        <div class="tg-item-text">Скрыть Рекорды</div>
+                        <label class="tg-switch">
+                            <input type="checkbox" id="st-rec-hidden" onchange="app.updateServerSettings()">
+                            <span class="tg-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="tg-group-title">ИНТЕРФЕЙС</div>
+                <div class="tg-list">
+                    <div class="tg-item" onclick="app.openSettingsSelect('startScreen')">
+                        <div class="tg-item-text">Стартовый экран</div>
+                        <div class="tg-item-val"><span id="st-val-screen">Калькулятор</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+                    </div>
+                    <div class="tg-item" onclick="app.openSettingsSelect('wheelStyle')">
+                        <div class="tg-item-text">Вид барабанов</div>
+                        <div class="tg-item-val"><span id="st-val-wheel">Горизонтальные</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+                    </div>
+                </div>
+
+                <div class="tg-group-title">ТРЕНЕР</div>
+                <div class="tg-list">
+                    <div class="tg-item" onclick="app.openCoachModal()">
+                        <div class="tg-item-text">Добавить тренера</div>
+                        <div class="tg-item-val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+                    </div>
+                </div>
+
+                <div class="tg-group-title">ОТОБРАЖЕНИЕ НОРМАТИВОВ</div>
+                <div class="tg-list" id="st-ranks-list"></div>
+
+                <div class="tg-group-title">О ПРИЛОЖЕНИИ</div>
+                <div class="tg-list">
+                    <div class="tg-item" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/ryft_support')">
+                        <div class="tg-item-text">Служба поддержки</div>
+                        <div class="tg-item-val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+                    </div>
+                    <div class="tg-item" onclick="window.Telegram.WebApp.openLink('https://app.ryft-official.ru/legal')">
+                        <div class="tg-item-text">Пользовательское соглашение</div>
+                        <div class="tg-item-val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px; opacity: 0.3; font-size: 11px; font-weight: 800; letter-spacing: 1px;">
+                    RYFT
+                </div>
+            </div>
+
+            <div id="admin-screen" class="screen">
+                <div class="admin-header">
+                    <div class="s-avatar admin-avatar" id="adm-avatar"></div>
+                    <div class="admin-title">АДМИН-ПАНЕЛЬ</div>
+                    <div class="admin-subtitle">Управление системой</div>
+                </div>
+
+                <div id="adm-main-view" style="display: flex; flex-direction: column; width: 100%;">
+
+                    <div class="tg-group-title">СТАТИСТИКА БАЗЫ</div>
+                    <div class="admin-stats-grid">
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-label">Всего юзеров</div>
+                            <div class="admin-stat-value" id="adm-total">-</div>
+                        </div>
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-label">Заполнено</div>
+                            <div class="admin-stat-value" id="adm-cards">-</div>
+                        </div>
+                    </div>
+
+                    <div class="tg-group-title">ИНСТРУМЕНТЫ</div>
+                    <div class="tg-list">
+                        <div class="tg-item" onclick="adminApp.openAccessControl()">
+                            <div class="tg-item-text" style="color: var(--danger); font-weight: 800;">Бан-лист и доступ</div>
+                            <div class="tg-item-val admin-tool-meta"><span id="adm-banned" class="admin-count-pill">-</span> <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+                        </div>
+                        <div class="tg-item" onclick="adminApp.runScan()">
+                            <div class="tg-item-text" id="adm-scan-label" style="font-weight: 800;">Сканировать базу</div>
+                            <div class="tg-item-val admin-scan-pill" id="adm-scan-val">ЗАПУСК</div>
+                        </div>
+                    </div>
+
+                    <div class="tg-group-title">СИСТЕМА</div>
+                    <div class="tg-list" style="margin-bottom: 40px;">
+                        <div class="tg-item">
+                            <div class="tg-item-text" style="font-weight: 800;">Технические работы</div>
+                            <label class="tg-switch">
+                                <input type="checkbox" id="adm-maintenance-toggle" onchange="adminApp.toggleMaintenance(this.checked)">
+                                <span class="tg-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="adm-search-view" style="display: none; flex-direction: column; width: 100%; height: 100%;">
+                    <div class="search-header">
+                        <button type="button" class="search-back-btn icon-btn-circular" onclick="adminApp.closeAccessControl()" aria-label="Назад">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <div class="search-input-wrapper">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="admin-search-input" placeholder="Поиск или ID..." oninput="adminApp.onSearch(this.value)">
+                            <button type="button" class="search-clear" onclick="adminApp.clearSearch()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="search-results" id="admin-search-results" style="padding-top: 10px;"></div>
+                </div>
+            </div>
+
+        </main>
+
+        <nav class="bottom-nav">
+            <button type="button" class="nav-tab" data-tab="admin" onclick="app.switchTab('admin')" style="display: none;">
+                <div class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <span>Админ</span>
+            </button>
+
+            <button type="button" class="nav-tab active" data-tab="calc" onclick="app.switchTab('calc')">
+                <div class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line>
+                    </svg>
+                </div>
+                <span>Расчет</span>
+            </button>
+
+            <button type="button" class="nav-tab" data-tab="profile" onclick="app.switchTab('profile')">
+                <div class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <span>Профиль</span>
+            </button>
+
+            <button type="button" class="nav-tab" data-tab="settings" onclick="app.switchTab('settings')">
+                <div class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </div>
+                <span>Настройки</span>
+            </button>
+        </nav>
+    </div>
+
+    <div id="gender-modal" class="center-modal">
+        <div class="gender-dialog modal-dialog">
+            <h2>Добро пожаловать!</h2>
+            <p>Для корректного расчета нормативов FINA, пожалуйста, укажите ваш пол.</p>
+            <div class="gender-btn-row">
+                <button type="button" class="gender-btn btn-base male" onclick="app.saveInitialGender('male')">МУЖЧИНА</button>
+                <button type="button" class="gender-btn btn-base female" onclick="app.saveInitialGender('female')">ЖЕНЩИНА</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="select-sheet-backdrop" id="s-backdrop" onclick="app.closeCustomSelect()"></div>
+    <div class="select-sheet" id="s-sheet">
+        <div class="s-sheet-header">
+            <div class="s-sheet-handle"></div>
+            <div class="s-sheet-title" id="s-title">Выбор</div>
+            <div class="s-sheet-search" id="s-search-container" style="display: none;">
+                <input type="text" id="s-search-input" class="s-search-input-inner" placeholder="Поиск..." oninput="app.onSheetSearch(this.value)">
+            </div>
+        </div>
+        <div class="s-sheet-list" id="s-list"></div>
+    </div>
+
+    <div id="photo-viewer-modal" class="center-modal" onclick="app.closePhotoViewer()">
+        <div class="viewer-image-container" onclick="event.stopPropagation()">
+            <button type="button" class="viewer-close-btn icon-btn-circular" onclick="app.closePhotoViewer()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <img id="viewer-image" class="viewer-image" src="" alt="Photo">
+        </div>
+    </div>
+
+    <div id="cropper-modal" class="center-modal">
+        <div class="cropper-area"><img id="cropper-image" src="" alt=""></div>
+
+        <div class="cropper-floating-island">
+            <button type="button" class="icon-btn-circular crop-action-btn cancel" onclick="app.closeCropper()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+
+            <span class="crop-hint">Сдвиньте фото</span>
+
+            <button type="button" class="icon-btn-circular crop-action-btn apply" onclick="app.applyCrop()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="sheet-backdrop" id="backdrop"></div>
+    <div class="sheet" id="sheet">
+        <div class="sheet-header">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title">НОРМАТИВЫ</div>
+            <div class="sheet-subtitle" id="sheet-sub"></div>
+        </div>
+        <div class="sheet-scroll" id="norms-list"></div>
+    </div>
+
+    <div id="search-modal">
+        <div class="search-header">
+            <div class="search-input-wrapper input-base">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="search-input" placeholder="Имя, @username или ID..." oninput="app.onSearchInput(this.value)">
+                <button type="button" class="search-clear icon-btn-circular" onclick="document.getElementById('search-input').value=''; app.onSearchInput('')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <button type="button" class="search-back-btn icon-btn-circular" onclick="app.closeSearch()" aria-label="Назад">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+        </div>
+        <div class="search-results" id="search-results"></div>
+    </div>
+
+    <div class="sheet-backdrop" id="records-backdrop" onclick="recordsApp.close()"></div>
+    <div class="sheet" id="records-sheet">
+        <div class="sheet-header sheet-header-compact">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title-row">
+                <div class="sheet-title" style="margin: 0; text-align: left;">РЕКОРДЫ</div>
+                <button type="button" id="rec-btn-edit" class="rec-edit-toggle icon-btn-circular" onclick="recordsApp.toggleEdit()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+            </div>
+            <div class="sheet-filters-row">
+                <div class="segment-container records-pool-switch" id="rec-pool-switch" data-state="0">
+                    <div class="segment-glider"></div>
+                    <div class="segment-btn active" onclick="recordsApp.setPool('25')">25M</div>
+                    <div class="segment-btn" onclick="recordsApp.setPool('50')">50M</div>
+                </div>
+                <div class="custom-select-btn records-style-btn" id="rec-btn-style" onclick="recordsApp.openStyleSelect()">                    <span id="rec-disp-style">Вольный</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+            </div>
+        </div>
+        <div class="sheet-scroll" id="records-list"></div>
+    </div>
+
+    <div class="sheet-backdrop" id="gps-backdrop" onclick="gpsApp.close()"></div>
+    <div class="sheet" id="gps-sheet">
+        <div class="sheet-header sheet-header-compact">
+            <div class="sheet-handle"></div>
+            <div class="sheet-title-row">
+                <div class="sheet-title" style="margin: 0; text-align: left;">ТАБЛИЦА ГПС</div>
+                <div class="custom-select-btn gps-distance-btn" id="gps-btn-dist" onclick="gpsApp.openDistanceSelect()"><span id="gps-disp-dist">50 м</span>                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+            </div>
+            <div id="gps-header-info" style="display: none; width: 100%; margin-top: 15px;"></div>
+        </div>
+        <div class="sheet-scroll" id="gps-list"></div>
+    </div>
+
+    <div id="sub-modal" class="center-modal">
+        <div class="sub-dialog modal-dialog">
+            <h2>⚠️ Доступ ограничен</h2>
+            <p>Чтобы пользоваться функциями приложения RYFT, пожалуйста, подпишитесь на наш канал.</p>
+            <button type="button" class="p-btn btn-base" style="width: 100%; height: auto; padding: 18px; font-size: 14px; border-radius: 20px; margin-bottom: 12px;" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/ryft_hub')">Перейти в канал</button>
+            <button type="button" class="p-btn primary btn-base" style="width: 100%; height: auto; padding: 18px; font-size: 14px; border-radius: 20px;" onclick="app.verifySubscription(true)">Готово</button>
+        </div>
+    </div>
+
+    <div id="coach-modal" class="center-modal">
+        <div class="coach-dialog modal-dialog">
+            <h2>Добавить тренера</h2>
+            <p>Введите Telegram ID вашего тренера, чтобы он получил доступ к вашей статистике.</p>
+
+            <div class="coach-input-group">
+                <label>Ваш Telegram ID</label>
+                <input type="text" class="input-base" id="coach-f-athlete-id" readonly>
+            </div>
+            <div class="coach-input-group">
+                <label>Ваши Фамилия и Имя</label>
+                <input type="text" class="input-base" id="coach-f-athlete-name" placeholder="Иванов Иван">
+            </div>
+            <div class="coach-input-group">
+                <label>ID Тренера</label>
+                <input type="tel" class="input-base" id="coach-f-coach-id" placeholder="Например: 123456789">
+                <div class="input-hint">Тренер может узнать свой ID в нашем приложении, зайдя в настройки.</div>
+            </div>
+
+            <button type="button" class="p-btn primary btn-base" style="width: 100%; padding: 16px; font-size: 14px; border-radius: 16px; margin-top: 10px;" onclick="app.submitCoachLink()">СВЯЗАТЬ АККАУНТЫ</button>
+            <button type="button" class="p-btn btn-base" style="width: 100%; padding: 14px; margin-top: 8px; border: none; background: transparent;" onclick="app.closeCoachModal()">Отмена</button>
+        </div>
+    </div>
+
+    <div id="social-editor-modal" class="center-modal" onclick="premiumApp.closeSocialEditor()">
+        <div class="modal-dialog social-editor-dialog" onclick="event.stopPropagation()">
+            <div class="modal-header-row">
+                <h2 id="social-editor-title">Соцсеть</h2>
+                <button type="button" class="modal-close-btn icon-btn-circular" onclick="premiumApp.closeSocialEditor()" aria-label="Закрыть">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="social-editor-field">
+                <input type="url" id="social-editor-input" class="social-editor-input input-base" placeholder="https://...">
+            </div>
+            <div class="social-editor-actions">
+                <button type="button" class="p-btn primary btn-base" onclick="premiumApp.saveSocialEditor()">Сохранить</button>
+                <button type="button" class="p-btn modal-btn-ghost btn-base" onclick="premiumApp.closeSocialEditor()">Отмена</button>
+                <button type="button" class="p-btn modal-btn-danger btn-base" id="social-editor-delete" onclick="premiumApp.deleteSocialEditor()">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="share-modal" class="center-modal" onclick="app.closeShareModal()">
+        <div class="modal-dialog share-modal-dialog" onclick="event.stopPropagation()">
+            <div class="modal-header-row">
+                <h2>Мой профиль</h2>
+                <button class="modal-close-btn icon-btn-circular" onclick="app.closeShareModal()" aria-label="Закрыть">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+
+            <div class="share-qr-frame">
+                <canvas id="qr-canvas" width="200" height="200" style="display: block; border-radius: 8px;"></canvas>
+            </div>
+
+            <div class="share-link-card">
+
+                <div id="share-link-read" class="share-link-read">
+                    <div id="share-link-text" class="share-link-text">ryft.ru/...</div>
+                    <div class="share-link-actions">
+                        <button id="btn-edit-share-link" onclick="app.toggleShareEditMode()" class="icon-btn-circular">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                        <button id="btn-copy-share-link" onclick="app.copyProfileLink()" class="icon-btn-circular btn-solid-white">
+                        </button>
+                    </div>
+                </div>
+
+                <div id="share-link-edit" class="share-link-edit">
+                    <div class="share-link-input-wrap">
+                        <span class="share-link-prefix">ryft.ru/</span>
+                        <input type="text" id="i-custom-link" maxlength="20" class="share-link-input" placeholder="твой_линк">
+                    </div>
+                    <button class="p-btn btn-base primary" onclick="app.saveShareLink()">СОХРАНИТЬ</button>
+                </div>
+            </div>
+
+            <button type="button" class="p-btn btn-base primary share-send-btn" onclick="app.shareToTelegram()">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path transform="translate(-1, 1)" fill="var(--text-inverse)" d="M41.4193 7.30899C41.4193 7.30899 45.3046 5.79399 44.9808 9.47328C44.8729 10.9883 43.9016 16.2908 43.1461 22.0262L40.5559 39.0159C40.5559 39.0159 40.3401 41.5048 38.3974 41.9377C36.4547 42.3705 33.5408 40.4227 33.0011 39.9898C32.5694 39.6652 24.9068 34.7955 22.2086 32.4148C21.4531 31.7655 20.5897 30.4669 22.3165 28.9519L33.6487 18.1305C34.9438 16.8319 36.2389 13.8019 30.8426 17.4812L15.7331 27.7616C15.7331 27.7616 14.0063 28.8437 10.7686 27.8698L3.75342 25.7055C3.75342 25.7055 1.16321 24.0823 5.58815 22.459C16.3807 17.3729 29.6555 12.1786 41.4193 7.30899Z"/></svg>
+                ПЕРЕСЛАТЬ В TELEGRAM
+            </button>
+        </div>
+    </div>
+
+    <div class="sheet-backdrop" id="premium-promo-backdrop" onclick="premiumApp.closePromoModal()"></div>
+    <div class="sheet premium-promo-sheet" id="premium-promo-sheet">
+        <div class="sheet-header" style="padding-bottom: 0;">
+            <div class="sheet-handle"></div>
+            <div class="premium-promo-header">
+                <div class="premium-promo-star-wrapper" id="promo-star-wrapper" onclick="premiumApp.bounceStar()">
+                    <svg class="premium-promo-star pulse-glow" id="promo-star-svg" width="80" height="80" viewBox="0 0 24 24" fill="rgba(255, 255, 255, 0.9)" stroke="rgba(255, 255, 255, 1)" stroke-width="0.5"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg>
+                </div>
+                <div class="sheet-title" style="margin-top: 16px; margin-bottom: 8px;">RYFT PREMIUM</div>
+                <div class="sheet-subtitle" id="premium-promo-desc" style="text-transform: none; font-size: 13px; letter-spacing: 0; line-height: 1.4; color: var(--text-secondary);">Пользователь имеет эксклюзивный доступ к множеству дополнительных функций.</div>
+            </div>
+        </div>
+
+        <div class="sheet-scroll" style="padding-top: 24px;">
+            <div class="premium-feature-list">
+                <div class="premium-feature-item" style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center;">
+                    <div class="premium-feature-icon glass-panel" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    </div>
+                    <div class="premium-feature-text">
+                        <div class="premium-feature-title" style="font-weight: 800; font-size: 15px;">Блок соцсетей</div>
+                        <div class="premium-feature-desc" style="font-size: 13px; color: var(--text-secondary);">Кликабельные ссылки на ВК, Telegram, Instagram и TikTok.</div>
+                    </div>
+                </div>
+                <div class="premium-feature-item" style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center;">
+                    <div class="premium-feature-icon glass-panel" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
+                    <div class="premium-feature-text">
+                        <div class="premium-feature-title" style="font-weight: 800; font-size: 15px;">О себе (Bio)</div>
+                        <div class="premium-feature-desc" style="font-size: 13px; color: var(--text-secondary);">Уникальное описание профиля и ваших личных достижений.</div>
+                    </div>
+                </div>
+                <div class="premium-feature-item" style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center;">
+                    <div class="premium-feature-icon glass-panel" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    </div>
+                    <div class="premium-feature-text">
+                        <div class="premium-feature-title" style="font-weight: 800; font-size: 15px;">Уникальная ссылка</div>
+                        <div class="premium-feature-desc" style="font-size: 13px; color: var(--text-secondary);">Короткая и красивая ссылка на профиль (ryft.ru/твой_ник).</div>
+                    </div>
+                </div>
+                <div class="premium-feature-item" style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center;">
+                    <div class="premium-feature-icon glass-panel" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="7" y="7" width="3" height="3"></rect><rect x="14" y="7" width="3" height="3"></rect><rect x="7" y="14" width="3" height="3"></rect><rect x="14" y="14" width="3" height="3"></rect></svg>
+                    </div>
+                    <div class="premium-feature-text">
+                        <div class="premium-feature-title" style="font-weight: 800; font-size: 15px;">Именной QR-код</div>
+                        <div class="premium-feature-desc" style="font-size: 13px; color: var(--text-secondary);">Стильный QR-код для быстрого шеринга вашего профиля.</div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="p-btn btn-base premium-close-btn" onclick="premiumApp.closePromoModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" defer></script>
+
+    <script src="config.js?v=26.0" defer></script>
+    <script src="ui.js?v=26.0" defer></script>
+    <script src="calc.js?v=26.0" defer></script>
+    <script src="profile.js?v=26.0" defer></script>
+    <script src="premium.js?v=26.0" defer></script>
+    <script src="wheel.js?v=26.0" defer></script>
+    <script src="records.js?v=26.0" defer></script>
+    <script src="gps.js?v=26.0" defer></script>
+    <script src="admin.js?v=26.0" defer></script>
+    <script src="app.js?v=26.0" defer></script>
+</body>
+</html>
