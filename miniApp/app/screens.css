@@ -1671,3 +1671,39 @@ body.input-focused .rec-card:has(.input-spotlight-active) .rec-card-body {
 }
 
 /* END OF screens.css */
+
+/* --- 2026-05 polish fixes --- */
+.admin-header { padding-top: calc(var(--safe-top) + 34px) !important; padding-bottom: 18px !important; }
+#adm-avatar.admin-avatar { width: 126px !important; height: 126px !important; border: 2px solid rgba(255,255,255,.3)!important; }
+#adm-main-view .admin-tool-meta { align-items: center; }
+#adm-banned.admin-count-pill { display:inline-flex; align-items:center; justify-content:center; }
+#adm-top-section { gap: 14px !important; }
+#adm-scan-btn { min-height: 52px !important; }
+#adm-scan-val { min-height: 42px; display:flex !important; align-items:center; justify-content:center; white-space:normal !important; text-align:center; }
+
+.clear-btn { width: 40px !important; height: 40px !important; margin-left: 8px !important; }
+.time-input-wrapper { gap: 6px !important; }
+.picker-column, .picker-column.vertical { border-radius: 20px !important; }
+.picker-highlight { border-left-color: rgba(255,255,255,.15)!important; border-right-color: rgba(255,255,255,.15)!important; }
+.picker-column.vertical .picker-highlight { border-top-color: rgba(255,255,255,.15)!important; border-bottom-color: rgba(255,255,255,.15)!important; }
+
+#photo-viewer-modal .viewer-close-btn { top: 14px !important; right: 14px !important; }
+
+.records-style-btn, .gps-distance-btn { height: 48px !important; border-radius: 16px !important; }
+.records-style-btn svg, .gps-distance-btn svg { transition: transform var(--duration-normal) var(--ease-fluid); }
+.records-style-btn.is-open svg, .gps-distance-btn.is-open svg { transform: rotate(180deg); }
+
+.rec-edit-block { flex-wrap: wrap; row-gap: 10px; }
+.rec-edit-inputs-col { flex: 1 1 100%; min-width: 0; }
+.rec-time-inputs { width: 100%; justify-content: center; }
+
+.social-edit-grid { order: 3; margin: 14px 0 16px !important; }
+.premium-bio-block { order: 2; }
+.profile-actions-row { order: 4; }
+
+.custom-select-footer-btn { border-radius: 14px !important; min-height: 48px; }
+
+.search-header { padding-top: calc(var(--search-dynamic-top) - 6px) !important; }
+.search-input-wrapper { height: 42px !important; }
+
+.modal-btn-ghost { border: 1px solid var(--border-dim) !important; background: var(--bg-surface) !important; }

@@ -126,6 +126,7 @@ const gpsApp = {
         }
 
         this.renderContent();
+        this.dom.btnDist?.classList.remove('is-open');
     },
 
     setDistance(val) {
@@ -138,6 +139,7 @@ const gpsApp = {
         if (sheet) sheet.classList.remove('active');
 
         this.renderContent();
+        this.dom.btnDist?.classList.remove('is-open');
     },
 
     openDistanceSelect() {
@@ -176,6 +178,7 @@ const gpsApp = {
             list.appendChild(div);
         });
 
+        this.dom.btnDist?.classList.add('is-open');
         requestAnimationFrame(() => {
             backdrop.classList.add('active');
             sheet.classList.add('active');

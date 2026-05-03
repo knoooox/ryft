@@ -147,6 +147,7 @@ const app = {
 
         const root = document.documentElement;
         const focusableSelector = 'input:not([type="hidden"]), textarea';
+        const skipLiftSelectors = ['#search-input', '#adm-ban-search'];
         const containerSelector = [
             '.time-input-wrapper',
             '.fina-wrapper',
@@ -184,11 +185,14 @@ const app = {
             const vv = window.visualViewport;
             const visibleBottom = (vv ? vv.height + vv.offsetTop : window.innerHeight) - 24;
             const rect = (activeContainer || activeField).getBoundingClientRect();
-            const lift = Math.max(0, Math.min(220, Math.ceil(rect.bottom - visibleBottom)));
+            const shouldSkipLift = skipLiftSelectors.some((sel) => activeField.matches(sel));
+            const lift = shouldSkipLift ? 0 : Math.max(0, Math.min(220, Math.ceil(rect.bottom - visibleBottom)));
+            const shouldHideNav = keyboardHeight > 60 && !shouldSkipLift;
 
             root.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
             root.style.setProperty('--spotlight-lift', `${lift}px`);
-            document.body.classList.add('input-focused', 'keyboard-open');
+            document.body.classList.add('input-focused');
+            document.body.classList.toggle('keyboard-open', shouldHideNav);
         };
 
         document.addEventListener('focusin', (event) => {
@@ -214,6 +218,12 @@ const app = {
 
         window.visualViewport?.addEventListener('resize', () => requestAnimationFrame(updateFocusState));
         window.visualViewport?.addEventListener('scroll', () => requestAnimationFrame(updateFocusState));
+
+        const spotlightBackdrop = document.querySelector('.input-spotlight-backdrop');
+        spotlightBackdrop?.addEventListener('click', () => {
+            if (activeField) activeField.blur();
+            clearFocusState();
+        });
     },
 
     async fetchLocations() {

@@ -111,6 +111,7 @@ const recordsApp = {
         if (sheet) sheet.classList.remove('active');
 
         this.renderRecords();
+        this.dom.btnStyle?.classList.remove('is-open');
     },
 
     openStyleSelect() {
@@ -145,6 +146,7 @@ const recordsApp = {
             list.appendChild(div);
         });
 
+        this.dom.btnStyle?.classList.add('is-open');
         requestAnimationFrame(() => { backdrop.classList.add('active'); sheet.classList.add('active'); });
         if (typeof app !== 'undefined') app.haptic('light');
     },
@@ -315,7 +317,7 @@ const recordsApp = {
                             <div class="rec-time-div">.</div>
                             <input type="tel" class="rec-time-field" id="rec-ms-${dist}" placeholder="00" maxlength="2" value="${ms}">
                         </div>
-                        <input type="tel" class="rec-date-field" id="rec-date-${dist}" placeholder="ДД.ММ.ГГГГ" maxlength="10" value="${record?.date_best || ''}">
+                        
                     </div>
 
                     <button class="rec-save-btn" onclick="recordsApp.saveRecord('${dist}')">
@@ -334,7 +336,6 @@ const recordsApp = {
         const iMin = div.querySelector(`#rec-min-${dist}`);
         const iSec = div.querySelector(`#rec-sec-${dist}`);
         const iMs = div.querySelector(`#rec-ms-${dist}`);
-        const iDate = div.querySelector(`#rec-date-${dist}`);
 
         const setupTimeInput = (el, nextEl, prevEl) => {
             if (!el) return;
@@ -355,17 +356,6 @@ const recordsApp = {
         setupTimeInput(iSec, iMs, iMin);
         setupTimeInput(iMs, null, iSec);
 
-        if (iDate) {
-            iDate.addEventListener('input', (e) => {
-                let v = e.target.value.replace(/[^\d]/g, '');
-                if (v.length > 8) v = v.slice(0, 8);
-                if (v.length >= 5) e.target.value = `${v.slice(0,2)}.${v.slice(2,4)}.${v.slice(4)}`;
-                else if (v.length >= 3) e.target.value = `${v.slice(0,2)}.${v.slice(2)}`;
-                else e.target.value = v;
-            });
-            iDate.addEventListener('focus', () => { div.classList.add('input-focused'); });
-            iDate.addEventListener('blur', () => { div.classList.remove('input-focused'); });
-        }
 
         return div;
     },
@@ -374,7 +364,7 @@ const recordsApp = {
         const minStr = document.getElementById(`rec-min-${dist}`)?.value || '0';
         const secStr = document.getElementById(`rec-sec-${dist}`)?.value || '0';
         const msStr = document.getElementById(`rec-ms-${dist}`)?.value || '0';
-        let dateStr = document.getElementById(`rec-date-${dist}`)?.value;
+let dateStr = this.formatDate(new Date().toLocaleDateString('ru-RU'));
 
         const m = parseInt(minStr) || 0;
         const s = parseInt(secStr) || 0;
@@ -387,11 +377,6 @@ const recordsApp = {
             return;
         }
 
-        dateStr = this.formatDate(dateStr);
-        if (dateStr === "Error") {
-            this.tg?.showAlert("Некорректная дата! Формат: ДД.ММ.ГГГГ");
-            return;
-        }
 
         if (typeof app !== 'undefined') app.haptic('medium');
 
